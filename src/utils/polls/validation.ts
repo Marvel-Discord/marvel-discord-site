@@ -2,7 +2,7 @@ import type { Poll } from "@jocasta-polls-api";
 
 export interface ValidationResult {
   isValid: boolean;
-  errors: string[];
+  errors: Map<Poll, string[]>;
 }
 
 export function validatePoll(
@@ -68,7 +68,7 @@ export function validatePoll(
 
   return {
     isValid: errors.length === 0,
-    errors,
+    errors: new Map([[poll, errors]]),
   };
 }
 
@@ -76,7 +76,7 @@ export function validatePolls(
   polls: Poll[],
   originalPolls?: Poll[]
 ): ValidationResult {
-  const allErrors: string[] = [];
+  const allErrors = new Map<Poll, string[]>();
   let hasInvalidPolls = false;
 
   for (const poll of polls) {
@@ -85,15 +85,10 @@ export function validatePolls(
     const result = validatePoll(poll, originalPoll);
     if (!result.isValid) {
       hasInvalidPolls = true;
-      // Add poll-specific errors with poll identifier
-      const pollIdentifier = poll.question?.trim()
-        ? `"${poll.question.trim()}"`
-        : poll.id < 0
-        ? "New poll"
-        : `Poll ${poll.id}`;
-      result.errors.forEach((error) => {
-        allErrors.push(`${pollIdentifier}: ${error}`);
-      });
+      // Merge the errors from this poll into the main Map
+      for (const [poll, errors] of result.errors) {
+        allErrors.set(poll, errors);
+      }
     }
   }
 

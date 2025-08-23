@@ -1,9 +1,13 @@
-import { Button, Card, Flex, Text } from "@radix-ui/themes";
-import { PencilIcon } from "lucide-react";
+import { Button, Card, Flex, Heading, Text } from "@radix-ui/themes";
+import { PencilIcon, TriangleAlert } from "lucide-react";
 import styled from "styled-components";
+import type { Poll } from "@jocasta-polls-api";
 
 const CardStyle = styled(Card)`
+  width: fit-content;
   z-index: 1000;
+
+  --card-background-color: var(--gray-4);
 `;
 
 const ButtonStyle = styled(Button)`
@@ -11,8 +15,19 @@ const ButtonStyle = styled(Button)`
   transition: color 0.2s ease-in-out;
 `;
 
+const ErrorHeader = styled.h1`
+  align-items: center;
+  color: var(--red-11);
+  display: flex;
+  font-size: var(--font-size-4);
+  gap: 0.2rem;
+`;
+
+const ErrorPollHeader = styled.h1`
+  font-size: var(--font-size-2);
+`;
+
 const ErrorText = styled(Text)`
-  color: var(--red-9);
   font-size: var(--font-size-1);
 `;
 
@@ -22,7 +37,7 @@ interface EditButtonProps {
   hasChanges?: boolean;
   text?: string;
   canSave?: boolean;
-  validationErrors?: string[];
+  validationErrors?: Map<Poll, string[]>;
 }
 
 export default function EditButton({
@@ -31,7 +46,7 @@ export default function EditButton({
   hasChanges = false,
   text,
   canSave = true,
-  validationErrors = [],
+  validationErrors = new Map(),
 }: EditButtonProps) {
   if (!editModeEnabled) {
     return (
@@ -48,8 +63,36 @@ export default function EditButton({
   }
 
   return (
-    <CardStyle>
-      <Flex direction="column" gap="2">
+    <Flex align={"end"} gap="2" direction="column">
+      {validationErrors.size > 0 && (
+        <CardStyle>
+          <Flex direction="column" gap="1">
+            <ErrorHeader>
+              <TriangleAlert size={18} />
+              Validation Errors
+            </ErrorHeader>
+            {Array.from(validationErrors.entries()).flatMap(
+              ([erroredPoll, errors]) => (
+                <Flex key={erroredPoll.id} direction="column" gap="0.5">
+                  <ErrorPollHeader>
+                    {erroredPoll.question?.trim()
+                      ? erroredPoll.question.trim()
+                      : erroredPoll.id < 0
+                      ? "New poll"
+                      : `Poll ${erroredPoll.id}`}
+                  </ErrorPollHeader>
+                  {errors.map((error: string, index: number) => (
+                    <ErrorText key={`${erroredPoll.id}-${index}`}>
+                      {error}
+                    </ErrorText>
+                  ))}
+                </Flex>
+              )
+            )}
+          </Flex>
+        </CardStyle>
+      )}
+      <CardStyle>
         <Flex gap="2" align="center">
           {text && <Text>{text}</Text>}
           <ButtonStyle
@@ -71,14 +114,7 @@ export default function EditButton({
             Save changes
           </ButtonStyle>
         </Flex>
-        {validationErrors.length > 0 && (
-          <Flex direction="column" gap="1">
-            {validationErrors.map((error, index) => (
-              <ErrorText key={index}>{error}</ErrorText>
-            ))}
-          </Flex>
-        )}
-      </Flex>
-    </CardStyle>
+      </CardStyle>
+    </Flex>
   );
 }

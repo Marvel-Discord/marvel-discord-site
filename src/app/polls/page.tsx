@@ -13,7 +13,14 @@ import {
 } from "@/components/polls/poll";
 import { PollSearchType, updateUrlParameters } from "@/utils";
 import { PollsSearch } from "@/components/polls/search";
-import { Suspense, useEffect, useMemo, useState } from "react";
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useAuthContext } from "@/contexts/AuthProvider";
 import { useDebounce } from "@/utils/debouncer";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -120,7 +127,7 @@ function PollsContent({ skeletons }: { skeletons?: React.ReactNode[] }) {
   const [editModeEnabled, setEditModeEnabled] = useState<boolean>(false);
   const [validationResult, setValidationResult] = useState<ValidationResult>({
     isValid: true,
-    errors: [],
+    errors: new Map(),
   });
 
   const [searchValue, setSearchValue] = useState<string>(
@@ -146,24 +153,62 @@ function PollsContent({ skeletons }: { skeletons?: React.ReactNode[] }) {
 
   const debouncedSearchValue = useDebounce(searchValue, 500);
 
-  // Create a validation key that changes when poll content changes
-  const validationKey = useMemo(() => {
-    if (!editModeEnabled) return "";
-    return editablePolls
-      .filter(
-        (poll) =>
-          poll.id < 0 ||
-          editedPolls.some((edited) => edited.poll.id === poll.id)
-      )
-      .map(
-        (poll) =>
-          `${poll.id}-${poll.question}-${poll.choices.join(",")}-${poll.tag}`
-      )
-      .join("|");
-  }, [editablePolls, editedPolls, editModeEnabled]);
+  // Ref to track validation timeout
+  const validationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Function to validate polls on demand (e.g., on blur)
+  const validateCurrentPolls = useCallback(() => {
+    if (!editModeEnabled) {
+      setValidationResult({ isValid: true, errors: new Map() });
+      return;
+    }
+
+    // Validate all polls that are being edited (including new polls)
+    const pollsToValidate = editablePolls.filter((poll) => {
+      // Include new polls (negative IDs) or polls that are in the edited list
+      return (
+        poll.id < 0 || editedPolls.some((edited) => edited.poll.id === poll.id)
+      );
+    });
+
+    if (pollsToValidate.length === 0) {
+      setValidationResult({ isValid: true, errors: new Map() });
+      return;
+    }
+
+    // Get original polls for comparison (for published poll validation)
+    const originalPolls = polls.filter((poll) =>
+      pollsToValidate.some((p) => p.id === poll.id)
+    );
+
+    const result = validatePolls(pollsToValidate, originalPolls);
+    setValidationResult(result);
+  }, [editModeEnabled, editablePolls, editedPolls, polls]);
+
+  // Debounced validation to avoid lag during typing
+  const debouncedValidation = useCallback(() => {
+    // Clear existing timeout
+    if (validationTimeoutRef.current) {
+      clearTimeout(validationTimeoutRef.current);
+    }
+
+    // Set new timeout
+    validationTimeoutRef.current = setTimeout(() => {
+      validateCurrentPolls();
+    }, 1000);
+  }, [validateCurrentPolls]);
 
   useEffect(() => {
     setEditModeEnabled(false);
+  }, []);
+
+  // Cleanup validation timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (validationTimeoutRef.current) {
+        clearTimeout(validationTimeoutRef.current);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -272,7 +317,7 @@ function PollsContent({ skeletons }: { skeletons?: React.ReactNode[] }) {
     if (!editModeEnabled) {
       setEditedPolls([]);
       setEditablePolls([]);
-      setValidationResult({ isValid: true, errors: [] });
+      setValidationResult({ isValid: true, errors: new Map() });
       return;
     }
 
@@ -288,34 +333,12 @@ function PollsContent({ skeletons }: { skeletons?: React.ReactNode[] }) {
     setEditablePolls(newEditablePolls);
   }, [editModeEnabled, polls]);
 
-  // Validate polls whenever the validation key changes
+  // Validate polls when entering edit mode
   useEffect(() => {
-    if (!editModeEnabled) {
-      setValidationResult({ isValid: true, errors: [] });
-      return;
+    if (editModeEnabled) {
+      validateCurrentPolls();
     }
-
-    // Validate all polls that are being edited (including new polls)
-    const pollsToValidate = editablePolls.filter((poll) => {
-      // Include new polls (negative IDs) or polls that are in the edited list
-      return (
-        poll.id < 0 || editedPolls.some((edited) => edited.poll.id === poll.id)
-      );
-    });
-
-    if (pollsToValidate.length === 0) {
-      setValidationResult({ isValid: true, errors: [] });
-      return;
-    }
-
-    // Get original polls for comparison (for published poll validation)
-    const originalPolls = polls.filter((poll) =>
-      pollsToValidate.some((p) => p.id === poll.id)
-    );
-
-    const result = validatePolls(pollsToValidate, originalPolls);
-    setValidationResult(result);
-  }, [validationKey, editModeEnabled, editablePolls, editedPolls, polls]);
+  }, [editModeEnabled, validateCurrentPolls]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: Reset whenever they change
   useEffect(() => {
@@ -405,6 +428,9 @@ function PollsContent({ skeletons }: { skeletons?: React.ReactNode[] }) {
       // Update the existing entry
       return prev.map((p) => (p.poll.id === poll.id ? { poll, state } : p));
     });
+
+    // Trigger debounced validation after changes
+    debouncedValidation();
   };
 
   const dataExists =
