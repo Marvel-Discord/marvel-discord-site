@@ -108,7 +108,7 @@ function PollsContent({ skeletons }: { skeletons?: React.ReactNode[] }) {
   const { guilds } = useGuildsFormatted();
   const { user } = useAuthContext();
   const { userVotes } = useUserVotesFormatted(user?.id);
-  
+
   const voteMutation = useVote();
 
   const [editablePolls, setEditablePolls] = useState<Poll[]>([]);
@@ -150,7 +150,8 @@ function PollsContent({ skeletons }: { skeletons?: React.ReactNode[] }) {
 
   // Use polls query for search mode
   const pollsQuery = usePolls({
-    search: searchType === PollSearchType.SEARCH ? debouncedSearchValue : undefined,
+    search:
+      searchType === PollSearchType.SEARCH ? debouncedSearchValue : undefined,
     tag: selectedTag ?? undefined,
     user: userFilter,
     published: filterState !== FilterState.UNPUBLISHED,
@@ -168,11 +169,14 @@ function PollsContent({ skeletons }: { skeletons?: React.ReactNode[] }) {
     if (searchType === PollSearchType.ID) {
       return pollQuery.data ? [pollQuery.data] : [];
     }
-    return pollsQuery.data?.pages.flatMap(page => page.polls) ?? [];
+    return pollsQuery.data?.pages.flatMap((page) => page.polls) ?? [];
   }, [pollsQuery.data, pollQuery.data, searchType]);
 
   const meta = pollsQuery.data?.pages?.[pollsQuery.data.pages.length - 1]?.meta;
-  const isLoading = searchType === PollSearchType.SEARCH ? pollsQuery.isFetching : pollQuery.isFetching;
+  const isLoading =
+    searchType === PollSearchType.SEARCH
+      ? pollsQuery.isFetching
+      : pollQuery.isFetching;
 
   useEffect(() => {
     setEditModeEnabled(false);
@@ -239,7 +243,7 @@ function PollsContent({ skeletons }: { skeletons?: React.ReactNode[] }) {
 
   const setUserVote = (pollId: number, choice: number | undefined) => {
     if (!user) return;
-    
+
     voteMutation.mutate({
       pollId,
       userId: user.id,
@@ -332,11 +336,18 @@ function PollsContent({ skeletons }: { skeletons?: React.ReactNode[] }) {
             <InfiniteScroll
               dataLength={polls.length}
               next={() => {
-                if (searchType === PollSearchType.SEARCH && pollsQuery.hasNextPage) {
+                if (
+                  searchType === PollSearchType.SEARCH &&
+                  pollsQuery.hasNextPage
+                ) {
                   pollsQuery.fetchNextPage();
                 }
               }}
-              hasMore={searchType === PollSearchType.SEARCH ? pollsQuery.hasNextPage ?? false : false}
+              hasMore={
+                searchType === PollSearchType.SEARCH
+                  ? pollsQuery.hasNextPage ?? false
+                  : false
+              }
               loader={<LoadingText>Loading...</LoadingText>}
               style={{
                 overflow: "visible",

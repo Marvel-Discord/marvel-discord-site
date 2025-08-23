@@ -465,7 +465,7 @@ export function Choices({
 
     voteTimeout.current = setTimeout(() => {
       if (!user) return;
-      
+
       voteMutation.mutate({
         pollId: poll.id,
         userId: user.id,

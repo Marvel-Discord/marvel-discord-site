@@ -19,7 +19,7 @@ export function QueryProvider({ children }: QueryProviderProps) {
             gcTime: 1000 * 60 * 10, // 10 minutes (garbage collection time)
             retry: (failureCount, error) => {
               // Don't retry on 401/403 errors
-              if (error && typeof error === 'object' && 'response' in error) {
+              if (error && typeof error === "object" && "response" in error) {
                 const axiosError = error as { response?: { status?: number } };
                 const status = axiosError.response?.status;
                 if (status === 401 || status === 403) {

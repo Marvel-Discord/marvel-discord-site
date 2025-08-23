@@ -24,17 +24,15 @@ export function useGuild(guildId?: string) {
 // Hook to get guilds in a more convenient format (Record)
 export function useGuildsFormatted() {
   const { data: guilds, ...queryResult } = useGuilds();
-  
+
   const formattedGuilds = useMemo(() => {
     if (!guilds) {
       return {} as Record<string, PollInfo>;
     }
-    
-    return Object.fromEntries(
-      guilds.map((guild) => [guild.guild_id, guild])
-    );
+
+    return Object.fromEntries(guilds.map((guild) => [guild.guild_id, guild]));
   }, [guilds]);
-  
+
   return {
     guilds: formattedGuilds,
     ...queryResult,

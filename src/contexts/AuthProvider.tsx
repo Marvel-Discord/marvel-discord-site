@@ -40,11 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [user, refetch, handleSignOut, isLoading, signOutMutation.isPending]
   );
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export const useAuthContext = () => useContext(AuthContext);

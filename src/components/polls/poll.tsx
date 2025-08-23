@@ -11,12 +11,7 @@ import {
 } from "@radix-ui/themes";
 import styled from "styled-components";
 import { Choices, ChoicesSkeleton } from "./choices";
-import {
-  useMemo,
-  useRef,
-  useState,
-  type ComponentProps,
-} from "react";
+import { useMemo, useRef, useState, type ComponentProps } from "react";
 import { PollCardHeader, PollCardHeaderSkeleton } from "./cardHeader";
 import { useIsMobile } from "@/utils/isMobile";
 import {
@@ -323,7 +318,7 @@ export function PollCard({
       : EditState.NONE;
 
     updatePoll?.(updatedPoll, currentState);
-  }
+  };
 
   function handleQuestionChange(question: string) {
     const trimmed = trimRunningStringSingleLine(question);

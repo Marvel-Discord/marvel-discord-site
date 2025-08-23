@@ -28,11 +28,7 @@ export const TagProvider = ({ children }: TagProviderProps) => {
     [tags, tagsOrder, isLoading, error]
   );
 
-  return (
-    <TagContext.Provider value={value}>
-      {children}
-    </TagContext.Provider>
-  );
+  return <TagContext.Provider value={value}>{children}</TagContext.Provider>;
 };
 
 export const useTagContext = () => useContext(TagContext);

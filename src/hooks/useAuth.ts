@@ -10,7 +10,7 @@ export function useAuth() {
     staleTime: 1000 * 60 * 10, // 10 minutes
     retry: (failureCount, error) => {
       // Don't retry on 401 errors (user not authenticated)
-      if (error && typeof error === 'object' && 'response' in error) {
+      if (error && typeof error === "object" && "response" in error) {
         const axiosError = error as { response?: { status?: number } };
         if (axiosError.response?.status === 401) {
           return false;
@@ -23,7 +23,7 @@ export function useAuth() {
 
 export function useSignOut() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: apiSignOut,
     onSuccess: () => {

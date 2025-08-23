@@ -15,7 +15,7 @@ export function useTags() {
 // Hook to get tags in a more convenient format (Record and order array)
 export function useTagsFormatted() {
   const { data: tags, ...queryResult } = useTags();
-  
+
   const formattedData = useMemo(() => {
     if (!tags) {
       return {
@@ -23,18 +23,18 @@ export function useTagsFormatted() {
         tagsOrder: [] as number[],
       };
     }
-    
+
     const tagRecord: Record<number, Tag> = Object.fromEntries(
       tags.map((tag) => [tag.tag, tag])
     );
     const tagsOrder: number[] = tags.map((tag) => tag.tag);
-    
+
     return {
       tags: tagRecord,
       tagsOrder,
     };
   }, [tags]);
-  
+
   return {
     ...formattedData,
     ...queryResult,
