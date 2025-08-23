@@ -62,7 +62,7 @@ export function updateUrlParameters(
   router.replace(`?${searchParams.toString()}`, { scroll: false });
 }
 
-export function randomText(min = 5, max = 50) {
+export function randomText(max = 50) {
   // Use a consistent placeholder text for SSR hydration compatibility
   const length = max;
   return "●".repeat(length);

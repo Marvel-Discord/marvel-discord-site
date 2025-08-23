@@ -1,8 +1,4 @@
-import {
-  intToColorHex,
-  randomText,
-  trimRunningStringSingleLine,
-} from "@/utils";
+import { intToColorHex, trimRunningStringSingleLine } from "@/utils";
 import { Spacer } from "@/utils/styled";
 import type { Poll, Tag } from "@jocasta-polls-api";
 import {

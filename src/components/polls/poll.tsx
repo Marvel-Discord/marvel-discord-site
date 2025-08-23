@@ -11,26 +11,18 @@ import {
 } from "@radix-ui/themes";
 import styled from "styled-components";
 import { Choices, ChoicesSkeleton } from "./choices";
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ComponentProps,
-} from "react";
+import { useMemo, useRef, useState, type ComponentProps } from "react";
 import { PollCardHeader, PollCardHeaderSkeleton } from "./cardHeader";
 import { useIsMobile } from "@/utils/isMobile";
 import {
   cleanUrlSafeString,
   extractDescriptionWithRegex,
   filterDescriptionWithRegex,
-  randomText,
   trimRunningStringMultiLine,
   trimRunningStringSingleLine,
 } from "@/utils";
 import { AutoGrowingTextAreaStyled } from "./autoGrowingRadixTextArea";
 import { Image, ImageOff, MessageSquarePlus, Trash2, Undo } from "lucide-react";
-import { useFirstRenderResetOnCondition } from "@/utils/useFirstRender";
 import { EditState } from "@/types/states";
 
 const CardBox = styled(Flex)<{ $color?: string; $state?: EditState }>`
