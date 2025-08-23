@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { getUserVotes } from "@/api/polls/votes";
 
-export function useUserVotes(user: any) {
+export function useUserVotes(user: { id: string } | null) {
   const [userVotes, setUserVotes] = useState<Record<number, number>>({});
 
   useEffect(() => {

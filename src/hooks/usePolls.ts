@@ -39,7 +39,7 @@ export function usePolls() {
       searchType: PollSearchType;
       selectedTag: number | null;
       filterState: FilterState;
-      user: any;
+      user: { id: string } | null;
       controller: AbortController;
       resetPage?: boolean;
     }) => {
