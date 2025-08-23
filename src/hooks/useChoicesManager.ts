@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { Poll } from "@jocasta-polls-api";
 import { useFirstRenderResetOnCondition } from "@/utils/useFirstRender";
 import { MAX_CHOICES } from "@/components/polls/forms/choices/constants";
@@ -53,16 +53,31 @@ export function useChoicesManager({
   }
 
   const isFirstRender = useFirstRenderResetOnCondition(editable);
-  // biome-ignore lint/correctness/useExhaustiveDependencies: handleChoicesChange is from parent component
+  const prevChoicesRef = useRef<string[]>([]);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: handleChoicesChange is from parent component, isFirstRender is a ref
   useEffect(() => {
     if (editable) {
       if (isFirstRender.current) {
         isFirstRender.current = false;
+        prevChoicesRef.current = choices.filter(
+          (choice) => choice.trim() !== ""
+        );
         return;
       }
-      handleChoicesChange(choices.filter((choice) => choice.trim() !== ""));
+
+      const filteredChoices = choices.filter((choice) => choice.trim() !== "");
+
+      // Only call handleChoicesChange if the choices actually changed
+      if (
+        JSON.stringify(filteredChoices) !==
+        JSON.stringify(prevChoicesRef.current)
+      ) {
+        prevChoicesRef.current = filteredChoices;
+        handleChoicesChange(filteredChoices);
+      }
     }
-  }, [editable, choices, handleChoicesChange, isFirstRender]);
+  }, [editable, choices, handleChoicesChange]);
 
   return {
     choices,

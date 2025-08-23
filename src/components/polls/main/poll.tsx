@@ -11,7 +11,13 @@ import {
 } from "@radix-ui/themes";
 import styled from "styled-components";
 import { Choices, ChoicesSkeleton } from "../forms/choices";
-import { useMemo, useRef, useState, type ComponentProps } from "react";
+import {
+  useMemo,
+  useRef,
+  useState,
+  useCallback,
+  type ComponentProps,
+} from "react";
 import { PollCardHeader, PollCardHeaderSkeleton } from "../ui/cardHeader";
 import { useIsMobile } from "@/utils/isMobile";
 import {
@@ -265,7 +271,7 @@ export function PollCard({
   const dateTimeRef = useRef(dateTime);
   const willDeleteRef = useRef(willDelete);
 
-  function notifyUpdate() {
+  const notifyUpdate = useCallback(() => {
     const concatenatedDescription =
       `${descriptionRef.current}\n${descriptionAdditionalRef.current}`.trim();
 
@@ -317,60 +323,84 @@ export function PollCard({
       : EditState.NONE;
 
     updatePoll?.(updatedPoll, currentState);
-  }
+  }, [poll, updatePoll]);
 
-  function handleQuestionChange(question: string) {
-    const trimmed = trimRunningStringSingleLine(question);
-    setQuestionText(trimmed);
-    questionRef.current = trimmed;
-    notifyUpdate();
-  }
+  const handleQuestionChange = useCallback(
+    (question: string) => {
+      const trimmed = trimRunningStringSingleLine(question);
+      setQuestionText(trimmed);
+      questionRef.current = trimmed;
+      notifyUpdate();
+    },
+    [notifyUpdate]
+  );
 
-  function handleDescriptionChange(description: string) {
-    const trimmed = trimRunningStringMultiLine(description);
-    setDescriptionText(trimmed);
-    descriptionRef.current = trimmed;
-    notifyUpdate();
-  }
+  const handleDescriptionChange = useCallback(
+    (description: string) => {
+      const trimmed = trimRunningStringMultiLine(description);
+      setDescriptionText(trimmed);
+      descriptionRef.current = trimmed;
+      notifyUpdate();
+    },
+    [notifyUpdate]
+  );
 
-  function handleDescriptionAdditionalChange(descriptionAdditional: string) {
-    const trimmed = trimRunningStringMultiLine(descriptionAdditional);
-    setDescriptionAdditionalText(trimmed);
-    descriptionAdditionalRef.current = trimmed;
-    notifyUpdate();
-  }
+  const handleDescriptionAdditionalChange = useCallback(
+    (descriptionAdditional: string) => {
+      const trimmed = trimRunningStringMultiLine(descriptionAdditional);
+      setDescriptionAdditionalText(trimmed);
+      descriptionAdditionalRef.current = trimmed;
+      notifyUpdate();
+    },
+    [notifyUpdate]
+  );
 
-  function handleImageUrlChange(url: string) {
-    const cleaned = cleanUrlSafeString(url);
-    setImageUrl(cleaned);
-    imageUrlRef.current = cleaned;
-    setImageError(false);
-    notifyUpdate();
-  }
+  const handleImageUrlChange = useCallback(
+    (url: string) => {
+      const cleaned = cleanUrlSafeString(url);
+      setImageUrl(cleaned);
+      imageUrlRef.current = cleaned;
+      setImageError(false);
+      notifyUpdate();
+    },
+    [notifyUpdate]
+  );
 
-  function handleTagChange(tag: Tag | undefined) {
-    setCurrentTag(tag);
-    tagRef.current = tag;
-    notifyUpdate();
-  }
+  const handleTagChange = useCallback(
+    (tag: Tag | undefined) => {
+      setCurrentTag(tag);
+      tagRef.current = tag;
+      notifyUpdate();
+    },
+    [notifyUpdate]
+  );
 
-  function handleChoicesChange(newChoices: Poll["choices"]) {
-    setChoices(newChoices);
-    choicesRef.current = newChoices;
-    notifyUpdate();
-  }
+  const handleChoicesChange = useCallback(
+    (newChoices: Poll["choices"]) => {
+      setChoices(newChoices);
+      choicesRef.current = newChoices;
+      notifyUpdate();
+    },
+    [notifyUpdate]
+  );
 
-  function handleTimeChange(newDateTime: Poll["time"]) {
-    setDateTime(newDateTime);
-    dateTimeRef.current = newDateTime;
-    notifyUpdate();
-  }
+  const handleTimeChange = useCallback(
+    (newDateTime: Poll["time"]) => {
+      setDateTime(newDateTime);
+      dateTimeRef.current = newDateTime;
+      notifyUpdate();
+    },
+    [notifyUpdate]
+  );
 
-  function handleWillDeleteChange(newWillDelete: boolean) {
-    setWillDelete(newWillDelete);
-    willDeleteRef.current = newWillDelete;
-    notifyUpdate();
-  }
+  const handleWillDeleteChange = useCallback(
+    (newWillDelete: boolean) => {
+      setWillDelete(newWillDelete);
+      willDeleteRef.current = newWillDelete;
+      notifyUpdate();
+    },
+    [notifyUpdate]
+  );
 
   const colorRgb = currentTag?.colour
     ? [
