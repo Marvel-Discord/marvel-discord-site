@@ -58,10 +58,9 @@ function ProfileCard({ router }: { router: AppRouterInstance }) {
     user.avatar ?? null
   );
 
-  const handleLogout = async () => {
-    await signOut().then(() => {
-      router.push("/polls");
-    });
+  const handleLogout = () => {
+    signOut();
+    router.push("/polls");
   };
 
   const isInServer: boolean =

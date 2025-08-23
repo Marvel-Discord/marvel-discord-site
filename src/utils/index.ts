@@ -73,6 +73,13 @@ export function randomText(min = 5, max = 50) {
 	return result;
 }
 
+export function skeletonText(min = 5, max = 50) {
+	// Generate consistent placeholder text for skeletons to avoid hydration mismatches
+	const length = Math.floor((min + max) / 2); // Use average length for consistency
+	const placeholder = "Lorem ipsum dolor sit amet consectetur adipiscing elit";
+	return placeholder.substring(0, length).trim();
+}
+
 export function getRandomInt(min = 5, max = 50) {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
 }

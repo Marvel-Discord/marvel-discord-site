@@ -12,7 +12,6 @@ import {
 import styled from "styled-components";
 import { Choices, ChoicesSkeleton } from "./choices";
 import {
-  useEffect,
   useMemo,
   useRef,
   useState,
@@ -24,13 +23,12 @@ import {
   cleanUrlSafeString,
   extractDescriptionWithRegex,
   filterDescriptionWithRegex,
-  randomText,
+  skeletonText,
   trimRunningStringMultiLine,
   trimRunningStringSingleLine,
 } from "@/utils";
 import { AutoGrowingTextAreaStyled } from "./autoGrowingRadixTextArea";
 import { Image, ImageOff, MessageSquarePlus, Trash2, Undo } from "lucide-react";
-import { useFirstRenderResetOnCondition } from "@/utils/useFirstRender";
 import { EditState } from "@/types/states";
 
 const CardBox = styled(Flex)<{ $color?: string; $state?: EditState }>`
@@ -273,7 +271,7 @@ export function PollCard({
   const dateTimeRef = useRef(dateTime);
   const willDeleteRef = useRef(willDelete);
 
-  function notifyUpdate() {
+  const notifyUpdate = () => {
     const concatenatedDescription =
       `${descriptionRef.current}\n${descriptionAdditionalRef.current}`.trim();
 
@@ -503,7 +501,7 @@ export function PollCardSkeleton() {
 
       <CardTitleBlock direction="column" gap="1" align="start">
         <Question $isMobile={isMobile}>
-          <Skeleton>{randomText(5, isMobile ? 20 : 50)}</Skeleton>
+          <Skeleton>{skeletonText(5, isMobile ? 20 : 50)}</Skeleton>
         </Question>
         <Skeleton>
           <Description text="Loading..." size="2" align="left" />

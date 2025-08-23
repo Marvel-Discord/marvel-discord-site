@@ -1,6 +1,6 @@
 import {
   intToColorHex,
-  randomText,
+  skeletonText,
   trimRunningStringSingleLine,
 } from "@/utils";
 import { Spacer } from "@/utils/styled";
@@ -39,7 +39,7 @@ import {
 } from "react";
 import { AutoGrowingTextAreaStyled } from "./autoGrowingRadixTextArea";
 import { useFirstRenderResetOnCondition } from "@/utils/useFirstRender";
-import { postVote } from "@/api/polls/votes";
+import { useVote } from "@/hooks/useVotes";
 
 const ChoiceLabelMap: Record<number, string> = {
   1: "A",
@@ -412,6 +412,7 @@ export function Choices({
 }: ChoicesProps) {
   const { user } = useAuthContext();
   const router = useRouter();
+  const voteMutation = useVote();
 
   const voteTimeout = useRef<NodeJS.Timeout | null>(null);
   const DEBOUNCE_DELAY = 500; // ms
@@ -463,8 +464,12 @@ export function Choices({
     }
 
     voteTimeout.current = setTimeout(() => {
-      postVote(poll.id, user.id, choice).catch((err) => {
-        console.error("Failed to post vote:", err);
+      if (!user) return;
+      
+      voteMutation.mutate({
+        pollId: poll.id,
+        userId: user.id,
+        choiceId: choice,
       });
     }, DEBOUNCE_DELAY);
   }
@@ -627,7 +632,7 @@ export function ChoicesSkeleton() {
             <Flex gap="1" direction="column" width="100%">
               <Flex width="100%" align="end">
                 <Skeleton>
-                  <Text size="2">{randomText(5, isMobile ? 20 : 50)}</Text>
+                  <Text size="2">{skeletonText(5, isMobile ? 20 : 50)}</Text>
                 </Skeleton>
                 <Spacer />
                 <Skeleton>

@@ -1,15 +1,19 @@
-import { getTags } from "@/api/polls/tags";
+import { useTagsFormatted } from "@/hooks/useTags";
 import type { Tag } from "@jocasta-polls-api";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useMemo } from "react";
 
 interface TagContextType {
   tags: Record<number, Tag>;
   tagsOrder: number[];
+  isLoading: boolean;
+  error: Error | null;
 }
 
 export const TagContext = createContext<TagContextType>({
-  tags: [],
+  tags: {},
   tagsOrder: [],
+  isLoading: false,
+  error: null,
 });
 
 interface TagProviderProps {
@@ -17,30 +21,15 @@ interface TagProviderProps {
 }
 
 export const TagProvider = ({ children }: TagProviderProps) => {
-  const [tags, setTags] = useState<Record<number, Tag>>({});
-  const [tagsOrder, setTagsOrder] = useState<number[]>([]);
+  const { tags, tagsOrder, isLoading, error } = useTagsFormatted();
 
-  const fetchTags = async () => {
-    try {
-      const response = await getTags();
-      const tags: Record<number, Tag> = Object.fromEntries(
-        response.map((tag) => [tag.tag, tag])
-      );
-      const tagsOrder: number[] = response.map((tag) => tag.tag);
-      setTags(tags);
-      setTagsOrder(tagsOrder);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: On load
-  useEffect(() => {
-    fetchTags();
-  }, []);
+  const value = useMemo(
+    () => ({ tags, tagsOrder, isLoading, error }),
+    [tags, tagsOrder, isLoading, error]
+  );
 
   return (
-    <TagContext.Provider value={{ tags, tagsOrder }}>
+    <TagContext.Provider value={value}>
       {children}
     </TagContext.Provider>
   );

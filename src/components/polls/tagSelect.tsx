@@ -62,7 +62,7 @@ export function TagSelect({
   return (
     <TagSelectContainer>
       <TagSelectRoot
-        defaultValue="all"
+        value={selectedTag ? selectedTag.toString() : "all"}
         onValueChange={handleTagSelect}
         disabled={disabled}
       >
@@ -91,7 +91,7 @@ export function TagSelect({
                 $backgroundColor={backgroundColor}
                 $textColor={textColor}
               >
-                {tags[Number(tag)].name}
+                {tags[tag].name}
               </TagSelectItem>
             );
           })}

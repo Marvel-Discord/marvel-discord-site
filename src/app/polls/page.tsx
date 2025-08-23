@@ -3,9 +3,6 @@
 import { EditState, FilterState } from "@/types/states";
 import { FixedPositionContainer } from "@/components/polls/fixedPositionContainer";
 import { Flex } from "@radix-ui/themes";
-import { getGuilds } from "@/api/polls/guilds";
-import { getPollById, getPolls } from "@/api/polls/polls";
-import { getUserVotes } from "@/api/polls/votes";
 import {
   NewPollButton,
   PollCard,
@@ -18,12 +15,14 @@ import { useAuthContext } from "@/contexts/AuthProvider";
 import { useDebounce } from "@/utils/debouncer";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTagContext } from "@/contexts/TagContext";
-import axios from "axios";
+import { usePolls, usePoll } from "@/hooks/usePolls";
+import { useGuildsFormatted } from "@/hooks/useGuilds";
+import { useUserVotesFormatted, useVote } from "@/hooks/useVotes";
 import EditButton from "@/components/polls/editButton";
 import InfiniteScroll from "react-infinite-scroll-component";
 import ScrollToTopButton from "@/components/polls/scrollToTop";
 import styled from "styled-components";
-import type { Meta, Poll, PollInfo } from "@jocasta-polls-api";
+import type { Poll } from "@jocasta-polls-api";
 import { emptyPoll } from "@/utils/polls/emptyPoll";
 
 const BodyContainer = styled(Flex).attrs({
@@ -105,16 +104,15 @@ function PollsContent({ skeletons }: { skeletons?: React.ReactNode[] }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [polls, setPolls] = useState<Poll[]>([]);
-  const [meta, setMeta] = useState<Meta | null>(null);
   const { tags } = useTagContext();
-  const [guilds, setGuilds] = useState<Record<string, PollInfo>>({});
-  const [userVotes, setUserVotes] = useState<Record<number, number>>({});
+  const { guilds } = useGuildsFormatted();
+  const { user } = useAuthContext();
+  const { userVotes } = useUserVotesFormatted(user?.id);
+  
+  const voteMutation = useVote();
 
   const [editablePolls, setEditablePolls] = useState<Poll[]>([]);
   const [editedPolls, setEditedPolls] = useState<EditedPoll[]>([]);
-
-  const { user } = useAuthContext();
 
   const canEdit = user?.isManager ?? false;
   const [editModeEnabled, setEditModeEnabled] = useState<boolean>(false);
@@ -125,7 +123,6 @@ function PollsContent({ skeletons }: { skeletons?: React.ReactNode[] }) {
   const [searchType, setSearchType] = useState<PollSearchType>(
     PollSearchType.SEARCH
   );
-  const [page, setPage] = useState<number>(1);
   const [selectedTag, setSelectedTag] = useState<number | null>(
     Number(searchParams.get("tag")) || null
   );
@@ -138,114 +135,48 @@ function PollsContent({ skeletons }: { skeletons?: React.ReactNode[] }) {
       : FilterState.ALL
   );
 
-  const [loading, setLoading] = useState<boolean>(false);
-
   const debouncedSearchValue = useDebounce(searchValue, 500);
+
+  // Build user filter for polls query
+  const userFilter = useMemo(() => {
+    if (!user || filterStateHasVoted(filterState) === undefined) {
+      return undefined;
+    }
+    return {
+      userId: BigInt(user.id),
+      notVoted: !filterStateHasVoted(filterState),
+    };
+  }, [user, filterState]);
+
+  // Use polls query for search mode
+  const pollsQuery = usePolls({
+    search: searchType === PollSearchType.SEARCH ? debouncedSearchValue : undefined,
+    tag: selectedTag ?? undefined,
+    user: userFilter,
+    published: filterState !== FilterState.UNPUBLISHED,
+    enabled: searchType === PollSearchType.SEARCH,
+  });
+
+  // Use single poll query for ID mode
+  const pollQuery = usePoll(
+    searchType === PollSearchType.ID ? debouncedSearchValue : "",
+    searchType === PollSearchType.ID && !!debouncedSearchValue
+  );
+
+  // Flatten polls from infinite query
+  const polls = useMemo(() => {
+    if (searchType === PollSearchType.ID) {
+      return pollQuery.data ? [pollQuery.data] : [];
+    }
+    return pollsQuery.data?.pages.flatMap(page => page.polls) ?? [];
+  }, [pollsQuery.data, pollQuery.data, searchType]);
+
+  const meta = pollsQuery.data?.pages?.[pollsQuery.data.pages.length - 1]?.meta;
+  const isLoading = searchType === PollSearchType.SEARCH ? pollsQuery.isFetching : pollQuery.isFetching;
 
   useEffect(() => {
     setEditModeEnabled(false);
   }, []);
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    let cancelled = false;
-
-    const fetchPolls = async () => {
-      try {
-        if (searchType === PollSearchType.SEARCH) {
-          const { polls, meta } = await getPolls({
-            search: debouncedSearchValue,
-            page,
-            tag: selectedTag ?? undefined,
-            signal: controller.signal,
-            user:
-              user && filterStateHasVoted(filterState) !== undefined
-                ? {
-                    userId: BigInt(user.id),
-                    notVoted: !filterStateHasVoted(filterState),
-                  }
-                : undefined,
-            published: filterState !== FilterState.UNPUBLISHED,
-          });
-          if (!cancelled) {
-            setPolls((prevPolls) => [...prevPolls, ...polls]);
-            setMeta(meta);
-            setPage(meta.page);
-          }
-        } else {
-          try {
-            const poll = await getPollById(debouncedSearchValue);
-            if (!cancelled) {
-              setPolls([poll]);
-            }
-          } catch {
-            setPolls([]);
-          } finally {
-            setMeta(null);
-          }
-        }
-        setLoading(false);
-      } catch (err) {
-        if (axios.isCancel(err)) {
-          console.log("Request canceled:", err.message);
-        } else {
-          console.error(err);
-        }
-      }
-    };
-
-    if (page === 1) {
-      setLoading(true);
-    }
-    fetchPolls();
-
-    return () => {
-      cancelled = true;
-      controller.abort();
-    };
-  }, [debouncedSearchValue, page, selectedTag, filterState, user, searchType]);
-
-  useEffect(() => {
-    const fetchGuilds = async () => {
-      try {
-        const response = await getGuilds();
-        const guilds: Record<string, PollInfo> = Object.fromEntries(
-          response.map((guild) => [guild.guild_id, guild])
-        );
-        setGuilds(guilds);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    fetchGuilds();
-  }, []);
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: Just on start
-  useEffect(() => {
-    handleSearch(searchValue);
-  }, []);
-
-  useEffect(() => {
-    const fetchUserVotes = async () => {
-      if (!user) {
-        setUserVotes({});
-        return;
-      }
-      try {
-        const response = await getUserVotes(user.id);
-        const userVotes: Record<number, number> = Object.fromEntries(
-          response.map((vote) => [vote.poll_id, vote.choice])
-        );
-        setUserVotes(userVotes);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    fetchUserVotes();
-  }, [user]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: Only needs to update when polls or edit mode changes
   useEffect(() => {
@@ -265,13 +196,7 @@ function PollsContent({ skeletons }: { skeletons?: React.ReactNode[] }) {
       ...newPolls,
     ];
     setEditablePolls(newEditablePolls);
-  }, [editModeEnabled, polls]);
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: Reset whenever they change
-  useEffect(() => {
-    setPage(1);
-    setPolls([]);
-  }, [debouncedSearchValue, selectedTag, filterState]);
+  }, [editModeEnabled, polls, editedPolls]);
 
   const handleSearch = (value: string, newSearchType?: PollSearchType) => {
     if (newSearchType !== undefined) {
@@ -312,20 +237,15 @@ function PollsContent({ skeletons }: { skeletons?: React.ReactNode[] }) {
     });
   }, [filterState, router, searchParams]);
 
-  function setUserVote(pollId: number, choice: number | undefined) {
-    if (choice === undefined) {
-      setUserVotes((prevVotes) => {
-        const newVotes = { ...prevVotes };
-        delete newVotes[pollId];
-        return newVotes;
-      });
-      return;
-    }
-    setUserVotes((prevVotes) => ({
-      ...prevVotes,
-      [pollId]: choice,
-    }));
-  }
+  const setUserVote = (pollId: number, choice: number | undefined) => {
+    if (!user) return;
+    
+    voteMutation.mutate({
+      pollId,
+      userId: user.id,
+      choiceId: choice,
+    });
+  };
 
   const handleEditChange = (poll: Poll, state: EditState) => {
     setEditedPolls((prev) => {
@@ -408,15 +328,15 @@ function PollsContent({ skeletons }: { skeletons?: React.ReactNode[] }) {
         />
 
         <FullWidthScroll>
-          {dataExists && !loading ? (
+          {dataExists && !isLoading ? (
             <InfiniteScroll
               dataLength={polls.length}
-              next={async () => {
-                if (meta?.nextPage) {
-                  setPage(meta.nextPage);
+              next={() => {
+                if (searchType === PollSearchType.SEARCH && pollsQuery.hasNextPage) {
+                  pollsQuery.fetchNextPage();
                 }
               }}
-              hasMore={meta ? meta.page < meta.totalPages : false}
+              hasMore={searchType === PollSearchType.SEARCH ? pollsQuery.hasNextPage ?? false : false}
               loader={<LoadingText>Loading...</LoadingText>}
               style={{
                 overflow: "visible",

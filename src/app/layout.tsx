@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import StyledComponentsRegistry from "@/lib/registry";
 import { defaultMetadata, defaultViewport } from "@/lib/metadata";
+import { QueryProvider } from "@/lib/queryClient";
 import "./globals.css";
 
 export const metadata: Metadata = defaultMetadata;
@@ -12,9 +13,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
-        <StyledComponentsRegistry>{children}</StyledComponentsRegistry>
+        <QueryProvider>
+          <StyledComponentsRegistry>{children}</StyledComponentsRegistry>
+        </QueryProvider>
       </body>
     </html>
   );
