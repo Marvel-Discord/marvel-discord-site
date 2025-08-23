@@ -23,7 +23,7 @@ export function useGuild(guildId?: string) {
 
 // Hook to get guilds in a more convenient format (Record)
 export function useGuildsFormatted() {
-  const { data: guilds, ...queryResult } = useGuilds();
+  const { data: guilds, isLoading, error, isPending, isError } = useGuilds();
 
   const formattedGuilds = useMemo(() => {
     if (!guilds) {
@@ -35,7 +35,10 @@ export function useGuildsFormatted() {
 
   return {
     guilds: formattedGuilds,
-    ...queryResult,
+    isLoading,
+    error,
+    isPending,
+    isError,
     data: guilds,
   };
 }

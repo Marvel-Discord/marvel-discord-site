@@ -14,7 +14,7 @@ export function useUserVotes(userId?: string) {
 
 // Hook to get user votes in a more convenient format (Record)
 export function useUserVotesFormatted(userId?: string) {
-  const { data: votes, ...queryResult } = useUserVotes(userId);
+  const { data: votes, isLoading, error, isPending, isError } = useUserVotes(userId);
 
   const formattedVotes = useMemo(() => {
     if (!votes) {
@@ -26,7 +26,10 @@ export function useUserVotesFormatted(userId?: string) {
 
   return {
     userVotes: formattedVotes,
-    ...queryResult,
+    isLoading,
+    error,
+    isPending,
+    isError,
     data: votes,
   };
 }

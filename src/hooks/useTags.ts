@@ -14,7 +14,7 @@ export function useTags() {
 
 // Hook to get tags in a more convenient format (Record and order array)
 export function useTagsFormatted() {
-  const { data: tags, ...queryResult } = useTags();
+  const { data: tags, isLoading, error, isPending, isError } = useTags();
 
   const formattedData = useMemo(() => {
     if (!tags) {
@@ -37,7 +37,10 @@ export function useTagsFormatted() {
 
   return {
     ...formattedData,
-    ...queryResult,
+    isLoading,
+    error,
+    isPending,
+    isError,
     data: tags,
   };
 }

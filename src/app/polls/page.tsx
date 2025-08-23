@@ -239,7 +239,7 @@ function PollsContent({ skeletons }: { skeletons?: React.ReactNode[] }) {
     updateUrlParameters(router, searchParams, {
       hasVoted: hasVoted !== undefined ? hasVoted : null,
     });
-  }, [filterState, router, searchParams]);
+  }, [filterState, router]);
 
   const setUserVote = (pollId: number, choice: number | undefined) => {
     if (!user) return;
