@@ -6,7 +6,7 @@ import { ThemeProvider } from "next-themes";
 
 import styled from "styled-components";
 import { AuthProvider } from "@/contexts/AuthProvider";
-import ProfileContainer from "@/components/polls/profileButton";
+import ProfileContainer from "@/components/polls/ui/profileButton";
 import { TagProvider } from "@/contexts/TagContext";
 
 import "@radix-ui/themes/styles.css";

@@ -45,12 +45,12 @@ import {
   useState,
 } from "react";
 import styled from "styled-components";
-import { TitleText } from "../titleText";
+import { TitleText } from "@/components/titleText";
 import { useIsMobile } from "@/utils/isMobile";
 import { useTagContext } from "@/contexts/TagContext";
-import DatePickerComponent from "./datePicker";
+import DatePickerComponent from "../forms/datePicker";
 import { useFirstRenderResetOnCondition } from "@/utils/useFirstRender";
-import { CreateTagDialog } from "./createTagDialog";
+import { CreateTagDialog } from "../forms/createTagDialog";
 
 const Header = styled(Flex)`
   flex-wrap: wrap;

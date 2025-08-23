@@ -10,9 +10,9 @@ import {
   Button,
 } from "@radix-ui/themes";
 import styled from "styled-components";
-import { Choices, ChoicesSkeleton } from "./choices";
+import { Choices, ChoicesSkeleton } from "../forms/choices";
 import { useMemo, useRef, useState, type ComponentProps } from "react";
-import { PollCardHeader, PollCardHeaderSkeleton } from "./cardHeader";
+import { PollCardHeader, PollCardHeaderSkeleton } from "../ui/cardHeader";
 import { useIsMobile } from "@/utils/isMobile";
 import {
   cleanUrlSafeString,
@@ -21,7 +21,7 @@ import {
   trimRunningStringMultiLine,
   trimRunningStringSingleLine,
 } from "@/utils";
-import { AutoGrowingTextAreaStyled } from "./autoGrowingRadixTextArea";
+import { AutoGrowingTextAreaStyled } from "../forms/autoGrowingRadixTextArea";
 import { Image, ImageOff, MessageSquarePlus, Trash2, Undo } from "lucide-react";
 import { EditState } from "@/types/states";
 
