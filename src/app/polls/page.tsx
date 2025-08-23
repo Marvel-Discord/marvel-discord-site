@@ -24,7 +24,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import ScrollToTopButton from "@/components/polls/scrollToTop";
 import styled from "styled-components";
 import type { Meta, Poll, PollInfo } from "@jocasta-polls-api";
-import { emptyPoll } from "@/utils/polls/emptyPoll";
+import { emptyPoll, validatePolls, type ValidationResult } from "@/utils/polls";
 
 const BodyContainer = styled(Flex).attrs({
   direction: "column",
@@ -118,6 +118,10 @@ function PollsContent({ skeletons }: { skeletons?: React.ReactNode[] }) {
 
   const canEdit = user?.isManager ?? false;
   const [editModeEnabled, setEditModeEnabled] = useState<boolean>(false);
+  const [validationResult, setValidationResult] = useState<ValidationResult>({
+    isValid: true,
+    errors: [],
+  });
 
   const [searchValue, setSearchValue] = useState<string>(
     searchParams.get("search") || ""
@@ -141,6 +145,22 @@ function PollsContent({ skeletons }: { skeletons?: React.ReactNode[] }) {
   const [loading, setLoading] = useState<boolean>(false);
 
   const debouncedSearchValue = useDebounce(searchValue, 500);
+
+  // Create a validation key that changes when poll content changes
+  const validationKey = useMemo(() => {
+    if (!editModeEnabled) return "";
+    return editablePolls
+      .filter(
+        (poll) =>
+          poll.id < 0 ||
+          editedPolls.some((edited) => edited.poll.id === poll.id)
+      )
+      .map(
+        (poll) =>
+          `${poll.id}-${poll.question}-${poll.choices.join(",")}-${poll.tag}`
+      )
+      .join("|");
+  }, [editablePolls, editedPolls, editModeEnabled]);
 
   useEffect(() => {
     setEditModeEnabled(false);
@@ -252,6 +272,7 @@ function PollsContent({ skeletons }: { skeletons?: React.ReactNode[] }) {
     if (!editModeEnabled) {
       setEditedPolls([]);
       setEditablePolls([]);
+      setValidationResult({ isValid: true, errors: [] });
       return;
     }
 
@@ -266,6 +287,35 @@ function PollsContent({ skeletons }: { skeletons?: React.ReactNode[] }) {
     ];
     setEditablePolls(newEditablePolls);
   }, [editModeEnabled, polls]);
+
+  // Validate polls whenever the validation key changes
+  useEffect(() => {
+    if (!editModeEnabled) {
+      setValidationResult({ isValid: true, errors: [] });
+      return;
+    }
+
+    // Validate all polls that are being edited (including new polls)
+    const pollsToValidate = editablePolls.filter((poll) => {
+      // Include new polls (negative IDs) or polls that are in the edited list
+      return (
+        poll.id < 0 || editedPolls.some((edited) => edited.poll.id === poll.id)
+      );
+    });
+
+    if (pollsToValidate.length === 0) {
+      setValidationResult({ isValid: true, errors: [] });
+      return;
+    }
+
+    // Get original polls for comparison (for published poll validation)
+    const originalPolls = polls.filter((poll) =>
+      pollsToValidate.some((p) => p.id === poll.id)
+    );
+
+    const result = validatePolls(pollsToValidate, originalPolls);
+    setValidationResult(result);
+  }, [validationKey, editModeEnabled, editablePolls, editedPolls, polls]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: Reset whenever they change
   useEffect(() => {
@@ -328,6 +378,13 @@ function PollsContent({ skeletons }: { skeletons?: React.ReactNode[] }) {
   }
 
   const handleEditChange = (poll: Poll, state: EditState) => {
+    // First update the editablePolls to reflect the current state of the poll
+    if (state !== EditState.DELETE || poll.id >= 0) {
+      setEditablePolls((prev) => {
+        return prev.map((p) => (p.id === poll.id ? poll : p));
+      });
+    }
+
     setEditedPolls((prev) => {
       const alreadyEdited = prev.find((p) => p.poll.id === poll.id);
       if (state === EditState.NONE) {
@@ -386,6 +443,8 @@ function PollsContent({ skeletons }: { skeletons?: React.ReactNode[] }) {
             editModeEnabled={editModeEnabled}
             setEditModeEnabled={setEditModeEnabled}
             hasChanges={editedPolls.length > 0}
+            canSave={validationResult.isValid}
+            validationErrors={validationResult.errors}
             text={
               editedPolls.length > 0
                 ? [
