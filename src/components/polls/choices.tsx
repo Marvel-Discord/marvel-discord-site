@@ -119,6 +119,14 @@ const ChoiceLabelButton = styled.button<{ $isDisabled: boolean }>`
     $isDisabled ? "pointer-events: none;" : "cursor: pointer;"}
 `;
 
+const ChoiceLabelDiv = styled.div<{ $isDisabled: boolean }>`
+  align-items: center;
+  background-color: transparent;
+
+  ${({ $isDisabled }) =>
+    $isDisabled ? "pointer-events: none;" : "cursor: pointer;"}
+`;
+
 const ChoiceLabel = styled(Heading)<{ $canHover?: boolean }>`
   opacity: 0.4;
   transition: opacity 0.1s ease-in-out;
@@ -132,6 +140,10 @@ const ChoiceLabel = styled(Heading)<{ $canHover?: boolean }>`
   }
 
   ${ChoiceLabelButton}:hover & {
+    ${({ $canHover = true }) => ($canHover ? "opacity: 1;" : "")}
+  }
+
+  ${ChoiceLabelDiv}:hover & {
     ${({ $canHover = true }) => ($canHover ? "opacity: 1;" : "")}
   }
 `;
@@ -237,22 +249,30 @@ export function ChoiceContainer({
 
   return (
     <ChoiceContainerInner>
-      <ChoiceLabelButton
-        $isDisabled={!canDelete || enticer}
-        onClick={editable ? onDelete : undefined}
-      >
-        <ChoiceLabel size="4" $canHover={canDelete && !enticer}>
-          {!editable ? (
-            ChoiceLabelMap[index + 1]
-          ) : !canDelete ? (
-            ChoiceLabelMap[index + 1]
-          ) : !enticer ? (
-            <X strokeWidth={3} />
-          ) : (
-            <Plus strokeWidth={3} />
-          )}
-        </ChoiceLabel>
-      </ChoiceLabelButton>
+      {editable ? (
+        <ChoiceLabelButton
+          $isDisabled={!canDelete || enticer}
+          onClick={editable ? onDelete : undefined}
+        >
+          <ChoiceLabel size="4" $canHover={canDelete && !enticer}>
+            {!editable ? (
+              ChoiceLabelMap[index + 1]
+            ) : !canDelete ? (
+              ChoiceLabelMap[index + 1]
+            ) : !enticer ? (
+              <X strokeWidth={3} />
+            ) : (
+              <Plus strokeWidth={3} />
+            )}
+          </ChoiceLabel>
+        </ChoiceLabelButton>
+      ) : (
+        <ChoiceLabelDiv $isDisabled={!canDelete || enticer}>
+          <ChoiceLabel size="4" $canHover={canDelete && !enticer}>
+            {ChoiceLabelMap[index + 1]}
+          </ChoiceLabel>
+        </ChoiceLabelDiv>
+      )}
 
       <Flex gap="1" direction="column" width="100%">
         <Flex gap="1" width="100%" align="end">
