@@ -503,7 +503,13 @@ export function PollCardSkeleton() {
 
       <CardTitleBlock direction="column" gap="1" align="start">
         <Question $isMobile={isMobile}>
-          <Skeleton>{randomText(5, isMobile ? 20 : 50)}</Skeleton>
+          <Skeleton>
+            <span style={{ opacity: 0 }}>
+              {isMobile
+                ? "Loading poll question..."
+                : "Loading poll question content..."}
+            </span>
+          </Skeleton>
         </Question>
         <Skeleton>
           <Description text="Loading..." size="2" align="left" />

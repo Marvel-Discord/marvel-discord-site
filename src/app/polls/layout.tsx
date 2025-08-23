@@ -24,7 +24,12 @@ export default function PollsLayout({
   return (
     <AuthProvider>
       <TagProvider>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange={false}
+        >
           <Theme accentColor="red" radius="large" scaling="110%">
             <Navbar rightComponent={<ProfileContainer />} />
             <BaseContainer size="4">{children}</BaseContainer>
