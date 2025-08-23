@@ -334,13 +334,19 @@ function PollsContent({ skeletons }: { skeletons?: React.ReactNode[] }) {
         return alreadyEdited ? prev.filter((p) => p.poll.id !== poll.id) : prev;
       }
       if (!alreadyEdited) {
-        if (state === EditState.DELETE && poll.id === 0) {
+        if (state === EditState.DELETE && poll.id < 0) {
           setEditablePolls((prev) => prev.filter((p) => p.id !== poll.id));
           return prev.filter((p) => p.poll.id !== poll.id);
         }
         return [...prev, { poll, state }];
       }
-      return prev;
+      // If already edited and it's a new poll being deleted, remove it completely
+      if (state === EditState.DELETE && poll.id < 0) {
+        setEditablePolls((prev) => prev.filter((p) => p.id !== poll.id));
+        return prev.filter((p) => p.poll.id !== poll.id);
+      }
+      // Update the existing entry
+      return prev.map((p) => (p.poll.id === poll.id ? { poll, state } : p));
     });
   };
 
