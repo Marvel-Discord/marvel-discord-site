@@ -50,6 +50,7 @@ import { useIsMobile } from "@/utils/isMobile";
 import { useTagContext } from "@/contexts/TagContext";
 import DatePickerComponent from "./datePicker";
 import { useFirstRenderResetOnCondition } from "@/utils/useFirstRender";
+import { CreateTagDialog } from "./createTagDialog";
 
 const Header = styled(Flex)`
   flex-wrap: wrap;
@@ -868,6 +869,7 @@ export function PollCardHeader({
   const [dateTime, setDateTime] = useState<Date | null>(
     poll.time ? new Date(poll.time) : null
   );
+  const [createTagDialogOpen, setCreateTagDialogOpen] = useState(false);
   const isNew = dateTime
     ? dateTime.getTime() > Date.now() - 1000 * 60 * 60 * 24 * 2
     : false;
@@ -878,7 +880,7 @@ export function PollCardHeader({
         }/${poll.message_id}`
       : "";
 
-  const { tags, tagsOrder } = useTagContext();
+  const { tags, tagsOrder, pendingTags, addPendingTag } = useTagContext();
 
   const isFirstRender = useFirstRenderResetOnCondition(editable);
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
@@ -892,32 +894,79 @@ export function PollCardHeader({
     }
   }, [dateTime]);
 
+  const handleTagCreated = (newTag: Tag) => {
+    // Add to global pending tags via context
+    addPendingTag(newTag);
+    // Set as the current tag
+    setTag?.(newTag);
+  };
+
   return (
     <Header align="center" justify="start" gap="3">
       {!editable && isNew && <NewPill>NEW</NewPill>}
 
       {editable && (!poll.published || !tag) && setTag ? (
-        <Select.Root
-          size="1"
-          defaultValue={tag ? tag.name : "Select tag"}
-          onValueChange={(value) => setTag(tags[Number(value)])}
-        >
-          <SelectTriggerPill $tag={tag}>
-            {tag ? tag.name : "Select tag"}
-            {poll.num && ` • #${poll.num}`}
-          </SelectTriggerPill>
-          <Select.Content>
-            {tagsOrder.map((tagId) => {
-              const tag = tags[tagId];
-              if (!tag) return null;
-              return (
-                <Select.Item key={tag.tag} value={tag.tag.toString()}>
-                  {tag.name}
-                </Select.Item>
-              );
-            })}
-          </Select.Content>
-        </Select.Root>
+        <>
+          <Select.Root
+            size="1"
+            value={tag ? tag.tag.toString() : "Select tag"}
+            onValueChange={(value) => {
+              if (value === "new") {
+                setCreateTagDialogOpen(true);
+              } else {
+                const tagId = Number(value);
+                // First check if it's a pending tag (negative ID)
+                if (tagId < 0) {
+                  const pendingTag = pendingTags.find(
+                    (tag) => tag.tag === tagId
+                  );
+                  if (pendingTag) {
+                    setTag(pendingTag);
+                  }
+                } else {
+                  // It's an existing tag
+                  setTag(tags[tagId]);
+                }
+              }
+            }}
+          >
+            <SelectTriggerPill $tag={tag}>
+              {tag ? tag.name : "Select tag"}
+              {poll.num && ` • #${poll.num}`}
+            </SelectTriggerPill>
+            <Select.Content>
+              <Select.Item value="new">Create new tag</Select.Item>
+              {pendingTags.length > 0 && (
+                <>
+                  <Select.Separator />
+                  {pendingTags.map((pendingTag) => (
+                    <Select.Item
+                      key={pendingTag.tag}
+                      value={pendingTag.tag.toString()}
+                    >
+                      {pendingTag.name} (new)
+                    </Select.Item>
+                  ))}
+                </>
+              )}
+              <Select.Separator />
+              {tagsOrder.map((tagId) => {
+                const tag = tags[tagId];
+                if (!tag) return null;
+                return (
+                  <Select.Item key={tag.tag} value={tag.tag.toString()}>
+                    {tag.name}
+                  </Select.Item>
+                );
+              })}
+            </Select.Content>
+          </Select.Root>
+          <CreateTagDialog
+            open={createTagDialogOpen}
+            onOpenChange={setCreateTagDialogOpen}
+            onTagCreated={handleTagCreated}
+          />
+        </>
       ) : (
         <TagPill $tag={tag}>
           {tag?.name ?? "No tag"}

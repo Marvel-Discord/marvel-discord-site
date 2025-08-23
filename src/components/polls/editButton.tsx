@@ -1,7 +1,8 @@
-import { Button, Card, Flex, Heading, Text } from "@radix-ui/themes";
-import { PencilIcon, TriangleAlert } from "lucide-react";
+import { Button, Card, Flex, Text } from "@radix-ui/themes";
+import { PencilIcon, Tag, TriangleAlert } from "lucide-react";
 import styled from "styled-components";
 import type { Poll } from "@jocasta-polls-api";
+import { useTagContext } from "@/contexts/TagContext";
 
 const CardStyle = styled(Card)`
   width: fit-content;
@@ -15,19 +16,24 @@ const ButtonStyle = styled(Button)`
   transition: color 0.2s ease-in-out;
 `;
 
-const ErrorHeader = styled.h1`
+const StyledHeader = styled.h1`
   align-items: center;
-  color: var(--red-11);
   display: flex;
+  gap: 0.3rem;
   font-size: var(--font-size-4);
-  gap: 0.2rem;
+`;
+
+const TagHeader = styled(StyledHeader)``;
+
+const ErrorHeader = styled(StyledHeader)`
+  color: var(--red-11);
 `;
 
 const ErrorPollHeader = styled.h1`
   font-size: var(--font-size-2);
 `;
 
-const ErrorText = styled(Text)`
+const StyledText = styled(Text)`
   font-size: var(--font-size-1);
 `;
 
@@ -48,6 +54,8 @@ export default function EditButton({
   canSave = true,
   validationErrors = new Map(),
 }: EditButtonProps) {
+  const { pendingTags: newTags } = useTagContext();
+
   if (!editModeEnabled) {
     return (
       <Button
@@ -64,12 +72,25 @@ export default function EditButton({
 
   return (
     <Flex align={"end"} gap="2" direction="column">
+      {newTags.length > 0 && (
+        <CardStyle>
+          <Flex direction="column" gap="1">
+            <TagHeader>
+              <Tag size={18} />
+              Tags to create
+            </TagHeader>
+            {newTags.map((tag) => (
+              <StyledText key={tag.tag}>{tag.name}</StyledText>
+            ))}
+          </Flex>
+        </CardStyle>
+      )}
       {validationErrors.size > 0 && (
         <CardStyle>
           <Flex direction="column" gap="1">
             <ErrorHeader>
               <TriangleAlert size={18} />
-              Validation Errors
+              Validation errors
             </ErrorHeader>
             {Array.from(validationErrors.entries()).flatMap(
               ([erroredPoll, errors]) => (
@@ -82,9 +103,9 @@ export default function EditButton({
                       : `Poll ${erroredPoll.id}`}
                   </ErrorPollHeader>
                   {errors.map((error: string, index: number) => (
-                    <ErrorText key={`${erroredPoll.id}-${index}`}>
+                    <StyledText key={`${erroredPoll.id}-${index}`}>
                       {error}
-                    </ErrorText>
+                    </StyledText>
                   ))}
                 </Flex>
               )

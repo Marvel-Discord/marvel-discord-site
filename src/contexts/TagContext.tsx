@@ -5,11 +5,15 @@ import { createContext, useContext, useEffect, useState } from "react";
 interface TagContextType {
   tags: Record<number, Tag>;
   tagsOrder: number[];
+  pendingTags: Tag[];
+  addPendingTag: (tag: Tag) => void;
 }
 
 export const TagContext = createContext<TagContextType>({
-  tags: [],
+  tags: {},
   tagsOrder: [],
+  pendingTags: [],
+  addPendingTag: () => {},
 });
 
 interface TagProviderProps {
@@ -19,6 +23,11 @@ interface TagProviderProps {
 export const TagProvider = ({ children }: TagProviderProps) => {
   const [tags, setTags] = useState<Record<number, Tag>>({});
   const [tagsOrder, setTagsOrder] = useState<number[]>([]);
+  const [pendingTags, setPendingTags] = useState<Tag[]>([]);
+
+  const addPendingTag = (tag: Tag) => {
+    setPendingTags((prev) => [...prev, tag]);
+  };
 
   const fetchTags = async () => {
     try {
@@ -40,7 +49,9 @@ export const TagProvider = ({ children }: TagProviderProps) => {
   }, []);
 
   return (
-    <TagContext.Provider value={{ tags, tagsOrder }}>
+    <TagContext.Provider
+      value={{ tags, tagsOrder, pendingTags, addPendingTag }}
+    >
       {children}
     </TagContext.Provider>
   );
