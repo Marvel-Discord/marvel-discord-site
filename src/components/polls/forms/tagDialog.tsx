@@ -1,15 +1,17 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, ChangeEvent } from "react";
 import {
   Button,
   Dialog,
   Flex,
   Text,
   TextField,
+  TextArea,
   Checkbox,
 } from "@radix-ui/themes";
 import type { Tag } from "@jocasta-polls-api";
 import { ChannelSelect } from "./channelSelect";
 import { RoleSelect } from "./roleSelect";
+import { EndMessageSelect } from "./endMessageSelect";
 import { useTagContext } from "@/contexts/TagContext";
 
 // Extended type for form data (includes pending tag fields)
@@ -65,6 +67,18 @@ export function TagDialog({
       }
     });
     return roleCounts;
+  }, [tags]);
+
+  // Memoized helper to get existing end messages and their usage counts
+  const existingEndMessages = useMemo(() => {
+    const messageCounts: Record<string, number> = {};
+    Object.values(tags).forEach((tag) => {
+      if (tag.end_message && tag.end_message.trim() !== "") {
+        const message = tag.end_message.trim();
+        messageCounts[message] = (messageCounts[message] || 0) + 1;
+      }
+    });
+    return messageCounts;
   }, [tags]);
 
   // Update form fields when editingTag changes
@@ -259,10 +273,22 @@ export function TagDialog({
             <Text size="2" weight="medium">
               End Message
             </Text>
-            <TextField.Root
+            <EndMessageSelect
               value={endMessage}
-              onChange={(e) => setEndMessage(e.target.value)}
+              onValueChange={setEndMessage}
+              placeholder="Select an existing end message..."
+              existingEndMessages={existingEndMessages}
+            />
+            <Text size="1" color="gray">
+              Or type a custom message:
+            </Text>
+            <TextArea
+              value={endMessage}
+              onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+                setEndMessage(e.target.value)
+              }
               placeholder="Message to send after each poll"
+              rows={3}
             />
           </Flex>
 
