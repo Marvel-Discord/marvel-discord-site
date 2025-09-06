@@ -8,6 +8,7 @@ import {
   Checkbox,
 } from "@radix-ui/themes";
 import type { Tag } from "@jocasta-polls-api";
+import { ChannelSelect } from "./channelSelect";
 
 // Extended interface for form data (includes pending tag fields)
 interface TagFormData extends Partial<Tag> {
@@ -152,7 +153,7 @@ export function TagDialog({
         <Dialog.Description>
           {isEditing
             ? "Edit the tag settings."
-            : "Create a new tag for organizing polls. Tag name and Discord channel are required."}
+            : "Create a new tag for categorising polls."}
         </Dialog.Description>
 
         <Flex gap="4" direction="column" mt="4">
@@ -177,10 +178,11 @@ export function TagDialog({
             <Text size="2" weight="medium">
               Discord Channel *
             </Text>
-            <TextField.Root
+            <ChannelSelect
               value={discordChannel}
-              onChange={(e) => setDiscordChannel(e.target.value)}
-              placeholder="Enter channel ID"
+              onValueChange={setDiscordChannel}
+              placeholder="Select a channel for this tag..."
+              disabled={isEditing}
             />
           </Flex>
 
