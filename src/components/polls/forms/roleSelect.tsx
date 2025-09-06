@@ -1,6 +1,13 @@
 import { Select, Text, Flex, Badge } from "@radix-ui/themes";
 import { useState, useEffect, useMemo } from "react";
 import { getGuildRoles, type Role } from "@/api/discord";
+import {
+  RoleSelectContainer,
+  LoadingSelectRoot,
+  ErrorContainer,
+  RoleItem,
+  SelectedRolesBadges,
+} from "./roleSelect/";
 
 interface RoleSelectProps {
   value: string[];
@@ -106,16 +113,16 @@ export function RoleSelect({
 
   if (loading) {
     return (
-      <Select.Root value="" disabled>
+      <LoadingSelectRoot value="" disabled>
         <Select.Trigger placeholder="Loading roles..." />
         <Select.Content />
-      </Select.Root>
+      </LoadingSelectRoot>
     );
   }
 
   if (error) {
     return (
-      <Flex direction="column" gap="1">
+      <ErrorContainer>
         <Select.Root value="" disabled>
           <Select.Trigger placeholder="Error loading roles" />
           <Select.Content />
@@ -123,13 +130,13 @@ export function RoleSelect({
         <Text size="1" color="red">
           {error}
         </Text>
-      </Flex>
+      </ErrorContainer>
     );
   }
 
   if (multiple) {
     return (
-      <Flex direction="column" gap="2">
+      <RoleSelectContainer>
         <Select.Root
           value=""
           onValueChange={handleValueChange}
@@ -147,71 +154,26 @@ export function RoleSelect({
               return (
                 <div key={role.id}>
                   {isFirstNew && <Select.Separator />}
-                  <Select.Item value={role.id}>
-                    <Flex align="center" gap="2">
-                      <div
-                        style={{
-                          width: "12px",
-                          height: "12px",
-                          borderRadius: "50%",
-                          backgroundColor: formatColorToHex(role.color),
-                          flexShrink: 0,
-                        }}
-                      />
-                      <Text>@{role.name}</Text>
-                      {isExisting && (
-                        <Text size="1" color="gray">
-                          ({existingRoleUsage[role.id]} tag
-                          {existingRoleUsage[role.id] === 1 ? "" : "s"})
-                        </Text>
-                      )}
-                      {value.includes(role.id) && (
-                        <Badge size="1" color="green">
-                          ✓
-                        </Badge>
-                      )}
-                    </Flex>
-                  </Select.Item>
+                  <RoleItem
+                    role={role}
+                    isExisting={isExisting}
+                    existingCount={existingRoleUsage[role.id]}
+                    isSelected={value.includes(role.id)}
+                    formatColorToHex={formatColorToHex}
+                  />
                 </div>
               );
             })}
           </Select.Content>
         </Select.Root>
 
-        {value.length > 0 && (
-          <Flex gap="1" wrap="wrap">
-            {value.map((roleId) => {
-              const role = sortedRoles.find((r) => r.id === roleId);
-              if (!role) return null;
-              return (
-                <Badge
-                  key={roleId}
-                  size="1"
-                  style={{
-                    backgroundColor: formatColorToHex(role.color),
-                    color: role.color === 0 ? "#000" : "#fff",
-                  }}
-                >
-                  @{role.name}
-                  <button
-                    onClick={() => handleValueChange(roleId)}
-                    style={{
-                      marginLeft: "4px",
-                      background: "none",
-                      border: "none",
-                      color: "inherit",
-                      cursor: "pointer",
-                      fontSize: "10px",
-                    }}
-                  >
-                    ×
-                  </button>
-                </Badge>
-              );
-            })}
-          </Flex>
-        )}
-      </Flex>
+        <SelectedRolesBadges
+          selectedRoleIds={value}
+          roles={sortedRoles}
+          onRemoveRole={handleValueChange}
+          formatColorToHex={formatColorToHex}
+        />
+      </RoleSelectContainer>
     );
   }
 
@@ -234,26 +196,12 @@ export function RoleSelect({
           return (
             <div key={role.id}>
               {isFirstNew && <Select.Separator />}
-              <Select.Item value={role.id}>
-                <Flex align="center" gap="2">
-                  <div
-                    style={{
-                      width: "12px",
-                      height: "12px",
-                      borderRadius: "50%",
-                      backgroundColor: formatColorToHex(role.color),
-                      flexShrink: 0,
-                    }}
-                  />
-                  <Text>@{role.name}</Text>
-                  {isExisting && (
-                    <Text size="1" color="gray">
-                      ({existingRoleUsage[role.id]} tag
-                      {existingRoleUsage[role.id] === 1 ? "" : "s"})
-                    </Text>
-                  )}
-                </Flex>
-              </Select.Item>
+              <RoleItem
+                role={role}
+                isExisting={isExisting}
+                existingCount={existingRoleUsage[role.id]}
+                formatColorToHex={formatColorToHex}
+              />
             </div>
           );
         })}

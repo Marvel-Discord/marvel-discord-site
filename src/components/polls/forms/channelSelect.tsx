@@ -1,6 +1,12 @@
 import { Select, Text, Flex } from "@radix-ui/themes";
 import { useState, useEffect, useMemo } from "react";
 import { getGuildChannels, type Channel } from "@/api/discord";
+import {
+  ChannelSelectContainer,
+  LoadingSelectRoot,
+  ErrorContainer,
+  ChannelItem,
+} from "./channelSelect/";
 
 interface ChannelSelectProps {
   value: string;
@@ -77,16 +83,16 @@ export function ChannelSelect({
 
   if (loading) {
     return (
-      <Select.Root value="" disabled>
+      <LoadingSelectRoot value="" disabled>
         <Select.Trigger placeholder="Loading channels..." />
         <Select.Content />
-      </Select.Root>
+      </LoadingSelectRoot>
     );
   }
 
   if (error) {
     return (
-      <Flex direction="column" gap="1">
+      <ErrorContainer>
         <Select.Root value="" disabled>
           <Select.Trigger placeholder="Error loading channels" />
           <Select.Content />
@@ -94,7 +100,7 @@ export function ChannelSelect({
         <Text size="1" color="red">
           {error}
         </Text>
-      </Flex>
+      </ErrorContainer>
     );
   }
 
@@ -116,17 +122,11 @@ export function ChannelSelect({
           return (
             <div key={channel.id}>
               {isFirstNew && <Select.Separator />}
-              <Select.Item value={channel.id}>
-                <Flex align="center" gap="2">
-                  <Text># {channel.name}</Text>
-                  {isExisting && (
-                    <Text size="1" color="gray">
-                      ({existingChannelUsage[channel.id]} tag
-                      {existingChannelUsage[channel.id] === 1 ? "" : "s"})
-                    </Text>
-                  )}
-                </Flex>
-              </Select.Item>
+              <ChannelItem
+                channel={channel}
+                isExisting={isExisting}
+                existingCount={existingChannelUsage[channel.id]}
+              />
             </div>
           );
         })}
