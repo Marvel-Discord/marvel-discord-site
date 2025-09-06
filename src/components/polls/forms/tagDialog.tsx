@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Button,
   Dialog,
@@ -41,8 +41,8 @@ export function TagDialog({
   const isEditing = editingTag !== null;
   const { tags } = useTagContext();
 
-  // Helper function to get existing channel IDs and their usage counts
-  const getExistingChannels = () => {
+  // Memoized helper to get existing channel IDs and their usage counts
+  const existingChannels = useMemo(() => {
     const channelCounts: Record<string, number> = {};
     Object.values(tags).forEach((tag) => {
       if (tag.channel_id) {
@@ -51,10 +51,10 @@ export function TagDialog({
       }
     });
     return channelCounts;
-  };
+  }, [tags]);
 
-  // Helper function to get existing role IDs and their usage counts
-  const getExistingRoles = () => {
+  // Memoized helper to get existing role IDs and their usage counts
+  const existingRoles = useMemo(() => {
     const roleCounts: Record<string, number> = {};
     Object.values(tags).forEach((tag) => {
       if (tag.end_message_role_ids) {
@@ -65,7 +65,7 @@ export function TagDialog({
       }
     });
     return roleCounts;
-  };
+  }, [tags]);
 
   // Update form fields when editingTag changes
   useEffect(() => {
@@ -221,7 +221,7 @@ export function TagDialog({
               onValueChange={setDiscordChannel}
               placeholder="Select a channel for this tag..."
               disabled={isEditing}
-              existingChannelUsage={getExistingChannels()}
+              existingChannelUsage={existingChannels}
             />
           </Flex>
 
@@ -274,7 +274,7 @@ export function TagDialog({
               value={endMessageRoleIds}
               onValueChange={setEndMessageRoleIds}
               placeholder="Select roles to ping and self-assign"
-              existingRoleUsage={getExistingRoles()}
+              existingRoleUsage={existingRoles}
             />
           </Flex>
 

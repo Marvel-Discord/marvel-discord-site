@@ -1,5 +1,5 @@
 import { Select, Text, Flex } from "@radix-ui/themes";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { getGuildChannels, type Channel } from "@/api/discord";
 
 interface ChannelSelectProps {
@@ -17,12 +17,13 @@ export function ChannelSelect({
   disabled = false,
   existingChannelUsage = {},
 }: ChannelSelectProps) {
-  const [channels, setChannels] = useState<Channel[]>([]);
+  const [rawChannels, setRawChannels] = useState<Channel[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const GUILD_ID = "281648235557421056";
 
+  // Fetch channels only once on mount
   useEffect(() => {
     const fetchChannels = async () => {
       try {
@@ -32,32 +33,7 @@ export function ChannelSelect({
         const data = await getGuildChannels(GUILD_ID);
         console.log(data);
 
-        // Separate existing vs new channels and sort
-        const existingChannels: Channel[] = [];
-        const newChannels: Channel[] = [];
-
-        data.forEach((channel) => {
-          if (existingChannelUsage[channel.id]) {
-            existingChannels.push(channel);
-          } else {
-            newChannels.push(channel);
-          }
-        });
-
-        // Sort existing channels by usage count (most to least frequent)
-        existingChannels.sort((a, b) => {
-          const countA = existingChannelUsage[a.id] || 0;
-          const countB = existingChannelUsage[b.id] || 0;
-          return countB - countA;
-        });
-
-        // Sort new channels by position
-        newChannels.sort((a, b) => a.position - b.position);
-
-        // Combine: existing channels first, then new channels
-        const sortedChannels = [...existingChannels, ...newChannels];
-
-        setChannels(sortedChannels);
+        setRawChannels(data);
       } catch (err) {
         console.error("Error fetching channels:", err);
         setError(
@@ -69,7 +45,35 @@ export function ChannelSelect({
     };
 
     fetchChannels();
-  }, [existingChannelUsage]);
+  }, []);
+
+  // Sort channels based on existing usage (memoized for performance)
+  const sortedChannels = useMemo(() => {
+    // Separate existing vs new channels and sort
+    const existingChannels: Channel[] = [];
+    const newChannels: Channel[] = [];
+
+    rawChannels.forEach((channel) => {
+      if (existingChannelUsage[channel.id]) {
+        existingChannels.push(channel);
+      } else {
+        newChannels.push(channel);
+      }
+    });
+
+    // Sort existing channels by usage count (most to least frequent)
+    existingChannels.sort((a, b) => {
+      const countA = existingChannelUsage[a.id] || 0;
+      const countB = existingChannelUsage[b.id] || 0;
+      return countB - countA;
+    });
+
+    // Sort new channels by position
+    newChannels.sort((a, b) => a.position - b.position);
+
+    // Combine: existing channels first, then new channels
+    return [...existingChannels, ...newChannels];
+  }, [rawChannels, existingChannelUsage]);
 
   if (loading) {
     return (
@@ -102,12 +106,12 @@ export function ChannelSelect({
     >
       <Select.Trigger placeholder={placeholder} />
       <Select.Content>
-        {channels.map((channel, index) => {
+        {sortedChannels.map((channel, index) => {
           const isExisting = !!existingChannelUsage[channel.id];
           const isFirstNew =
             !isExisting &&
             index > 0 &&
-            !!existingChannelUsage[channels[index - 1]?.id];
+            !!existingChannelUsage[sortedChannels[index - 1]?.id];
 
           return (
             <div key={channel.id}>

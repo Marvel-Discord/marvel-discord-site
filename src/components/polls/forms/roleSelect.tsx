@@ -1,5 +1,5 @@
 import { Select, Text, Flex, Badge } from "@radix-ui/themes";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { getGuildRoles, type Role } from "@/api/discord";
 
 interface RoleSelectProps {
@@ -19,12 +19,13 @@ export function RoleSelect({
   multiple = true,
   existingRoleUsage = {},
 }: RoleSelectProps) {
-  const [roles, setRoles] = useState<Role[]>([]);
+  const [rawRoles, setRawRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const GUILD_ID = "281648235557421056";
 
+  // Fetch roles only once on mount
   useEffect(() => {
     const fetchRoles = async () => {
       try {
@@ -38,32 +39,7 @@ export function RoleSelect({
           (role: Role) => role.name !== "@everyone"
         );
 
-        // Separate existing vs new roles
-        const existingRoles: Role[] = [];
-        const newRoles: Role[] = [];
-
-        filteredData.forEach((role) => {
-          if (existingRoleUsage[role.id]) {
-            existingRoles.push(role);
-          } else {
-            newRoles.push(role);
-          }
-        });
-
-        // Sort existing roles by usage count (most to least frequent)
-        existingRoles.sort((a, b) => {
-          const countA = existingRoleUsage[a.id] || 0;
-          const countB = existingRoleUsage[b.id] || 0;
-          return countB - countA;
-        });
-
-        // Sort new roles by position (higher position = higher in hierarchy)
-        newRoles.sort((a, b) => b.position - a.position);
-
-        // Combine: existing roles first, then new roles
-        const sortedRoles = [...existingRoles, ...newRoles];
-
-        setRoles(sortedRoles);
+        setRawRoles(filteredData);
       } catch (err) {
         console.error("Error fetching roles:", err);
         setError(err instanceof Error ? err.message : "Failed to load roles");
@@ -73,7 +49,35 @@ export function RoleSelect({
     };
 
     fetchRoles();
-  }, [existingRoleUsage]);
+  }, []);
+
+  // Sort roles based on existing usage (memoized for performance)
+  const sortedRoles = useMemo(() => {
+    // Separate existing vs new roles
+    const existingRoles: Role[] = [];
+    const newRoles: Role[] = [];
+
+    rawRoles.forEach((role) => {
+      if (existingRoleUsage[role.id]) {
+        existingRoles.push(role);
+      } else {
+        newRoles.push(role);
+      }
+    });
+
+    // Sort existing roles by usage count (most to least frequent)
+    existingRoles.sort((a, b) => {
+      const countA = existingRoleUsage[a.id] || 0;
+      const countB = existingRoleUsage[b.id] || 0;
+      return countB - countA;
+    });
+
+    // Sort new roles by position (higher position = higher in hierarchy)
+    newRoles.sort((a, b) => b.position - a.position);
+
+    // Combine: existing roles first, then new roles
+    return [...existingRoles, ...newRoles];
+  }, [rawRoles, existingRoleUsage]);
 
   const handleValueChange = (newValue: string) => {
     if (multiple) {
@@ -94,7 +98,7 @@ export function RoleSelect({
   const getSelectedText = (): string => {
     if (value.length === 0) return placeholder;
     if (value.length === 1) {
-      const role = roles.find((r) => r.id === value[0]);
+      const role = sortedRoles.find((r) => r.id === value[0]);
       return role ? `@${role.name}` : "Unknown role";
     }
     return `${value.length} roles selected`;
@@ -133,12 +137,12 @@ export function RoleSelect({
         >
           <Select.Trigger placeholder={getSelectedText()} />
           <Select.Content>
-            {roles.map((role, index) => {
+            {sortedRoles.map((role, index) => {
               const isExisting = !!existingRoleUsage[role.id];
               const isFirstNew =
                 !isExisting &&
                 index > 0 &&
-                !!existingRoleUsage[roles[index - 1]?.id];
+                !!existingRoleUsage[sortedRoles[index - 1]?.id];
 
               return (
                 <div key={role.id}>
@@ -177,7 +181,7 @@ export function RoleSelect({
         {value.length > 0 && (
           <Flex gap="1" wrap="wrap">
             {value.map((roleId) => {
-              const role = roles.find((r) => r.id === roleId);
+              const role = sortedRoles.find((r) => r.id === roleId);
               if (!role) return null;
               return (
                 <Badge
@@ -220,12 +224,12 @@ export function RoleSelect({
     >
       <Select.Trigger placeholder={placeholder} />
       <Select.Content>
-        {roles.map((role, index) => {
+        {sortedRoles.map((role, index) => {
           const isExisting = !!existingRoleUsage[role.id];
           const isFirstNew =
             !isExisting &&
             index > 0 &&
-            !!existingRoleUsage[roles[index - 1]?.id];
+            !!existingRoleUsage[sortedRoles[index - 1]?.id];
 
           return (
             <div key={role.id}>
