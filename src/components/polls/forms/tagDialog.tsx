@@ -7,12 +7,31 @@ import {
   TextField,
   TextArea,
   Checkbox,
+  Popover,
 } from "@radix-ui/themes";
+import { HexColorPicker } from "react-colorful";
+import { Pipette } from "lucide-react";
+import styled from "styled-components";
 import type { Tag } from "@jocasta-polls-api";
 import { ChannelSelect } from "./channelSelect";
 import { RoleSelect } from "./roleSelect";
 import { EndMessageSelect } from "./endMessageSelect";
 import { useTagContext } from "@/contexts/TagContext";
+import { isLightColor } from "@/utils";
+
+// Styled components for color picker
+const StyledColorPickerWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  width: 100%;
+`;
+
+const StyledColorPickerButton = styled(Button)`
+  &:hover {
+    opacity: 0.8;
+  }
+`;
 
 // Extended type for form data (includes pending tag fields)
 type TagFormData = Partial<Tag>;
@@ -262,11 +281,51 @@ export function TagDialog({
             <Text size="2" weight="medium">
               Color
             </Text>
-            <TextField.Root
-              value={colour}
-              onChange={(e) => setColour(e.target.value)}
-              placeholder="Hex color code (e.g. #7298da)"
-            />
+            <StyledColorPickerWrapper>
+              <Popover.Root>
+                <Popover.Trigger>
+                  <StyledColorPickerButton
+                    variant="solid"
+                    style={{
+                      backgroundColor: colour || "#7298da",
+                    }}
+                  >
+                    <Pipette
+                      size={16}
+                      color={
+                        isLightColor(colour || "#7298da")
+                          ? "#000000"
+                          : "#ffffff"
+                      }
+                    />
+                  </StyledColorPickerButton>
+                </Popover.Trigger>
+                <Popover.Content>
+                  <HexColorPicker
+                    color={colour || "#7298da"}
+                    onChange={(color) => setColour(color)}
+                  />
+                </Popover.Content>
+              </Popover.Root>
+              <TextField.Root
+                placeholder="Hex color code (e.g. #7298da)"
+                value={colour}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setColour(e.target.value)
+                }
+                style={{
+                  fontFamily: "monospace",
+                }}
+              />
+              <Button
+                variant="outline"
+                color="gray"
+                onClick={() => setColour("")}
+                disabled={!colour}
+              >
+                Clear
+              </Button>
+            </StyledColorPickerWrapper>
           </Flex>
 
           <Flex gap="2" direction="column">

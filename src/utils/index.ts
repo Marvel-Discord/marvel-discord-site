@@ -2,6 +2,8 @@ import config from "@/app/config/config";
 import type { Tag } from "@jocasta-polls-api";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
+export { isLightColor } from "./colorUtils";
+
 export const formatDate = (date: Date): string => {
   return new Intl.DateTimeFormat("en-US", {
     month: "long",

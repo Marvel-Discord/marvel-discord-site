@@ -47,6 +47,9 @@ importers:
       react:
         specifier: ^19.0.0
         version: 19.1.1
+      react-colorful:
+        specifier: ^5.6.1
+        version: 5.6.1(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       react-datepicker:
         specifier: ^8.3.0
         version: 8.7.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -3337,6 +3340,12 @@ packages:
 
   rc9@2.1.2:
     resolution: {integrity: sha512-btXCnMmRIBINM2LDZoEmOogIZU7Qe7zn4BpomSKZ/ykbLObuBdvG+mFq11DL6fjH1DRwHhrlgtYWG96bJiC7Cg==}
+
+  react-colorful@5.6.1:
+    resolution: {integrity: sha512-1exovf0uGTGyq5mXQT0zgQ80uvj2PCwvF8zY1RN9/vbJVSjSo3fsB/4L3ObbF7u70NduSiK4xu4Y6q1MHoUGEw==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
 
   react-datepicker@8.7.0:
     resolution: {integrity: sha512-r5OJbiLWc3YiVNy69Kau07/aVgVGsFVMA6+nlqCV7vyQ8q0FUOnJ+wAI4CgVxHejG3i5djAEiebrF8/Eip4rIw==}
@@ -7528,6 +7537,11 @@ snapshots:
     dependencies:
       defu: 6.1.4
       destr: 2.0.5
+
+  react-colorful@5.6.1(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
+    dependencies:
+      react: 19.1.1
+      react-dom: 19.1.1(react@19.1.1)
 
   react-datepicker@8.7.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
     dependencies:
