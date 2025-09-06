@@ -6,6 +6,9 @@ import {
   pollDescriptionAuthorshipRegex,
 } from "@/utils";
 import type { Poll, PollInfo, Tag } from "@jocasta-polls-api";
+
+// Extended interface for form data (includes pending tag fields)
+type TagFormData = Partial<Tag>;
 import {
   Button,
   Dialog,
@@ -894,11 +897,11 @@ export function PollCardHeader({
     }
   }, [dateTime]);
 
-  const handleTagCreated = (newTag: Tag) => {
+  const handleTagCreated = (newTag: TagFormData) => {
     // Add to global pending tags via context
     addPendingTag(newTag);
-    // Set as the current tag
-    setTag?.(newTag);
+    // Set as the current tag (cast to Tag for compatibility)
+    setTag?.(newTag as Tag);
   };
 
   return (
@@ -921,7 +924,7 @@ export function PollCardHeader({
                     (tag) => tag.tag === tagId
                   );
                   if (pendingTag) {
-                    setTag(pendingTag);
+                    setTag(pendingTag as Tag);
                   }
                 } else {
                   // It's an existing tag
@@ -942,7 +945,7 @@ export function PollCardHeader({
                   {pendingTags.map((pendingTag) => (
                     <Select.Item
                       key={pendingTag.tag}
-                      value={pendingTag.tag.toString()}
+                      value={pendingTag.tag?.toString() || ""}
                     >
                       {pendingTag.name} (new)
                     </Select.Item>

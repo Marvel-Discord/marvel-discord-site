@@ -7,6 +7,11 @@ import { useState } from "react";
 import { TagDialog } from "../forms/tagDialog";
 import type { Tag as TagType } from "@jocasta-polls-api";
 
+// Extended interface for form data (matches tagDialog.tsx)
+interface TagFormData extends Partial<TagType> {
+  // All fields are optional for form data
+}
+
 const CardStyle = styled(Card)`
   width: fit-content;
   z-index: 1000;
@@ -62,7 +67,7 @@ export default function EditButton({
     updatePendingTag,
     clearPendingTags,
   } = useTagContext();
-  const [editingTag, setEditingTag] = useState<TagType | null>(null);
+  const [editingTag, setEditingTag] = useState<TagFormData | null>(null);
   const [tagDialogOpen, setTagDialogOpen] = useState(false);
 
   const handleDiscardChanges = () => {
@@ -166,7 +171,7 @@ export default function EditButton({
         open={tagDialogOpen}
         onOpenChange={setTagDialogOpen}
         onTagCreated={(updatedTag) => {
-          if (editingTag) {
+          if (editingTag && editingTag.tag !== undefined) {
             updatePendingTag(editingTag.tag, updatedTag);
           }
           setEditingTag(null);

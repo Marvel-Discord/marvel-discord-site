@@ -1,12 +1,24 @@
 import { useState, useEffect } from "react";
-import { Button, Dialog, Flex, Text, TextField } from "@radix-ui/themes";
+import {
+  Button,
+  Dialog,
+  Flex,
+  Text,
+  TextField,
+  Checkbox,
+} from "@radix-ui/themes";
 import type { Tag } from "@jocasta-polls-api";
+
+// Extended interface for form data (includes pending tag fields)
+interface TagFormData extends Partial<Tag> {
+  // All fields are optional for form data
+}
 
 interface TagDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onTagCreated: (tag: Tag) => void;
-  editingTag?: Tag | null;
+  onTagCreated: (tag: TagFormData) => void;
+  editingTag?: TagFormData | null;
 }
 
 export function TagDialog({
@@ -16,55 +28,138 @@ export function TagDialog({
   editingTag = null,
 }: TagDialogProps) {
   const [tagName, setTagName] = useState("");
+  const [discordChannel, setDiscordChannel] = useState("");
+  const [currentNum, setCurrentNum] = useState<number | null>(null);
+  const [colour, setColour] = useState("");
+  const [endMessage, setEndMessage] = useState("");
+  const [endMessageRoleIds, setEndMessageRoleIds] = useState("");
+  const [endMessagePing, setEndMessagePing] = useState(false);
+  const [endMessageSelfAssign, setEndMessageSelfAssign] = useState(false);
+  const [persistent, setPersistent] = useState(true);
+
   const isEditing = editingTag !== null;
 
-  // Update tagName when editingTag changes
+  // Update form fields when editingTag changes
   useEffect(() => {
     if (editingTag) {
-      setTagName(editingTag.name);
+      setTagName(editingTag.name || "");
+      setDiscordChannel(editingTag.channel_id?.toString() || "");
+      setCurrentNum(editingTag.current_num || null);
+      setColour(editingTag.colour?.toString() || "");
+      setEndMessage(editingTag.end_message || "");
+      setEndMessageRoleIds(editingTag.end_message_role_ids?.join(",") || "");
+      setEndMessagePing(editingTag.end_message_ping || false);
+      setEndMessageSelfAssign(editingTag.end_message_self_assign || false);
+      setPersistent(editingTag.persistent ?? true);
     } else {
+      // Reset all fields for new tag
       setTagName("");
+      setDiscordChannel("");
+      setCurrentNum(null);
+      setColour("");
+      setEndMessage("");
+      setEndMessageRoleIds("");
+      setEndMessagePing(false);
+      setEndMessageSelfAssign(false);
+      setPersistent(true);
     }
   }, [editingTag]);
 
   const handleSubmit = () => {
-    if (!tagName.trim()) return;
+    if (!tagName.trim() || !discordChannel.trim()) return;
 
-    const tag = isEditing
-      ? { ...editingTag, name: tagName.trim() }
-      : ({
+    // Helper function to convert hex color to number
+    const colorToNumber = (hexColor: string): number | null => {
+      if (!hexColor) return null;
+      const hex = hexColor.replace("#", "");
+      return hex ? parseInt(hex, 16) : null;
+    };
+
+    // Helper function to parse role IDs
+    const parseRoleIds = (roleIdsStr: string): bigint[] => {
+      if (!roleIdsStr.trim()) return [];
+      return roleIdsStr
+        .split(",")
+        .map((id) => BigInt(id.trim()))
+        .filter((id) => id > 0);
+    };
+
+    const tag: TagFormData = isEditing
+      ? {
+          ...editingTag,
+          name: tagName.trim(),
+          channel_id: discordChannel ? BigInt(discordChannel) : BigInt(0),
+          current_num: currentNum,
+          colour: colorToNumber(colour),
+          end_message: endMessage || null,
+          end_message_role_ids: parseRoleIds(endMessageRoleIds),
+          end_message_ping: endMessagePing,
+          end_message_self_assign: endMessageSelfAssign,
+          persistent: persistent,
+        }
+      : {
           tag: -Date.now(), // negative ID to indicate it's pending
           name: tagName.trim(),
-          channel_id: BigInt(0),
-          colour: null,
-        } as Tag);
+          channel_id: discordChannel ? BigInt(discordChannel) : BigInt(0),
+          colour: colorToNumber(colour),
+          current_num: currentNum,
+          end_message: endMessage || null,
+          end_message_role_ids: parseRoleIds(endMessageRoleIds),
+          end_message_ping: endMessagePing,
+          end_message_self_assign: endMessageSelfAssign,
+          persistent: persistent,
+          guild_id: BigInt(0), // Will be set by the server
+          crosspost_channels: [],
+          crosspost_servers: [],
+          end_message_latest_ids: [],
+        };
 
     onTagCreated(tag);
     onOpenChange(false);
 
     // Reset form
     setTagName("");
+    setDiscordChannel("");
+    setCurrentNum(null);
+    setColour("");
+    setEndMessage("");
+    setEndMessageRoleIds("");
+    setEndMessagePing(false);
+    setEndMessageSelfAssign(false);
+    setPersistent(true);
   };
 
   const handleCancel = () => {
     setTagName("");
+    setDiscordChannel("");
+    setCurrentNum(null);
+    setColour("");
+    setEndMessage("");
+    setEndMessageRoleIds("");
+    setEndMessagePing(false);
+    setEndMessageSelfAssign(false);
+    setPersistent(true);
     onOpenChange(false);
   };
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
-      <Dialog.Content maxWidth="450px">
+      <Dialog.Content
+        maxWidth="550px"
+        style={{ maxHeight: "90vh", overflowY: "auto" }}
+      >
         <Dialog.Title>{isEditing ? "Edit Tag" : "Create New Tag"}</Dialog.Title>
         <Dialog.Description>
           {isEditing
-            ? "Edit the tag name."
-            : "Create a new tag for organizing polls."}
+            ? "Edit the tag settings."
+            : "Create a new tag for organizing polls. Tag name and Discord channel are required."}
         </Dialog.Description>
 
         <Flex gap="4" direction="column" mt="4">
+          {/* Required Fields */}
           <Flex gap="2" direction="column">
             <Text size="2" weight="medium">
-              Tag Name
+              Tag Name *
             </Text>
             <TextField.Root
               value={tagName}
@@ -78,13 +173,123 @@ export function TagDialog({
             />
           </Flex>
 
+          <Flex gap="2" direction="column">
+            <Text size="2" weight="medium">
+              Discord Channel *
+            </Text>
+            <TextField.Root
+              value={discordChannel}
+              onChange={(e) => setDiscordChannel(e.target.value)}
+              placeholder="Enter channel ID"
+            />
+          </Flex>
+
+          {/* Optional Fields */}
+          <Text size="3" weight="medium" mt="2">
+            Optional Settings
+          </Text>
+
+          <Flex gap="2" direction="column">
+            <Text size="2" weight="medium">
+              Starting Number
+            </Text>
+            <TextField.Root
+              type="number"
+              value={currentNum?.toString() || ""}
+              onChange={(e) =>
+                setCurrentNum(e.target.value ? parseInt(e.target.value) : null)
+              }
+              placeholder="Starting value for poll numbering"
+            />
+          </Flex>
+
+          <Flex gap="2" direction="column">
+            <Text size="2" weight="medium">
+              Color
+            </Text>
+            <TextField.Root
+              value={colour}
+              onChange={(e) => setColour(e.target.value)}
+              placeholder="Hex color code (e.g. #7298da)"
+            />
+          </Flex>
+
+          <Flex gap="2" direction="column">
+            <Text size="2" weight="medium">
+              End Message
+            </Text>
+            <TextField.Root
+              value={endMessage}
+              onChange={(e) => setEndMessage(e.target.value)}
+              placeholder="Message to send after each poll"
+            />
+          </Flex>
+
+          <Flex gap="2" direction="column">
+            <Text size="2" weight="medium">
+              Ping Role IDs
+            </Text>
+            <TextField.Root
+              value={endMessageRoleIds}
+              onChange={(e) => setEndMessageRoleIds(e.target.value)}
+              placeholder="Comma-separated role IDs to ping and self-assign"
+            />
+          </Flex>
+
+          <Flex direction="column" gap="2">
+            <Text size="2" weight="medium">
+              Role Options
+            </Text>
+            <label
+              style={{ display: "flex", alignItems: "center", gap: "8px" }}
+            >
+              <Checkbox
+                checked={endMessagePing}
+                onCheckedChange={(checked) =>
+                  setEndMessagePing(checked as boolean)
+                }
+              />
+              <Text size="2">Ping the roles after each poll</Text>
+            </label>
+
+            <label
+              style={{ display: "flex", alignItems: "center", gap: "8px" }}
+            >
+              <Checkbox
+                checked={endMessageSelfAssign}
+                onCheckedChange={(checked) =>
+                  setEndMessageSelfAssign(checked as boolean)
+                }
+              />
+              <Text size="2">
+                Let users self-assign the ping roles with a button
+              </Text>
+            </label>
+
+            <label
+              style={{ display: "flex", alignItems: "center", gap: "8px" }}
+            >
+              <Checkbox
+                checked={persistent}
+                onCheckedChange={(checked) => setPersistent(checked as boolean)}
+              />
+              <Text size="2">
+                Share end-message sending/deletion with other tags in the same
+                channel
+              </Text>
+            </label>
+          </Flex>
+
           <Flex gap="3" mt="6" justify="end">
             <Dialog.Close>
               <Button variant="soft" color="gray" onClick={handleCancel}>
                 Cancel
               </Button>
             </Dialog.Close>
-            <Button onClick={handleSubmit} disabled={!tagName.trim()}>
+            <Button
+              onClick={handleSubmit}
+              disabled={!tagName.trim() || !discordChannel.trim()}
+            >
               {isEditing ? "Save Changes" : "Create Tag"}
             </Button>
           </Flex>
