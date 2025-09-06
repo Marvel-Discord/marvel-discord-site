@@ -10,6 +10,7 @@ import {
 import type { Tag } from "@jocasta-polls-api";
 import { ChannelSelect } from "./channelSelect";
 import { RoleSelect } from "./roleSelect";
+import { useTagContext } from "@/contexts/TagContext";
 
 // Extended type for form data (includes pending tag fields)
 type TagFormData = Partial<Tag>;
@@ -38,6 +39,33 @@ export function TagDialog({
   const [persistent, setPersistent] = useState(true);
 
   const isEditing = editingTag !== null;
+  const { tags } = useTagContext();
+
+  // Helper function to get existing channel IDs and their usage counts
+  const getExistingChannels = () => {
+    const channelCounts: Record<string, number> = {};
+    Object.values(tags).forEach((tag) => {
+      if (tag.channel_id) {
+        const channelId = tag.channel_id.toString();
+        channelCounts[channelId] = (channelCounts[channelId] || 0) + 1;
+      }
+    });
+    return channelCounts;
+  };
+
+  // Helper function to get existing role IDs and their usage counts
+  const getExistingRoles = () => {
+    const roleCounts: Record<string, number> = {};
+    Object.values(tags).forEach((tag) => {
+      if (tag.end_message_role_ids) {
+        tag.end_message_role_ids.forEach((roleId) => {
+          const roleIdStr = roleId.toString();
+          roleCounts[roleIdStr] = (roleCounts[roleIdStr] || 0) + 1;
+        });
+      }
+    });
+    return roleCounts;
+  };
 
   // Update form fields when editingTag changes
   useEffect(() => {
@@ -193,6 +221,7 @@ export function TagDialog({
               onValueChange={setDiscordChannel}
               placeholder="Select a channel for this tag..."
               disabled={isEditing}
+              existingChannelUsage={getExistingChannels()}
             />
           </Flex>
 
@@ -245,6 +274,7 @@ export function TagDialog({
               value={endMessageRoleIds}
               onValueChange={setEndMessageRoleIds}
               placeholder="Select roles to ping and self-assign"
+              existingRoleUsage={getExistingRoles()}
             />
           </Flex>
 

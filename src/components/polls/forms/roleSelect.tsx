@@ -8,6 +8,7 @@ interface RoleSelectProps {
   placeholder?: string;
   disabled?: boolean;
   multiple?: boolean;
+  existingRoleUsage?: Record<string, number>;
 }
 
 export function RoleSelect({
@@ -16,6 +17,7 @@ export function RoleSelect({
   placeholder = "Select roles...",
   disabled = false,
   multiple = true,
+  existingRoleUsage = {},
 }: RoleSelectProps) {
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,12 +33,37 @@ export function RoleSelect({
 
         const data = await getGuildRoles(GUILD_ID);
 
-        // Filter out @everyone role and sort by position (higher position = higher in hierarchy)
-        const filteredRoles = data
-          .filter((role: Role) => role.name !== "@everyone")
-          .sort((a: Role, b: Role) => b.position - a.position);
+        // Filter out @everyone role
+        const filteredData = data.filter(
+          (role: Role) => role.name !== "@everyone"
+        );
 
-        setRoles(filteredRoles);
+        // Separate existing vs new roles
+        const existingRoles: Role[] = [];
+        const newRoles: Role[] = [];
+
+        filteredData.forEach((role) => {
+          if (existingRoleUsage[role.id]) {
+            existingRoles.push(role);
+          } else {
+            newRoles.push(role);
+          }
+        });
+
+        // Sort existing roles by usage count (most to least frequent)
+        existingRoles.sort((a, b) => {
+          const countA = existingRoleUsage[a.id] || 0;
+          const countB = existingRoleUsage[b.id] || 0;
+          return countB - countA;
+        });
+
+        // Sort new roles by position (higher position = higher in hierarchy)
+        newRoles.sort((a, b) => b.position - a.position);
+
+        // Combine: existing roles first, then new roles
+        const sortedRoles = [...existingRoles, ...newRoles];
+
+        setRoles(sortedRoles);
       } catch (err) {
         console.error("Error fetching roles:", err);
         setError(err instanceof Error ? err.message : "Failed to load roles");
@@ -46,7 +73,7 @@ export function RoleSelect({
     };
 
     fetchRoles();
-  }, []);
+  }, [existingRoleUsage]);
 
   const handleValueChange = (newValue: string) => {
     if (multiple) {
@@ -106,27 +133,44 @@ export function RoleSelect({
         >
           <Select.Trigger placeholder={getSelectedText()} />
           <Select.Content>
-            {roles.map((role) => (
-              <Select.Item key={role.id} value={role.id}>
-                <Flex align="center" gap="2">
-                  <div
-                    style={{
-                      width: "12px",
-                      height: "12px",
-                      borderRadius: "50%",
-                      backgroundColor: formatColorToHex(role.color),
-                      flexShrink: 0,
-                    }}
-                  />
-                  <Text>@{role.name}</Text>
-                  {value.includes(role.id) && (
-                    <Badge size="1" color="green">
-                      ✓
-                    </Badge>
-                  )}
-                </Flex>
-              </Select.Item>
-            ))}
+            {roles.map((role, index) => {
+              const isExisting = !!existingRoleUsage[role.id];
+              const isFirstNew =
+                !isExisting &&
+                index > 0 &&
+                !!existingRoleUsage[roles[index - 1]?.id];
+
+              return (
+                <div key={role.id}>
+                  {isFirstNew && <Select.Separator />}
+                  <Select.Item value={role.id}>
+                    <Flex align="center" gap="2">
+                      <div
+                        style={{
+                          width: "12px",
+                          height: "12px",
+                          borderRadius: "50%",
+                          backgroundColor: formatColorToHex(role.color),
+                          flexShrink: 0,
+                        }}
+                      />
+                      <Text>@{role.name}</Text>
+                      {isExisting && (
+                        <Text size="1" color="gray">
+                          ({existingRoleUsage[role.id]} tag
+                          {existingRoleUsage[role.id] === 1 ? "" : "s"})
+                        </Text>
+                      )}
+                      {value.includes(role.id) && (
+                        <Badge size="1" color="green">
+                          ✓
+                        </Badge>
+                      )}
+                    </Flex>
+                  </Select.Item>
+                </div>
+              );
+            })}
           </Select.Content>
         </Select.Root>
 
@@ -176,22 +220,39 @@ export function RoleSelect({
     >
       <Select.Trigger placeholder={placeholder} />
       <Select.Content>
-        {roles.map((role) => (
-          <Select.Item key={role.id} value={role.id}>
-            <Flex align="center" gap="2">
-              <div
-                style={{
-                  width: "12px",
-                  height: "12px",
-                  borderRadius: "50%",
-                  backgroundColor: formatColorToHex(role.color),
-                  flexShrink: 0,
-                }}
-              />
-              <Text>@{role.name}</Text>
-            </Flex>
-          </Select.Item>
-        ))}
+        {roles.map((role, index) => {
+          const isExisting = !!existingRoleUsage[role.id];
+          const isFirstNew =
+            !isExisting &&
+            index > 0 &&
+            !!existingRoleUsage[roles[index - 1]?.id];
+
+          return (
+            <div key={role.id}>
+              {isFirstNew && <Select.Separator />}
+              <Select.Item value={role.id}>
+                <Flex align="center" gap="2">
+                  <div
+                    style={{
+                      width: "12px",
+                      height: "12px",
+                      borderRadius: "50%",
+                      backgroundColor: formatColorToHex(role.color),
+                      flexShrink: 0,
+                    }}
+                  />
+                  <Text>@{role.name}</Text>
+                  {isExisting && (
+                    <Text size="1" color="gray">
+                      ({existingRoleUsage[role.id]} tag
+                      {existingRoleUsage[role.id] === 1 ? "" : "s"})
+                    </Text>
+                  )}
+                </Flex>
+              </Select.Item>
+            </div>
+          );
+        })}
       </Select.Content>
     </Select.Root>
   );
