@@ -260,7 +260,7 @@ export function TagDialog({
 
           {/* Optional Fields */}
           <Text size="3" weight="medium" mt="2">
-            Optional Settings
+            Optional
           </Text>
 
           <Flex gap="2" direction="column">
@@ -273,7 +273,7 @@ export function TagDialog({
               onChange={(e) =>
                 setCurrentNum(e.target.value ? parseInt(e.target.value) : null)
               }
-              placeholder="Starting value for poll numbering"
+              placeholder="Starting value for poll numbering. Empty to leave unnumbered."
             />
           </Flex>
 
@@ -308,7 +308,7 @@ export function TagDialog({
                 </Popover.Content>
               </Popover.Root>
               <TextField.Root
-                placeholder="Hex color code (e.g. #7298da)"
+                placeholder="Hex color code"
                 value={colour}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   setColour(e.target.value)
