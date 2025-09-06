@@ -1,1 +1,6 @@
-export { getGuildChannels, type Channel } from "./channels";
+export {
+  getGuildChannels,
+  getGuildRoles,
+  type Channel,
+  type Role,
+} from "./channels";

@@ -9,11 +9,10 @@ import {
 } from "@radix-ui/themes";
 import type { Tag } from "@jocasta-polls-api";
 import { ChannelSelect } from "./channelSelect";
+import { RoleSelect } from "./roleSelect";
 
-// Extended interface for form data (includes pending tag fields)
-interface TagFormData extends Partial<Tag> {
-  // All fields are optional for form data
-}
+// Extended type for form data (includes pending tag fields)
+type TagFormData = Partial<Tag>;
 
 interface TagDialogProps {
   open: boolean;
@@ -33,7 +32,7 @@ export function TagDialog({
   const [currentNum, setCurrentNum] = useState<number | null>(null);
   const [colour, setColour] = useState("");
   const [endMessage, setEndMessage] = useState("");
-  const [endMessageRoleIds, setEndMessageRoleIds] = useState("");
+  const [endMessageRoleIds, setEndMessageRoleIds] = useState<string[]>([]);
   const [endMessagePing, setEndMessagePing] = useState(false);
   const [endMessageSelfAssign, setEndMessageSelfAssign] = useState(false);
   const [persistent, setPersistent] = useState(true);
@@ -48,7 +47,9 @@ export function TagDialog({
       setCurrentNum(editingTag.current_num || null);
       setColour(editingTag.colour?.toString() || "");
       setEndMessage(editingTag.end_message || "");
-      setEndMessageRoleIds(editingTag.end_message_role_ids?.join(",") || "");
+      setEndMessageRoleIds(
+        editingTag.end_message_role_ids?.map((id) => id.toString()) || []
+      );
       setEndMessagePing(editingTag.end_message_ping || false);
       setEndMessageSelfAssign(editingTag.end_message_self_assign || false);
       setPersistent(editingTag.persistent ?? true);
@@ -59,12 +60,23 @@ export function TagDialog({
       setCurrentNum(null);
       setColour("");
       setEndMessage("");
-      setEndMessageRoleIds("");
+      setEndMessageRoleIds([]);
       setEndMessagePing(false);
       setEndMessageSelfAssign(false);
       setPersistent(true);
     }
   }, [editingTag]);
+
+  // Effect to disable and reset role-related checkboxes when no roles are selected
+  useEffect(() => {
+    if (endMessageRoleIds.length === 0) {
+      setEndMessagePing(false);
+      setEndMessageSelfAssign(false);
+    }
+  }, [endMessageRoleIds]);
+
+  // Helper to determine if role-related options should be disabled
+  const hasRoles = endMessageRoleIds.length > 0;
 
   const handleSubmit = () => {
     if (!tagName.trim() || !discordChannel.trim()) return;
@@ -76,13 +88,11 @@ export function TagDialog({
       return hex ? parseInt(hex, 16) : null;
     };
 
-    // Helper function to parse role IDs
-    const parseRoleIds = (roleIdsStr: string): bigint[] => {
-      if (!roleIdsStr.trim()) return [];
-      return roleIdsStr
-        .split(",")
-        .map((id) => BigInt(id.trim()))
-        .filter((id) => id > 0);
+    // Helper function to convert role IDs to bigint array
+    const roleIdsToBigInt = (roleIds: string[]): bigint[] => {
+      return roleIds
+        .filter((id) => id.trim() !== "")
+        .map((id) => BigInt(id.trim()));
     };
 
     const tag: TagFormData = isEditing
@@ -93,7 +103,7 @@ export function TagDialog({
           current_num: currentNum,
           colour: colorToNumber(colour),
           end_message: endMessage || null,
-          end_message_role_ids: parseRoleIds(endMessageRoleIds),
+          end_message_role_ids: roleIdsToBigInt(endMessageRoleIds),
           end_message_ping: endMessagePing,
           end_message_self_assign: endMessageSelfAssign,
           persistent: persistent,
@@ -105,7 +115,7 @@ export function TagDialog({
           colour: colorToNumber(colour),
           current_num: currentNum,
           end_message: endMessage || null,
-          end_message_role_ids: parseRoleIds(endMessageRoleIds),
+          end_message_role_ids: roleIdsToBigInt(endMessageRoleIds),
           end_message_ping: endMessagePing,
           end_message_self_assign: endMessageSelfAssign,
           persistent: persistent,
@@ -124,7 +134,7 @@ export function TagDialog({
     setCurrentNum(null);
     setColour("");
     setEndMessage("");
-    setEndMessageRoleIds("");
+    setEndMessageRoleIds([]);
     setEndMessagePing(false);
     setEndMessageSelfAssign(false);
     setPersistent(true);
@@ -136,7 +146,7 @@ export function TagDialog({
     setCurrentNum(null);
     setColour("");
     setEndMessage("");
-    setEndMessageRoleIds("");
+    setEndMessageRoleIds([]);
     setEndMessagePing(false);
     setEndMessageSelfAssign(false);
     setPersistent(true);
@@ -231,10 +241,10 @@ export function TagDialog({
             <Text size="2" weight="medium">
               Ping Role IDs
             </Text>
-            <TextField.Root
+            <RoleSelect
               value={endMessageRoleIds}
-              onChange={(e) => setEndMessageRoleIds(e.target.value)}
-              placeholder="Comma-separated role IDs to ping and self-assign"
+              onValueChange={setEndMessageRoleIds}
+              placeholder="Select roles to ping and self-assign"
             />
           </Flex>
 
@@ -243,10 +253,16 @@ export function TagDialog({
               Role Options
             </Text>
             <label
-              style={{ display: "flex", alignItems: "center", gap: "8px" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                opacity: hasRoles ? 1 : 0.5,
+              }}
             >
               <Checkbox
                 checked={endMessagePing}
+                disabled={!hasRoles}
                 onCheckedChange={(checked) =>
                   setEndMessagePing(checked as boolean)
                 }
@@ -255,10 +271,16 @@ export function TagDialog({
             </label>
 
             <label
-              style={{ display: "flex", alignItems: "center", gap: "8px" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                opacity: hasRoles ? 1 : 0.5,
+              }}
             >
               <Checkbox
                 checked={endMessageSelfAssign}
+                disabled={!hasRoles}
                 onCheckedChange={(checked) =>
                   setEndMessageSelfAssign(checked as boolean)
                 }
