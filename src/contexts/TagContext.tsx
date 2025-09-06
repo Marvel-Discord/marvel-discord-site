@@ -7,6 +7,8 @@ interface TagContextType {
   tagsOrder: number[];
   pendingTags: Tag[];
   addPendingTag: (tag: Tag) => void;
+  updatePendingTag: (tagId: number, updatedTag: Tag) => void;
+  clearPendingTags: () => void;
 }
 
 export const TagContext = createContext<TagContextType>({
@@ -14,6 +16,8 @@ export const TagContext = createContext<TagContextType>({
   tagsOrder: [],
   pendingTags: [],
   addPendingTag: () => {},
+  updatePendingTag: () => {},
+  clearPendingTags: () => {},
 });
 
 interface TagProviderProps {
@@ -27,6 +31,16 @@ export const TagProvider = ({ children }: TagProviderProps) => {
 
   const addPendingTag = (tag: Tag) => {
     setPendingTags((prev) => [...prev, tag]);
+  };
+
+  const updatePendingTag = (tagId: number, updatedTag: Tag) => {
+    setPendingTags((prev) =>
+      prev.map((tag) => (tag.tag === tagId ? updatedTag : tag))
+    );
+  };
+
+  const clearPendingTags = () => {
+    setPendingTags([]);
   };
 
   const fetchTags = async () => {
@@ -50,7 +64,14 @@ export const TagProvider = ({ children }: TagProviderProps) => {
 
   return (
     <TagContext.Provider
-      value={{ tags, tagsOrder, pendingTags, addPendingTag }}
+      value={{
+        tags,
+        tagsOrder,
+        pendingTags,
+        addPendingTag,
+        updatePendingTag,
+        clearPendingTags,
+      }}
     >
       {children}
     </TagContext.Provider>

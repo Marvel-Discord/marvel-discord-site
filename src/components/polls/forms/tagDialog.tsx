@@ -1,32 +1,45 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button, Dialog, Flex, Text, TextField } from "@radix-ui/themes";
 import type { Tag } from "@jocasta-polls-api";
 
-interface CreateTagDialogProps {
+interface TagDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onTagCreated: (tag: Tag) => void;
+  editingTag?: Tag | null;
 }
 
-export function CreateTagDialog({
+export function TagDialog({
   open,
   onOpenChange,
   onTagCreated,
-}: CreateTagDialogProps) {
+  editingTag = null,
+}: TagDialogProps) {
   const [tagName, setTagName] = useState("");
+  const isEditing = editingTag !== null;
+
+  // Update tagName when editingTag changes
+  useEffect(() => {
+    if (editingTag) {
+      setTagName(editingTag.name);
+    } else {
+      setTagName("");
+    }
+  }, [editingTag]);
 
   const handleSubmit = () => {
     if (!tagName.trim()) return;
 
-    // Create a temporary tag with a negative ID to indicate it's pending creation
-    const newTag = {
-      tag: -Date.now(), // negative ID to indicate it's pending
-      name: tagName.trim(),
-      channel_id: BigInt(0),
-      colour: null,
-    } as Tag;
+    const tag = isEditing
+      ? { ...editingTag, name: tagName.trim() }
+      : ({
+          tag: -Date.now(), // negative ID to indicate it's pending
+          name: tagName.trim(),
+          channel_id: BigInt(0),
+          colour: null,
+        } as Tag);
 
-    onTagCreated(newTag);
+    onTagCreated(tag);
     onOpenChange(false);
 
     // Reset form
@@ -41,9 +54,11 @@ export function CreateTagDialog({
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Content maxWidth="450px">
-        <Dialog.Title>Create New Tag</Dialog.Title>
+        <Dialog.Title>{isEditing ? "Edit Tag" : "Create New Tag"}</Dialog.Title>
         <Dialog.Description>
-          Create a new tag for organizing polls.
+          {isEditing
+            ? "Edit the tag name."
+            : "Create a new tag for organizing polls."}
         </Dialog.Description>
 
         <Flex gap="4" direction="column" mt="4">
@@ -70,7 +85,7 @@ export function CreateTagDialog({
               </Button>
             </Dialog.Close>
             <Button onClick={handleSubmit} disabled={!tagName.trim()}>
-              Create Tag
+              {isEditing ? "Save Changes" : "Create Tag"}
             </Button>
           </Flex>
         </Flex>

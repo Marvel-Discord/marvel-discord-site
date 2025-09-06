@@ -1,8 +1,11 @@
 import { Button, Card, Flex, Text } from "@radix-ui/themes";
-import { PencilIcon, Tag, TriangleAlert } from "lucide-react";
+import { PencilIcon, Tag, TriangleAlert, Edit } from "lucide-react";
 import styled from "styled-components";
 import type { Poll } from "@jocasta-polls-api";
 import { useTagContext } from "@/contexts/TagContext";
+import { useState } from "react";
+import { TagDialog } from "../forms/tagDialog";
+import type { Tag as TagType } from "@jocasta-polls-api";
 
 const CardStyle = styled(Card)`
   width: fit-content;
@@ -54,7 +57,18 @@ export default function EditButton({
   canSave = true,
   validationErrors = new Map(),
 }: EditButtonProps) {
-  const { pendingTags: newTags } = useTagContext();
+  const {
+    pendingTags: newTags,
+    updatePendingTag,
+    clearPendingTags,
+  } = useTagContext();
+  const [editingTag, setEditingTag] = useState<TagType | null>(null);
+  const [tagDialogOpen, setTagDialogOpen] = useState(false);
+
+  const handleDiscardChanges = () => {
+    clearPendingTags();
+    setEditModeEnabled(false);
+  };
 
   if (!editModeEnabled) {
     return (
@@ -80,7 +94,19 @@ export default function EditButton({
               Tags to create
             </TagHeader>
             {newTags.map((tag) => (
-              <StyledText key={tag.tag}>{tag.name}</StyledText>
+              <Flex key={tag.tag} align="center" gap="2">
+                <Button
+                  variant="ghost"
+                  size="1"
+                  onClick={() => {
+                    setEditingTag(tag);
+                    setTagDialogOpen(true);
+                  }}
+                >
+                  <Edit size={14} />
+                </Button>
+                <StyledText>{tag.name}</StyledText>
+              </Flex>
             ))}
           </Flex>
         </CardStyle>
@@ -120,7 +146,7 @@ export default function EditButton({
             variant="surface"
             size="2"
             aria-label="Discard changes"
-            onClick={() => setEditModeEnabled(false)}
+            onClick={handleDiscardChanges}
           >
             Discard changes
           </ButtonStyle>
@@ -136,6 +162,17 @@ export default function EditButton({
           </ButtonStyle>
         </Flex>
       </CardStyle>
+      <TagDialog
+        open={tagDialogOpen}
+        onOpenChange={setTagDialogOpen}
+        onTagCreated={(updatedTag) => {
+          if (editingTag) {
+            updatePendingTag(editingTag.tag, updatedTag);
+          }
+          setEditingTag(null);
+        }}
+        editingTag={editingTag}
+      />
     </Flex>
   );
 }

@@ -50,7 +50,7 @@ import { useIsMobile } from "@/utils/isMobile";
 import { useTagContext } from "@/contexts/TagContext";
 import DatePickerComponent from "../forms/datePicker";
 import { useFirstRenderResetOnCondition } from "@/utils/useFirstRender";
-import { CreateTagDialog } from "../forms/createTagDialog";
+import { TagDialog } from "../forms/tagDialog";
 
 const Header = styled(Flex)`
   flex-wrap: wrap;
@@ -961,7 +961,7 @@ export function PollCardHeader({
               })}
             </Select.Content>
           </Select.Root>
-          <CreateTagDialog
+          <TagDialog
             open={createTagDialogOpen}
             onOpenChange={setCreateTagDialogOpen}
             onTagCreated={handleTagCreated}
