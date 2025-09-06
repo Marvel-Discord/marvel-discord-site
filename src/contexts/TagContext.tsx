@@ -2,17 +2,12 @@ import { getTags } from "@/api/polls/tags";
 import type { Tag } from "@jocasta-polls-api";
 import { createContext, useContext, useEffect, useState } from "react";
 
-// Extended interface for form data (includes pending tag fields)
-interface TagFormData extends Partial<Tag> {
-  // All fields are optional for form data
-}
-
 interface TagContextType {
   tags: Record<number, Tag>;
   tagsOrder: number[];
-  pendingTags: TagFormData[];
-  addPendingTag: (tag: TagFormData) => void;
-  updatePendingTag: (tagId: number, updatedTag: TagFormData) => void;
+  pendingTags: Partial<Tag>[];
+  addPendingTag: (tag: Partial<Tag>) => void;
+  updatePendingTag: (tagId: number, updatedTag: Partial<Tag>) => void;
   clearPendingTags: () => void;
 }
 
@@ -32,13 +27,13 @@ interface TagProviderProps {
 export const TagProvider = ({ children }: TagProviderProps) => {
   const [tags, setTags] = useState<Record<number, Tag>>({});
   const [tagsOrder, setTagsOrder] = useState<number[]>([]);
-  const [pendingTags, setPendingTags] = useState<TagFormData[]>([]);
+  const [pendingTags, setPendingTags] = useState<Partial<Tag>[]>([]);
 
-  const addPendingTag = (tag: TagFormData) => {
+  const addPendingTag = (tag: Partial<Tag>) => {
     setPendingTags((prev) => [...prev, tag]);
   };
 
-  const updatePendingTag = (tagId: number, updatedTag: TagFormData) => {
+  const updatePendingTag = (tagId: number, updatedTag: Partial<Tag>) => {
     setPendingTags((prev) =>
       prev.map((tag) => (tag.tag === tagId ? updatedTag : tag))
     );

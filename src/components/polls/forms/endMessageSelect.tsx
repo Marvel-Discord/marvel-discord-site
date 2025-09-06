@@ -1,4 +1,4 @@
-import { Select, Text, Flex } from "@radix-ui/themes";
+import { Select, Text } from "@radix-ui/themes";
 import { useMemo } from "react";
 
 interface EndMessageSelectProps {
