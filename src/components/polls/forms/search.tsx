@@ -1,5 +1,12 @@
 import type { DiscordUserProfile, Meta } from "@jocasta-polls-api";
-import { Button, Flex, IconButton, TextField, Tooltip } from "@radix-ui/themes";
+import {
+  Button,
+  Flex,
+  IconButton,
+  TextField,
+  Tooltip,
+  Select,
+} from "@radix-ui/themes";
 import {
   CircleDot,
   CircleCheck,
@@ -37,12 +44,38 @@ const ClearButton = styled.button`
   padding: 0;
 `;
 
-const HasVotedButton = styled(IconButton)`
-  background-color: var(--color-surface);
+const SelectTrigger = styled(Select.Trigger)`
   border-radius: var(--radius-3);
+  box-shadow: inset 0 0 0 1px var(--gray-a7);
   color: var(--gray-a11);
+  cursor: pointer;
   height: 100%;
   width: 3rem;
+
+  &:hover {
+    box-shadow: inset 0 0 0 1px var(--gray-a8);
+  }
+
+  /* Hide the default chevron icon */
+  & > :last-child {
+    display: none;
+  }
+
+  /* Ensure the icon is properly centered */
+  & > :first-child {
+    align-items: center;
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    line-height: 1;
+    width: 100%;
+  }
+
+  /* Force the SVG icon to be centered */
+  svg {
+    display: block;
+    margin: auto;
+  }
 `;
 
 const SearchIconButton = styled(Button)`
@@ -92,45 +125,57 @@ function FilterToggle({
     return null;
   }
 
-  function cycle() {
-    if (!setFilterState) {
-      return;
-    }
-
-    switch (filterState) {
-      case FilterState.ALL:
-        setFilterState(FilterState.NOT_VOTED);
-        break;
-
-      case FilterState.NOT_VOTED:
-        setFilterState(FilterState.HAS_VOTED);
-        break;
-
-      case FilterState.HAS_VOTED:
-        setFilterState(isManager ? FilterState.UNPUBLISHED : FilterState.ALL);
-        break;
-
-      case FilterState.UNPUBLISHED:
-        setFilterState(FilterState.ALL);
-        break;
-
-      case FilterState.PUBLISHED:
-        setFilterState(FilterState.ALL);
-        break;
-
-      default:
-        setFilterState(FilterState.ALL);
-    }
-  }
-
   const { icon, tooltip } = HasVotedInfo[filterState];
 
+  const getAvailableOptions = () => {
+    const baseOptions = [
+      { value: FilterState.ALL, label: "All polls", icon: <CircleCheck /> },
+      {
+        value: FilterState.NOT_VOTED,
+        label: "Unvoted polls",
+        icon: <CircleDot />,
+      },
+      {
+        value: FilterState.HAS_VOTED,
+        label: "Voted polls",
+        icon: <CircleCheckBig />,
+      },
+    ];
+
+    if (isManager) {
+      baseOptions.push(
+        {
+          value: FilterState.UNPUBLISHED,
+          label: "Unpublished polls",
+          icon: <CircleDashed />,
+        },
+        {
+          value: FilterState.PUBLISHED,
+          label: "Published polls",
+          icon: <CircleEllipsis />,
+        }
+      );
+    }
+
+    return baseOptions;
+  };
+
   return (
-    <Tooltip content={tooltip}>
-      <HasVotedButton variant="surface" color="gray" onClick={cycle}>
-        {icon}
-      </HasVotedButton>
-    </Tooltip>
+    <Select.Root value={filterState} onValueChange={setFilterState}>
+      <Tooltip content={tooltip}>
+        <SelectTrigger>{icon}</SelectTrigger>
+      </Tooltip>
+      <Select.Content position="popper">
+        {getAvailableOptions().map((option) => (
+          <Select.Item key={option.value} value={option.value}>
+            <Flex align="center" gap="2">
+              {option.icon}
+              {option.label}
+            </Flex>
+          </Select.Item>
+        ))}
+      </Select.Content>
+    </Select.Root>
   );
 }
 
