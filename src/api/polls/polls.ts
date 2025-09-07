@@ -2,6 +2,7 @@ import type { Meta, Poll } from "@jocasta-polls-api";
 import { axiosPollsInstance } from "../axios";
 import type { AxiosResponse } from "axios";
 import config from "@/app/config/config";
+import { serializeBigIntFields } from "@/utils";
 
 interface GetPollsParams {
   guildId?: string | bigint;
@@ -72,8 +73,11 @@ export const createPolls = async (
   polls: Omit<Poll, "id">[]
 ): Promise<Poll[]> => {
   try {
+    // Serialize BigInt fields to strings for JSON compatibility
+    const serializedPolls = serializeBigIntFields(polls);
+
     const response: AxiosResponse<{ data: Poll[] }> =
-      await axiosPollsInstance.post("/polls/create", polls);
+      await axiosPollsInstance.post("/polls/create", serializedPolls);
     return response.data.data;
   } catch (error) {
     console.error("Error creating polls:", error);
@@ -86,8 +90,11 @@ export const createPolls = async (
  */
 export const updatePolls = async (polls: Poll[]): Promise<Poll[]> => {
   try {
+    // Serialize BigInt fields to strings for JSON compatibility
+    const serializedPolls = serializeBigIntFields(polls);
+
     const response: AxiosResponse<{ data: Poll[] }> =
-      await axiosPollsInstance.post("/polls/update", polls);
+      await axiosPollsInstance.post("/polls/update", serializedPolls);
     return response.data.data;
   } catch (error) {
     console.error("Error updating polls:", error);

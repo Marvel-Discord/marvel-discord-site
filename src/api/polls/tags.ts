@@ -1,6 +1,7 @@
 import type { Tag } from "@jocasta-polls-api";
 import type { AxiosResponse } from "axios";
 import { axiosPollsInstance } from "../axios";
+import { serializeBigIntFields } from "@/utils";
 
 export const getTags = async (): Promise<Tag[]> => {
   try {
@@ -19,9 +20,14 @@ export const getTags = async (): Promise<Tag[]> => {
  */
 export const createTag = async (tagData: Omit<Tag, "tag">): Promise<Tag> => {
   try {
-    const response: AxiosResponse<{ message: string; tag: Tag }> =
-      await axiosPollsInstance.post("/tags/create", tagData);
-    return response.data.tag;
+    // Serialize BigInt fields to strings for JSON compatibility
+    const serializedTagData = serializeBigIntFields(tagData);
+
+    const response: AxiosResponse<Tag> = await axiosPollsInstance.post(
+      "/tags/create",
+      serializedTagData
+    );
+    return response.data;
   } catch (error) {
     console.error("Error creating tag:", error);
     throw error;

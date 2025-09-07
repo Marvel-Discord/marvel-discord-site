@@ -189,6 +189,8 @@ export function EditProvider({ children, polls }: EditProviderProps) {
     try {
       // First, create any pending tags
       const createdTags = [];
+      const tagIdMapping = new Map<number, number>(); // Maps negative ID to positive ID
+
       for (const pendingTag of pendingTags) {
         if (pendingTag.name && pendingTag.channel_id) {
           // Build a complete tag object from the partial
@@ -216,6 +218,10 @@ export function EditProvider({ children, polls }: EditProviderProps) {
           const result = await createNewTag(completeTagData);
           if (result.success && result.tag) {
             createdTags.push(result.tag);
+            // Map the temporary negative ID to the real positive ID
+            if (pendingTag.tag && result.tag.tag) {
+              tagIdMapping.set(pendingTag.tag, result.tag.tag);
+            }
           } else {
             throw new Error(`Failed to create tag: ${result.message}`);
           }
@@ -227,7 +233,16 @@ export function EditProvider({ children, polls }: EditProviderProps) {
         .filter((ep) => ep.state === EditState.CREATE)
         .map((ep) => {
           const { id, ...pollWithoutId } = ep.poll;
-          return pollWithoutId;
+
+          // Update tag ID if it was a newly created tag
+          const updatedTag = tagIdMapping.has(pollWithoutId.tag)
+            ? tagIdMapping.get(pollWithoutId.tag)!
+            : pollWithoutId.tag;
+
+          return {
+            ...pollWithoutId,
+            tag: updatedTag,
+          };
         });
 
       const pollsToUpdate = editedPolls

@@ -4,6 +4,33 @@ import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.
 
 export { isLightColor } from "./colorUtils";
 
+/**
+ * Converts BigInt values in an object to strings for JSON serialization
+ */
+export function serializeBigIntFields<T>(obj: T): T {
+  if (obj === null || obj === undefined) {
+    return obj;
+  }
+
+  if (typeof obj === "bigint") {
+    return obj.toString() as T;
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map(serializeBigIntFields) as T;
+  }
+
+  if (typeof obj === "object") {
+    const serialized = {} as T;
+    for (const [key, value] of Object.entries(obj)) {
+      (serialized as any)[key] = serializeBigIntFields(value);
+    }
+    return serialized;
+  }
+
+  return obj;
+}
+
 export const formatDate = (date: Date): string => {
   return new Intl.DateTimeFormat("en-US", {
     month: "long",
