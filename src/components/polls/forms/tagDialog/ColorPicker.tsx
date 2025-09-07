@@ -2,7 +2,7 @@ import { ChangeEvent } from "react";
 import { Button, Popover } from "@radix-ui/themes";
 import { HexColorPicker } from "react-colorful";
 import { Pipette } from "lucide-react";
-import { isLightColor } from "@/utils";
+import { isLightColor, intToColorHex } from "@/utils";
 import {
   ColorPickerWrapper,
   ColorPickerButton,
@@ -20,8 +20,26 @@ export function ColorPicker({
   onChange,
   placeholder = "Hex color code",
 }: ColorPickerProps) {
-  const displayColor = value || "#7298da";
-  // TODO: the color here is in base 10 format when set from the modal so it needs to be converted to hex
+  // Convert integer values to hex format for display
+  const getDisplayColor = (inputValue: string): string => {
+    if (!inputValue) return "#7298da";
+
+    // If it's already a hex color (starts with #), use it as is
+    if (inputValue.startsWith("#")) {
+      return inputValue;
+    }
+
+    // If it's a numeric string (integer), convert to hex
+    const numericValue = parseInt(inputValue, 10);
+    if (!isNaN(numericValue)) {
+      return intToColorHex(numericValue);
+    }
+
+    // Fallback to default color
+    return "#ea2328";
+  };
+
+  const displayColor = getDisplayColor(value);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     onChange(e.target.value);
@@ -53,7 +71,7 @@ export function ColorPicker({
       </Popover.Root>
       <ColorTextField
         placeholder={placeholder}
-        value={value}
+        value={displayColor}
         onChange={handleInputChange}
       />
       <Button

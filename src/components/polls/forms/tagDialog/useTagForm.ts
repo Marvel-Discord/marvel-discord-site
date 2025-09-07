@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import type { Tag } from "@jocasta-polls-api";
 import { useTagContext } from "@/contexts/TagContext";
+import { intToColorHex } from "@/utils";
 import config from "@/app/config/config";
 
 // Extended type for form data (includes pending tag fields)
@@ -72,7 +73,7 @@ export function useTagForm({
       setTagName(editingTag.name || "");
       setDiscordChannel(editingTag.channel_id?.toString() || "");
       setCurrentNum(editingTag.current_num || null);
-      setColour(editingTag.colour?.toString() || "");
+      setColour(editingTag.colour ? intToColorHex(editingTag.colour) : "");
       setEndMessage(editingTag.end_message || "");
       setEndMessageRoleIds(
         editingTag.end_message_role_ids?.map((id) => id.toString()) || []
