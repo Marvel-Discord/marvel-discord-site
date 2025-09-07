@@ -1,18 +1,23 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FilterState } from "@/types/states";
 import { PollSearchType, updateUrlParameters } from "@/utils";
+import { usePollsSearchContext } from "@/contexts/SearchContext";
 
 export function usePollSearch() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pollsContext = usePollsSearchContext();
 
   const [searchValue, setSearchValue] = useState<string>(
     searchParams.get("search") || ""
   );
-  const [searchType, setSearchType] = useState<PollSearchType>(
-    PollSearchType.SEARCH
-  );
+  const [searchType, setSearchType] = useState<PollSearchType>(() => {
+    const typeParam = searchParams.get("type");
+    return Object.values(PollSearchType).includes(typeParam as PollSearchType)
+      ? (typeParam as PollSearchType)
+      : PollSearchType.SEARCH;
+  });
   const [selectedTag, setSelectedTag] = useState<number | null>(
     Number(searchParams.get("tag")) || null
   );
@@ -50,6 +55,7 @@ export function usePollSearch() {
 
       updateUrlParameters(router, searchParams, {
         search: fullValue !== "" ? fullValue : null,
+        type: newSearchType || searchType,
       });
     },
     [router, searchParams, searchType]
@@ -83,6 +89,32 @@ export function usePollSearch() {
     [router, searchParams]
   );
 
+  // Programmatic search function that sets search value and triggers search
+  const setSearchToUser = useCallback(
+    (username: string) => {
+      setSearchValue(username);
+      setSearchType(PollSearchType.SEARCH);
+      handleSearch(username, PollSearchType.SEARCH);
+    },
+    [handleSearch]
+  );
+
+  // Sync with context when it changes
+  useEffect(() => {
+    if (pollsContext._triggerSearch) {
+      setSearchValue(pollsContext.searchValue);
+      setSearchType(pollsContext.searchType);
+      handleSearch(pollsContext.searchValue, pollsContext.searchType);
+      pollsContext._setTriggerSearch(false);
+    }
+  }, [
+    pollsContext._triggerSearch,
+    pollsContext.searchValue,
+    pollsContext.searchType,
+    handleSearch,
+    pollsContext._setTriggerSearch,
+  ]);
+
   return {
     searchValue,
     setSearchValue,
@@ -94,5 +126,6 @@ export function usePollSearch() {
     setFilterState: updateFilterState,
     handleSearch,
     handleTagSelect,
+    setSearchToUser, // New programmatic method
   };
 }

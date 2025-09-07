@@ -1,5 +1,6 @@
 import config from "@/app/config/config";
 import { useAuthContext } from "@/contexts/AuthProvider";
+import { usePollsSearchContext } from "@/contexts/SearchContext";
 import { getProfilePictureUrlFromHash } from "@/utils";
 import { useIsMobile } from "@/utils/isMobile";
 import {
@@ -48,6 +49,7 @@ function ProfileButton() {
 
 function ProfileCard({ router }: { router: AppRouterInstance }) {
   const { user, signOut } = useAuthContext();
+  const { setSearchToUser } = usePollsSearchContext();
 
   const isMobile = useIsMobile();
 
@@ -62,6 +64,22 @@ function ProfileCard({ router }: { router: AppRouterInstance }) {
     await signOut().then(() => {
       router.push("/polls");
     });
+  };
+
+  const handleMyContributions = () => {
+    if (setSearchToUser && user?.username) {
+      // First navigate to polls page if not already there
+      if (window.location.pathname !== "/polls") {
+        router.push("/polls");
+        // Set search after navigation
+        setTimeout(() => {
+          setSearchToUser(user.username);
+        }, 100);
+      } else {
+        // Already on polls page, set search immediately
+        setSearchToUser(user.username);
+      }
+    }
   };
 
   const isInServer: boolean =
@@ -104,8 +122,8 @@ function ProfileCard({ router }: { router: AppRouterInstance }) {
         )}
         <DropdownMenu.Separator />
 
-        <DropdownMenu.Item disabled>
-          My contributions (coming soon)
+        <DropdownMenu.Item onClick={handleMyContributions}>
+          My contributions
         </DropdownMenu.Item>
         <DropdownMenu.Item asChild>
           <Link href="https://forms.gle/G2BPKdTdGEMN1yhk7" target="_blank">
