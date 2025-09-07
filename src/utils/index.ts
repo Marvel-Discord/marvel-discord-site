@@ -23,7 +23,8 @@ export function serializeBigIntFields<T>(obj: T): T {
   if (typeof obj === "object") {
     const serialized = {} as T;
     for (const [key, value] of Object.entries(obj)) {
-      (serialized as any)[key] = serializeBigIntFields(value);
+      (serialized as Record<string, unknown>)[key] =
+        serializeBigIntFields(value);
     }
     return serialized;
   }

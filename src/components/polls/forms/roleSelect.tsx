@@ -1,4 +1,4 @@
-import { Select, Text, Flex, Badge } from "@radix-ui/themes";
+import { Select, Text } from "@radix-ui/themes";
 import { useState, useEffect, useMemo } from "react";
 import { getGuildRoles, type Role } from "@/api/discord";
 import {

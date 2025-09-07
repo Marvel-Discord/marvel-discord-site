@@ -234,6 +234,7 @@ export function EditProvider({ children, polls }: EditProviderProps) {
       const pollsToCreate = editedPolls
         .filter((ep) => ep.state === EditState.CREATE)
         .map((ep) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { id, ...pollWithoutId } = ep.poll;
 
           // Update tag ID if it was a newly created tag

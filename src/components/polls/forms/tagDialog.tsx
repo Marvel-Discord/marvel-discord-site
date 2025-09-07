@@ -1,5 +1,5 @@
 import { ChangeEvent } from "react";
-import { Dialog, Text } from "@radix-ui/themes";
+import { Dialog } from "@radix-ui/themes";
 import { ChannelSelect } from "./channelSelect";
 import { RoleSelect } from "./roleSelect";
 import { EndMessageSelect } from "./endMessageSelect";

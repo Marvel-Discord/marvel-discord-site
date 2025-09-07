@@ -1,8 +1,7 @@
-import { Select, Text, Flex } from "@radix-ui/themes";
+import { Select, Text } from "@radix-ui/themes";
 import { useState, useEffect, useMemo } from "react";
 import { getGuildChannels, type Channel } from "@/api/discord";
 import {
-  ChannelSelectContainer,
   LoadingSelectRoot,
   ErrorContainer,
   ChannelItem,
