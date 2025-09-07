@@ -100,7 +100,6 @@ export function PollsMain({ skeletons, polls, setPolls }: PollsMainProps) {
     searchType,
     fetchPolls,
     page,
-    polls.length,
     setLoading,
   ]);
 
