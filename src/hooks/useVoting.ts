@@ -32,10 +32,13 @@ export function useVoting({
 
     if (votes) {
       const updatedVotes = [...votes];
-      if (choice === undefined || userVote !== undefined) {
-        updatedVotes[index]--;
+
+      // Remove previous vote if user had voted before
+      if (userVote !== undefined) {
+        updatedVotes[userVote] = Math.max(0, updatedVotes[userVote] - 1);
       }
 
+      // Add new vote if user is selecting an option (not deselecting)
       if (choice !== undefined) {
         updatedVotes[choice]++;
       }
