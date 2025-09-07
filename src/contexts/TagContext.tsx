@@ -1,4 +1,4 @@
-import { getTags } from "@/api/polls/tags";
+import { getTags, createTag } from "@/api/polls/tags";
 import type { Tag } from "@jocasta-polls-api";
 import { createContext, useContext, useEffect, useState } from "react";
 
@@ -9,6 +9,10 @@ interface TagContextType {
   addPendingTag: (tag: Partial<Tag>) => void;
   updatePendingTag: (tagId: number, updatedTag: Partial<Tag>) => void;
   clearPendingTags: () => void;
+  createNewTag: (
+    tagData: Omit<Tag, "tag">
+  ) => Promise<{ success: boolean; tag?: Tag; message?: string }>;
+  isSaving: boolean;
 }
 
 export const TagContext = createContext<TagContextType>({
@@ -18,6 +22,8 @@ export const TagContext = createContext<TagContextType>({
   addPendingTag: () => {},
   updatePendingTag: () => {},
   clearPendingTags: () => {},
+  createNewTag: async () => ({ success: false }),
+  isSaving: false,
 });
 
 interface TagProviderProps {
@@ -28,6 +34,7 @@ export const TagProvider = ({ children }: TagProviderProps) => {
   const [tags, setTags] = useState<Record<number, Tag>>({});
   const [tagsOrder, setTagsOrder] = useState<number[]>([]);
   const [pendingTags, setPendingTags] = useState<Partial<Tag>[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
 
   const addPendingTag = (tag: Partial<Tag>) => {
     setPendingTags((prev) => [...prev, tag]);
@@ -41,6 +48,38 @@ export const TagProvider = ({ children }: TagProviderProps) => {
 
   const clearPendingTags = () => {
     setPendingTags([]);
+  };
+
+  const createNewTag = async (
+    tagData: Omit<Tag, "tag">
+  ): Promise<{ success: boolean; tag?: Tag; message?: string }> => {
+    setIsSaving(true);
+
+    try {
+      const newTag = await createTag(tagData);
+
+      // Add the new tag to local state
+      setTags((prev) => ({
+        ...prev,
+        [newTag.tag]: newTag,
+      }));
+      setTagsOrder((prev) => [...prev, newTag.tag]);
+
+      return {
+        success: true,
+        tag: newTag,
+        message: "Tag created successfully!",
+      };
+    } catch (error) {
+      console.error("Failed to create tag:", error);
+      return {
+        success: false,
+        message:
+          error instanceof Error ? error.message : "Failed to create tag",
+      };
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const fetchTags = async () => {
@@ -71,6 +110,8 @@ export const TagProvider = ({ children }: TagProviderProps) => {
         addPendingTag,
         updatePendingTag,
         clearPendingTags,
+        createNewTag,
+        isSaving,
       }}
     >
       {children}

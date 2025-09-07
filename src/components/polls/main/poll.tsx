@@ -45,9 +45,9 @@ const CardBox = styled(Flex)<{ $color?: string; $state?: EditState }>`
     const outlineStyle = isDeleted ? "dotted" : isEdited ? "dashed" : "solid";
     const outlineColor = $color
       ? `rgba(${$color}, ${isDeleted || isEdited ? "1" : "0"})`
-      : $state !== undefined
+      : isEdited || isDeleted
       ? "var(--red-9)"
-      : "transparent";
+      : "rgba(234, 35, 40, 0)";
     const opacity = isDeleted ? "0.75" : "1";
 
     return `
@@ -62,19 +62,15 @@ const CardBox = styled(Flex)<{ $color?: string; $state?: EditState }>`
         $state === EditState.UPDATE || $state === EditState.CREATE;
       const isDeleted = $state === EditState.DELETE;
 
-      if ($color) {
-        const outlineStyle = isDeleted
-          ? "dotted"
-          : isEdited
-          ? "dashed"
-          : "solid";
-        const shadowOpacity = isDeleted ? "0.2" : "0.1";
+      const outlineStyle = isDeleted ? "dotted" : isEdited ? "dashed" : "solid";
+      const shadowOpacity = isDeleted ? "0.2" : "0.1";
 
-        return `
-          box-shadow: 0 0 3rem rgba(${$color}, ${shadowOpacity});
-          outline: 0.2rem ${outlineStyle} rgba(${$color}, 1);
-        `;
-      }
+      const hoverColor = $color ?? "234, 35, 40";
+
+      return `
+        box-shadow: 0 0 3rem rgba(${hoverColor}, ${shadowOpacity});
+        outline: 0.2rem ${outlineStyle} rgba(${hoverColor}, 1);
+      `;
     }}
   }
 `;

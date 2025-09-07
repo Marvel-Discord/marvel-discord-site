@@ -7,6 +7,7 @@ import {
   ErrorContainer,
   ChannelItem,
 } from "./channelSelect/";
+import config from "@/app/config/config";
 
 interface ChannelSelectProps {
   value: string;
@@ -27,7 +28,7 @@ export function ChannelSelect({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const GUILD_ID = "281648235557421056";
+  const GUILD_ID = config.guildId;
 
   // Fetch channels only once on mount
   useEffect(() => {

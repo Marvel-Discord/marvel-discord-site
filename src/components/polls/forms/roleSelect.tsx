@@ -8,6 +8,7 @@ import {
   RoleItem,
   SelectedRolesBadges,
 } from "./roleSelect/";
+import config from "@/app/config/config";
 
 interface RoleSelectProps {
   value: string[];
@@ -30,7 +31,7 @@ export function RoleSelect({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const GUILD_ID = "281648235557421056";
+  const GUILD_ID = config.guildId;
 
   // Fetch roles only once on mount
   useEffect(() => {

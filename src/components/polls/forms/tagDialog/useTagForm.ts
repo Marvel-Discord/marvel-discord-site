@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import type { Tag } from "@jocasta-polls-api";
 import { useTagContext } from "@/contexts/TagContext";
+import config from "@/app/config/config";
 
 // Extended type for form data (includes pending tag fields)
 export type TagFormData = Partial<Tag>;
@@ -104,7 +105,7 @@ export function useTagForm({
     setPersistent(true);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!tagName.trim() || !discordChannel.trim()) return;
 
     // Helper function to convert hex color to number
@@ -144,8 +145,9 @@ export function useTagForm({
           end_message_role_ids: roleIdsToBigInt(endMessageRoleIds),
           end_message_ping: endMessagePing,
           end_message_self_assign: endMessageSelfAssign,
+          end_message_replace: false, // Default value
           persistent: persistent,
-          guild_id: BigInt(0), // Will be set by the server
+          guild_id: BigInt(config.guildId), // Default Marvel Discord guild ID
           crosspost_channels: [],
           crosspost_servers: [],
           end_message_latest_ids: [],

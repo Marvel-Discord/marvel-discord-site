@@ -1,6 +1,7 @@
 import type { Meta, Poll } from "@jocasta-polls-api";
 import { axiosPollsInstance } from "../axios";
 import type { AxiosResponse } from "axios";
+import config from "@/app/config/config";
 
 interface GetPollsParams {
   guildId?: string | bigint;
@@ -21,7 +22,7 @@ export interface PollFilterUser {
 }
 
 export const getPolls = async ({
-  guildId = "281648235557421056",
+  guildId = config.guildId,
   published = true,
   tag,
   user,
@@ -60,6 +61,48 @@ export const getPollById = async (pollId: string): Promise<Poll> => {
     return response.data;
   } catch (error) {
     console.error("Error fetching poll:", error);
+    throw error;
+  }
+};
+
+/**
+ * Create new polls
+ */
+export const createPolls = async (
+  polls: Omit<Poll, "id">[]
+): Promise<Poll[]> => {
+  try {
+    const response: AxiosResponse<{ data: Poll[] }> =
+      await axiosPollsInstance.post("/polls/create", polls);
+    return response.data.data;
+  } catch (error) {
+    console.error("Error creating polls:", error);
+    throw error;
+  }
+};
+
+/**
+ * Update existing polls
+ */
+export const updatePolls = async (polls: Poll[]): Promise<Poll[]> => {
+  try {
+    const response: AxiosResponse<{ data: Poll[] }> =
+      await axiosPollsInstance.post("/polls/update", polls);
+    return response.data.data;
+  } catch (error) {
+    console.error("Error updating polls:", error);
+    throw error;
+  }
+};
+
+/**
+ * Delete polls by IDs
+ */
+export const deletePolls = async (pollIds: string[]): Promise<void> => {
+  try {
+    await axiosPollsInstance.post("/polls/delete", { pollIds });
+  } catch (error) {
+    console.error("Error deleting polls:", error);
     throw error;
   }
 };

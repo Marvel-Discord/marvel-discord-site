@@ -3,6 +3,7 @@ import { PencilIcon, Tag, TriangleAlert, Edit } from "lucide-react";
 import styled from "styled-components";
 import type { Poll } from "@jocasta-polls-api";
 import { useTagContext } from "@/contexts/TagContext";
+import { useEditContext } from "@/contexts/EditContext";
 import { useState } from "react";
 import { TagDialog } from "../forms/tagDialog";
 import type { Tag as TagType } from "@jocasta-polls-api";
@@ -62,12 +63,30 @@ export default function EditButton({
     updatePendingTag,
     clearPendingTags,
   } = useTagContext();
+  const { saveEditedPolls, isSaving } = useEditContext();
   const [editingTag, setEditingTag] = useState<Partial<TagType> | null>(null);
   const [tagDialogOpen, setTagDialogOpen] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
   const handleDiscardChanges = () => {
     clearPendingTags();
     setEditModeEnabled(false);
+    setSaveMessage(null);
+  };
+
+  const handleSaveChanges = async () => {
+    setSaveMessage(null);
+
+    const result = await saveEditedPolls();
+    setSaveMessage(result.message || null);
+
+    if (result.success) {
+      clearPendingTags();
+      setEditModeEnabled(false);
+    }
+
+    // Clear message after 3 seconds
+    setTimeout(() => setSaveMessage(null), 3000);
   };
 
   if (!editModeEnabled) {
@@ -147,6 +166,7 @@ export default function EditButton({
             size="2"
             aria-label="Discard changes"
             onClick={handleDiscardChanges}
+            disabled={isSaving}
           >
             Discard changes
           </ButtonStyle>
@@ -155,12 +175,22 @@ export default function EditButton({
             color="green"
             size="2"
             aria-label="Save changes"
-            disabled={!hasChanges || !canSave}
-            onClick={() => setEditModeEnabled(false)}
+            disabled={!hasChanges || !canSave || isSaving}
+            onClick={handleSaveChanges}
           >
-            Save changes
+            {isSaving ? "Saving..." : "Save changes"}
           </ButtonStyle>
         </Flex>
+        {saveMessage && (
+          <Flex mt="2">
+            <Text
+              size="1"
+              color={saveMessage.includes("success") ? "green" : "red"}
+            >
+              {saveMessage}
+            </Text>
+          </Flex>
+        )}
       </CardStyle>
       <TagDialog
         open={tagDialogOpen}

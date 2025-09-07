@@ -1,4 +1,5 @@
 import type { Poll } from "@jocasta-polls-api";
+import config from "@/app/config/config";
 
 let currentPollId = 0;
 
@@ -11,7 +12,7 @@ export function emptyPoll(): Poll {
     image: "",
     votes: [],
     tag: 0,
-    guild_id: BigInt("281648235557421056"),
+    guild_id: BigInt(config.guildId),
     published: false,
     active: false,
     choices: [],

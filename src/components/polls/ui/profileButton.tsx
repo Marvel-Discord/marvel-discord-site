@@ -65,7 +65,7 @@ function ProfileCard({ router }: { router: AppRouterInstance }) {
   };
 
   const isInServer: boolean =
-    user.guilds?.some((guild) => guild.id === "281648235557421056") || false;
+    user.guilds?.some((guild) => guild.id === config.guildId) || false;
 
   return (
     <DropdownMenu.Root>

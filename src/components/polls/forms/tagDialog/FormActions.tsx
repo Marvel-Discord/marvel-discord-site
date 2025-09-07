@@ -6,6 +6,7 @@ interface FormActionsProps {
   onCancel: () => void;
   onSubmit: () => void;
   canSubmit: boolean;
+  isSaving?: boolean;
 }
 
 export function FormActions({
@@ -13,14 +14,23 @@ export function FormActions({
   onCancel,
   onSubmit,
   canSubmit,
+  isSaving = false,
 }: FormActionsProps) {
   return (
     <ActionButtonsContainer>
       <Dialog.Close>
-        <CancelButton onClick={onCancel}>Cancel</CancelButton>
+        <CancelButton onClick={onCancel} disabled={isSaving}>
+          Cancel
+        </CancelButton>
       </Dialog.Close>
-      <SubmitButton onClick={onSubmit} disabled={!canSubmit}>
-        {isEditing ? "Save Changes" : "Create Tag"}
+      <SubmitButton onClick={onSubmit} disabled={!canSubmit || isSaving}>
+        {isSaving
+          ? isEditing
+            ? "Saving..."
+            : "Creating..."
+          : isEditing
+          ? "Save Changes"
+          : "Create Tag"}
       </SubmitButton>
     </ActionButtonsContainer>
   );
