@@ -1,6 +1,7 @@
 import React, { useEffect, useCallback } from "react";
 import { Flex } from "@radix-ui/themes";
 import { useAuthContext } from "@/contexts/AuthProvider";
+import { usePollRefetch } from "@/contexts/PollRefetchContext";
 import { useDebounce } from "@/utils/debouncer";
 import { usePolls } from "@/hooks/usePolls";
 import { usePollSearch } from "@/hooks/usePollSearch";
@@ -25,6 +26,7 @@ interface PollsMainProps {
 
 export function PollsMain({ skeletons, polls, setPolls }: PollsMainProps) {
   const { user } = useAuthContext();
+  const { registerRefetch } = usePollRefetch();
   const {
     polls: fetchedPolls,
     meta,
@@ -46,6 +48,39 @@ export function PollsMain({ skeletons, polls, setPolls }: PollsMainProps) {
   } = usePollSearch();
 
   const debouncedSearchValue = useDebounce(searchValue, 500);
+
+  // Create a refetch function that resets polls and triggers a fresh fetch
+  const handleRefetch = useCallback(async () => {
+    setPolls([]);
+    setPage(1);
+
+    // Trigger a fresh fetch with current search parameters
+    const controller = new AbortController();
+
+    await fetchPolls({
+      searchValue: debouncedSearchValue,
+      searchType,
+      selectedTag,
+      filterState,
+      user,
+      controller,
+      resetPage: true,
+    });
+  }, [
+    debouncedSearchValue,
+    searchType,
+    selectedTag,
+    filterState,
+    user,
+    fetchPolls,
+    setPolls,
+    setPage,
+  ]);
+
+  // Register the refetch function with the context
+  useEffect(() => {
+    registerRefetch(handleRefetch);
+  }, [registerRefetch, handleRefetch]);
 
   // Sync fetched polls with parent state
   useEffect(() => {

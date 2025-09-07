@@ -21,6 +21,7 @@ export function ColorPicker({
   placeholder = "Hex color code",
 }: ColorPickerProps) {
   const displayColor = value || "#7298da";
+  // TODO: the color here is in base 10 format when set from the modal so it needs to be converted to hex
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     onChange(e.target.value);

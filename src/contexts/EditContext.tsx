@@ -13,6 +13,7 @@ import { EditState } from "@/types/states";
 import { emptyPoll, validatePolls, type ValidationResult } from "@/utils/polls";
 import { createPolls, updatePolls, deletePolls } from "@/api/polls/polls";
 import { useTagContext } from "@/contexts/TagContext";
+import { usePollRefetch } from "@/contexts/PollRefetchContext";
 import type { Poll } from "@jocasta-polls-api";
 import config from "@/app/config/config";
 
@@ -71,6 +72,7 @@ export function EditProvider({ children, polls }: EditProviderProps) {
   const [isSaving, setIsSaving] = useState(false);
 
   const { pendingTags, createNewTag, clearPendingTags } = useTagContext();
+  const { triggerRefetch } = usePollRefetch();
 
   const validationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -273,6 +275,9 @@ export function EditProvider({ children, polls }: EditProviderProps) {
       // Clear edited state after successful save
       setEditedPolls([]);
       clearPendingTags();
+
+      // Trigger refetch of polls
+      triggerRefetch();
 
       const successMessage = [];
       if (createdTags.length > 0) {

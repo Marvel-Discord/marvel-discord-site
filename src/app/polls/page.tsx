@@ -4,6 +4,7 @@ import { PollCardSkeleton } from "@/components/polls/main/poll";
 import { PollsLoadingSkeleton, PollsMain } from "@/components/polls";
 import { PollDataProvider } from "@/contexts/PollDataProvider";
 import { EditProvider } from "@/contexts/EditContext";
+import { PollRefetchProvider } from "@/contexts/PollRefetchContext";
 import { useAuthContext } from "@/contexts/AuthProvider";
 import { Suspense, useMemo, useState } from "react";
 import type { Poll } from "@jocasta-polls-api";
@@ -21,7 +22,9 @@ export default function PollsHome() {
   return (
     <Suspense fallback={<PollsLoadingSkeleton skeletons={skeletons} />}>
       <PollDataProvider>
-        <PollsContent skeletons={skeletons} />
+        <PollRefetchProvider>
+          <PollsContent skeletons={skeletons} />
+        </PollRefetchProvider>
       </PollDataProvider>
     </Suspense>
   );
