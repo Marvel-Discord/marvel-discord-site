@@ -8,7 +8,6 @@ import { useVoting, useChoicesManager } from "@/hooks";
 import {
   ChoiceAlert,
   ChoiceContainer,
-  ShowVotesButton,
   ChoiceLabelMap,
   Container,
   ChoiceContainerStyle,
@@ -24,6 +23,7 @@ interface ChoicesProps {
   userVote?: number;
   votes?: Poll["votes"];
   handleChoicesChange?: (choices: string[]) => void;
+  showVotes?: boolean;
 }
 
 export function Choices({
@@ -35,22 +35,10 @@ export function Choices({
   userVote,
   votes = [],
   handleChoicesChange = () => {},
+  showVotes,
 }: ChoicesProps) {
   const { user } = useAuthContext();
   const router = useRouter();
-
-  const [showVotes, setShowVotes] = useState(
-    editable
-      ? poll.show_voting
-      : (userVote !== undefined || !user) && poll.show_voting
-  );
-
-  // Update showVotes when userVote changes
-  useEffect(() => {
-    if (!editable) {
-      setShowVotes((userVote !== undefined || !user) && poll.show_voting);
-    }
-  }, [userVote, user, poll.show_voting, editable]);
 
   const { handleVote } = useVoting({
     poll,
@@ -157,12 +145,6 @@ export function Choices({
   return (
     <Container>
       <ChoiceContainerStyle>{choiceComponents}</ChoiceContainerStyle>
-      <ShowVotesButton
-        poll={poll}
-        showVotes={showVotes}
-        setShowVotes={setShowVotes}
-        editing={editable}
-      />
     </Container>
   );
 }

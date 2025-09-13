@@ -11,6 +11,7 @@ import {
 } from "@radix-ui/themes";
 import styled from "styled-components";
 import { Choices, ChoicesSkeleton } from "../forms/choices";
+import { PollControls } from "../forms/choices/PollControls";
 import {
   useMemo,
   useRef,
@@ -20,6 +21,7 @@ import {
   type ComponentProps,
 } from "react";
 import { PollCardHeader, PollCardHeaderSkeleton } from "../ui/cardHeader";
+import { useAuthContext } from "@/contexts/AuthProvider";
 import { useIsMobile } from "@/utils/isMobile";
 import {
   cleanUrlSafeString,
@@ -225,6 +227,7 @@ export function PollCard({
   editable?: boolean;
   updatePoll?: (poll: Poll, state: EditState) => void;
 }) {
+  const { user } = useAuthContext();
   const isMobile = useIsMobile();
   const [votes, setVotes] = useState(poll.votes || []);
 
@@ -232,6 +235,13 @@ export function PollCard({
   useEffect(() => {
     setVotes(poll.votes || []);
   }, [poll.votes]);
+
+  // Update showVotes when userVote changes
+  useEffect(() => {
+    if (!editable) {
+      setShowVotes((userVote !== undefined || !user) && poll.show_voting);
+    }
+  }, [userVote, user, poll.show_voting, editable]);
 
   const originalPoll = useRef(poll);
   const originalTag = useRef(tag);
@@ -251,6 +261,11 @@ export function PollCard({
   const [choices, setChoices] = useState(poll.choices);
   const [dateTime, setDateTime] = useState(poll.time);
   const [willDelete, setWillDelete] = useState(false);
+  const [showVotes, setShowVotes] = useState(
+    editable
+      ? poll.show_voting
+      : (userVote !== undefined || !user) && poll.show_voting
+  );
 
   const filteredDescription = filterDescriptionWithRegex(poll.description);
 
@@ -491,6 +506,14 @@ export function PollCard({
         setUserVote={setUserVote}
         editable={editable}
         handleChoicesChange={editable ? handleChoicesChange : undefined}
+        showVotes={showVotes}
+      />
+
+      <PollControls
+        poll={poll}
+        showVotes={showVotes}
+        setShowVotes={setShowVotes}
+        editing={editable}
       />
 
       {imageUrl && !imageError && (
