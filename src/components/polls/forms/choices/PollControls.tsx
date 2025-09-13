@@ -29,6 +29,7 @@ interface PollControlsProps {
   showVotes: boolean;
   setShowVotes: Dispatch<SetStateAction<boolean>>;
   editing: boolean;
+  onThreadQuestionChange?: (threadQuestion: string) => void;
 }
 
 export function PollControls({
@@ -36,6 +37,7 @@ export function PollControls({
   showVotes,
   setShowVotes,
   editing,
+  onThreadQuestionChange,
 }: PollControlsProps) {
   const [threadQuestionDialogOpen, setThreadQuestionDialogOpen] =
     useState(false);
@@ -70,6 +72,7 @@ export function PollControls({
         onOpenChange={setThreadQuestionDialogOpen}
         poll={poll}
         editable={editing}
+        onThreadQuestionChange={onThreadQuestionChange}
       />
     </>
   );

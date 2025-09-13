@@ -79,6 +79,7 @@ interface ThreadQuestionDialogProps {
   onOpenChange: (open: boolean) => void;
   poll: Poll;
   editable: boolean;
+  onThreadQuestionChange?: (threadQuestion: string) => void;
 }
 
 export function ThreadQuestionDialog({
@@ -86,6 +87,7 @@ export function ThreadQuestionDialog({
   onOpenChange,
   poll,
   editable,
+  onThreadQuestionChange,
 }: ThreadQuestionDialogProps) {
   const initialIsDefault = (poll.thread_question || "").toLowerCase() === "def";
   const [threadQuestion, setThreadQuestion] = useState(
@@ -129,8 +131,9 @@ export function ThreadQuestionDialog({
   };
 
   const handleSave = () => {
-    // TODO: Implement save functionality
-    console.log("Saving thread question:", threadQuestion);
+    if (onThreadQuestionChange) {
+      onThreadQuestionChange(threadQuestion);
+    }
     onOpenChange(false);
   };
 

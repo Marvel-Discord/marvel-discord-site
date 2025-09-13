@@ -261,6 +261,9 @@ export function PollCard({
   const [choices, setChoices] = useState(poll.choices);
   const [dateTime, setDateTime] = useState(poll.time);
   const [willDelete, setWillDelete] = useState(false);
+  const [threadQuestion, setThreadQuestion] = useState(
+    poll.thread_question || ""
+  );
   const [showVotes, setShowVotes] = useState(
     editable
       ? poll.show_voting
@@ -286,6 +289,7 @@ export function PollCard({
   const tagRef = useRef(currentTag);
   const choicesRef = useRef(choices);
   const dateTimeRef = useRef(dateTime);
+  const threadQuestionRef = useRef(threadQuestion);
   const willDeleteRef = useRef(willDelete);
 
   const notifyUpdate = useCallback(() => {
@@ -300,6 +304,7 @@ export function PollCard({
       tag: tagRef.current?.tag ?? 0,
       choices: choicesRef.current,
       time: dateTimeRef.current,
+      thread_question: threadQuestionRef.current || null,
     };
 
     const questionChanged =
@@ -319,6 +324,9 @@ export function PollCard({
         (choice, index) => choice !== originalPoll.current.choices[index]
       );
     const dateTimeChanged = dateTimeRef.current !== originalPoll.current.time;
+    const threadQuestionChanged =
+      threadQuestionRef.current !==
+      (originalPoll.current.thread_question || "");
 
     const isEditedNow =
       willDeleteRef.current ||
@@ -328,7 +336,8 @@ export function PollCard({
       imageChanged ||
       tagChanged ||
       choicesChanged ||
-      dateTimeChanged;
+      dateTimeChanged ||
+      threadQuestionChanged;
 
     setIsEdited(isEditedNow);
     const currentState = willDeleteRef.current
@@ -405,6 +414,15 @@ export function PollCard({
     (newDateTime: Poll["time"]) => {
       setDateTime(newDateTime);
       dateTimeRef.current = newDateTime;
+      notifyUpdate();
+    },
+    [notifyUpdate]
+  );
+
+  const handleThreadQuestionChange = useCallback(
+    (newThreadQuestion: string) => {
+      setThreadQuestion(newThreadQuestion);
+      threadQuestionRef.current = newThreadQuestion;
       notifyUpdate();
     },
     [notifyUpdate]
@@ -510,10 +528,13 @@ export function PollCard({
       />
 
       <PollControls
-        poll={poll}
+        poll={{ ...poll, thread_question: threadQuestion }}
         showVotes={showVotes}
         setShowVotes={setShowVotes}
         editing={editable}
+        onThreadQuestionChange={
+          editable ? handleThreadQuestionChange : undefined
+        }
       />
 
       {imageUrl && !imageError && (
