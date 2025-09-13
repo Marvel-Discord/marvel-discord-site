@@ -23,7 +23,9 @@ export function useVoting({
   const voteTimeout = useRef<NodeJS.Timeout | null>(null);
 
   async function handleVote(index: number) {
-    if (!user || editable) return;
+    if (!user || editable) {
+      return;
+    }
 
     let choice: number | undefined = index;
     if (userVote === index) {
@@ -33,6 +35,12 @@ export function useVoting({
     if (votes) {
       const updatedVotes = [...votes];
 
+      // Ensure the votes array has the correct length to match poll choices
+      const originalLength = updatedVotes.length;
+      while (updatedVotes.length < poll.choices.length) {
+        updatedVotes.push(0);
+      }
+
       // Remove previous vote if user had voted before
       if (userVote !== undefined) {
         updatedVotes[userVote] = Math.max(0, updatedVotes[userVote] - 1);
@@ -40,7 +48,7 @@ export function useVoting({
 
       // Add new vote if user is selecting an option (not deselecting)
       if (choice !== undefined) {
-        updatedVotes[choice]++;
+        updatedVotes[choice] = (updatedVotes[choice] || 0) + 1;
       }
 
       setVotes(updatedVotes);

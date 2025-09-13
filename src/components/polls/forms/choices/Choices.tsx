@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Link } from "@radix-ui/themes";
 import { useRouter } from "next/navigation";
 import type { Poll, Tag } from "@jocasta-polls-api";
@@ -44,6 +44,13 @@ export function Choices({
       ? poll.show_voting
       : (userVote !== undefined || !user) && poll.show_voting
   );
+
+  // Update showVotes when userVote changes
+  useEffect(() => {
+    if (!editable) {
+      setShowVotes((userVote !== undefined || !user) && poll.show_voting);
+    }
+  }, [userVote, user, poll.show_voting, editable]);
 
   const { handleVote } = useVoting({
     poll,

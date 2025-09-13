@@ -16,6 +16,7 @@ import {
   useRef,
   useState,
   useCallback,
+  useEffect,
   type ComponentProps,
 } from "react";
 import { PollCardHeader, PollCardHeaderSkeleton } from "../ui/cardHeader";
@@ -225,7 +226,12 @@ export function PollCard({
   updatePoll?: (poll: Poll, state: EditState) => void;
 }) {
   const isMobile = useIsMobile();
-  const [votes, setVotes] = useState(poll.votes);
+  const [votes, setVotes] = useState(poll.votes || []);
+
+  // Keep votes state in sync with poll changes
+  useEffect(() => {
+    setVotes(poll.votes || []);
+  }, [poll.votes]);
 
   const originalPoll = useRef(poll);
   const originalTag = useRef(tag);
@@ -398,6 +404,10 @@ export function PollCard({
     [notifyUpdate]
   );
 
+  const handleVotesChange = useCallback((newVotes: number[] | null) => {
+    setVotes(newVotes || []);
+  }, []);
+
   const colorRgb = currentTag?.colour
     ? [
         (currentTag.colour >> 16) & 0xff, // Red
@@ -476,9 +486,9 @@ export function PollCard({
         poll={poll}
         tag={editable ? currentTag : tag}
         votes={votes}
-        setVotes={editable ? undefined : setVotes}
-        userVote={editable ? undefined : userVote}
-        setUserVote={editable ? undefined : setUserVote}
+        setVotes={handleVotesChange}
+        userVote={userVote}
+        setUserVote={setUserVote}
         editable={editable}
         handleChoicesChange={editable ? handleChoicesChange : undefined}
       />
