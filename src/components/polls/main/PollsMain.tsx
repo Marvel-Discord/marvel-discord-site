@@ -16,7 +16,9 @@ const BodyContainer = styled(Flex).attrs({
   gap: "4",
   align: "center",
   justify: "center",
-})``;
+})`
+  margin-bottom: 2rem;
+`;
 
 interface PollsMainProps {
   skeletons?: React.ReactNode[];

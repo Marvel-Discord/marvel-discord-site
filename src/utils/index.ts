@@ -32,6 +32,22 @@ export function serializeBigIntFields<T>(obj: T): T {
   return obj;
 }
 
+/**
+ * Serializes polls for API transmission by converting BigInt fields to strings
+ * and Date objects to ISO strings for JSON compatibility
+ */
+export const serializePollsForAPI = <T extends { time?: Date | null }>(
+  polls: T[]
+): T[] => {
+  return polls.map((poll) => ({
+    ...serializeBigIntFields([poll])[0],
+    time:
+      poll.time && typeof poll.time === "object"
+        ? poll.time.toISOString()
+        : poll.time,
+  }));
+};
+
 export const formatDate = (date: Date): string => {
   return new Intl.DateTimeFormat("en-US", {
     month: "long",

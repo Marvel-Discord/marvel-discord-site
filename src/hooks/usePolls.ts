@@ -99,7 +99,7 @@ export function usePolls() {
         setLoading(false);
       } catch (err) {
         if (axios.isCancel(err)) {
-          console.log("Request canceled:", err.message);
+          console.error("Request canceled:", err.message);
         } else {
           console.error(err);
         }

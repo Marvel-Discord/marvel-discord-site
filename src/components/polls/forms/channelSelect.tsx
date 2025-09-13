@@ -37,7 +37,6 @@ export function ChannelSelect({
         setError(null);
 
         const data = await getGuildChannels(GUILD_ID);
-        console.log(data);
 
         setRawChannels(data);
       } catch (err) {
