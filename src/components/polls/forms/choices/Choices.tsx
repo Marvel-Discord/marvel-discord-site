@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Button, Link } from "@radix-ui/themes";
 import { useRouter } from "next/navigation";
 import type { Poll, Tag } from "@jocasta-polls-api";

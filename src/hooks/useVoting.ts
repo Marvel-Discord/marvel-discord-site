@@ -36,7 +36,6 @@ export function useVoting({
       const updatedVotes = [...votes];
 
       // Ensure the votes array has the correct length to match poll choices
-      const originalLength = updatedVotes.length;
       while (updatedVotes.length < poll.choices.length) {
         updatedVotes.push(0);
       }
