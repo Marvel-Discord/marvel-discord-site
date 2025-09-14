@@ -43,7 +43,18 @@ export function PollControls({
     useState(false);
 
   const handleThreadQuestion = () => {
-    setThreadQuestionDialogOpen(true);
+    if (editing) {
+      setThreadQuestionDialogOpen(true);
+    } else {
+      const threadQuestionUrl =
+        poll.published && poll.thread_question && poll.message_id
+          ? `https://discord.com/channels/${poll.guild_id}/${poll.message_id}`
+          : null;
+
+      if (threadQuestionUrl) {
+        window.open(threadQuestionUrl, "_blank");
+      }
+    }
   };
 
   return (
@@ -60,7 +71,7 @@ export function PollControls({
             <MessageCircleQuestion size={16} />
             {poll.thread_question
               ? poll.thread_question === "def"
-                ? "Default Thread Question"
+                ? "Discussion Thread"
                 : poll.thread_question
               : "Set Thread Question"}
           </ThreadQuestionButtonStyle>
