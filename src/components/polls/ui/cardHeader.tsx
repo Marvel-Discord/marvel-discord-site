@@ -496,6 +496,7 @@ function InfoTags({
         <InfoTagDialog
           tags={computedTags}
           open={dialogOpen}
+          onDialogOpenChange={setDialogOpen}
           mobile={isMobile}
           editable={false}
         />
