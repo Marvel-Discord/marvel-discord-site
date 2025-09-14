@@ -6,6 +6,7 @@ import styled from "styled-components";
 import type React from "react";
 import Image from "next/image";
 import { BackgroundWallpaper } from "@/components/staggeredBackground";
+import config from "./config/config";
 
 const BodyWrapper = styled.div`
   display: flex;
@@ -84,13 +85,15 @@ const ButtonStyle = styled.button`
 
 const Button = ({
   href,
+  newTag = false,
   children,
 }: {
   href: string;
+  newTag?: boolean;
   children: React.ReactNode;
 }) => {
   return (
-    <Link href={href}>
+    <Link href={href} target={newTag ? "_blank" : "_self"} rel="noreferrer">
       <ButtonStyle>
         <p>⇀ {children}</p>
       </ButtonStyle>
@@ -153,7 +156,12 @@ export default function Home() {
               <Button href="/invite">Join the server</Button>
               <Button href="/appeal">Make a ban appeal</Button>
               <Button href="/gallery">View the gallery</Button>
-              <Button href="/polls">Vote on polls</Button>
+              <Button
+                href={config.publicPollsBaseUrl || "/polls"}
+                newTag={config.publicPollsBaseUrl !== undefined}
+              >
+                Vote on polls
+              </Button>
             </Buttons>
           </TextWrapper>
         </BodyWrapper>
