@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { relativeImagePathToAbsolute } from "@/utils";
 
 export const pollsMetadata: Metadata = {
   title: "Marvel Discord Polls",
