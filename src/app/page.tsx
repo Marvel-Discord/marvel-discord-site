@@ -153,6 +153,7 @@ export default function Home() {
               <Button href="/invite">Join the server</Button>
               <Button href="/appeal">Make a ban appeal</Button>
               <Button href="/gallery">View the gallery</Button>
+              <Button href="/polls">Vote on polls</Button>
             </Buttons>
           </TextWrapper>
         </BodyWrapper>

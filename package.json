@@ -9,14 +9,23 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@radix-ui/react-select": "^2.2.2",
+    "@radix-ui/themes": "^3.2.1",
+    "axios": "^1.8.4",
     "dotenv": "^16.4.7",
     "embla-carousel-auto-height": "^8.5.2",
     "embla-carousel-class-names": "^8.5.2",
     "embla-carousel-react": "^8.5.2",
+    "jocasta-polls-api": "github:Rocked03/jocasta-polls-api#feature/discord-auth",
     "lucide-react": "^0.483.0",
     "next": "15.2.3",
+    "next-themes": "^0.4.6",
+    "radix-ui": "^1.4.1",
     "react": "^19.0.0",
+    "react-colorful": "^5.6.1",
+    "react-datepicker": "^8.3.0",
     "react-dom": "^19.0.0",
+    "react-infinite-scroll-component": "^6.1.0",
     "styled-components": "^6.1.16"
   },
   "devDependencies": {

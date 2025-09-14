@@ -1,14 +1,33 @@
 "use client";
 
-import React from "react";
+import { useIsMobile } from "@/utils/isMobile";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import styled from "styled-components";
 
 const NavbarStyle = styled.nav`
+  align-items: start;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   padding: 1rem;
   width: 100%;
+
+  @media (max-width: 768px) {
+    align-items: center;
+  }
+`;
+
+const Section = styled.div`
+  align-items: center;
+  display: flex;
+  flex: 1;
+`;
+
+const Center = styled.div`
+  align-items: center;
+  display: flex;
+  flex: 0 0 auto;
+  justify-content: center;
 `;
 
 const Title = styled(Link)`
@@ -31,17 +50,33 @@ const Title = styled(Link)`
 `;
 
 const Logo = styled.img`
-  width: 3rem;
   border-radius: 0.5rem;
+  width: 3rem;
 `;
 
-export default function Navbar() {
+interface NavbarProps {
+  leftComponent?: ReactNode;
+  rightComponent?: ReactNode;
+}
+
+export default function Navbar({ leftComponent, rightComponent }: NavbarProps) {
+  const isMobile = useIsMobile();
+
   return (
     <NavbarStyle>
-      <Title href="/">
-        <Logo src="/img/logo.svg" alt="Marvel Discord Logo" />
-        Marvel Discord
-      </Title>
+      <Section style={{ justifyContent: "flex-start" }}>
+        {leftComponent ?? <div />}
+      </Section>
+      <Center>
+        <Title href="/">
+          <Logo src="/img/logo.svg" alt="Marvel Discord Logo" />
+          {(!(leftComponent || rightComponent) || !isMobile) &&
+            "Marvel Discord"}
+        </Title>
+      </Center>
+      <Section style={{ justifyContent: "flex-end" }}>
+        {rightComponent ?? <div />}
+      </Section>
     </NavbarStyle>
   );
 }
