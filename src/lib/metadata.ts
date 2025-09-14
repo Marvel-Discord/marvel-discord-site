@@ -4,6 +4,11 @@ import type { Metadata, Viewport } from "next";
 export const defaultMetadata: Metadata = {
   title: "Marvel Discord",
   description: "The largest community-run server for everything Marvel.",
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/favicon.ico",
+  },
   openGraph: {
     type: "website",
     title: "Marvel Discord",
