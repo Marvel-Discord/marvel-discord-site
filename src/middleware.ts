@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import config from "./app/config/config";
 
 export function middleware(request: NextRequest) {
-  const pollsBaseUrl = config.publicPollsBaseUrl;
+  const pollsBaseUrl = process.env.NEXT_PUBLIC_POLLS_BASE_URL;
 
   // If external polls URL is configured and request is for /polls
   if (pollsBaseUrl && request.nextUrl.pathname.startsWith("/polls")) {
