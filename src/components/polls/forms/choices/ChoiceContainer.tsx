@@ -18,6 +18,7 @@ import {
   BarContainer,
   BarLine,
 } from "./styles";
+import { MarkdownChoiceText } from "./MarkdownChoiceText";
 
 interface ChoiceContainerProps {
   choice: string;
@@ -106,13 +107,12 @@ export function ChoiceContainer({
               value={choice}
             />
           ) : (
-            <ChoiceText size={isMobile ? "2" : "3"}>
-              {choice}
-              <ChoiceCheck
-                size="20"
-                $isChecked={userVote !== undefined && userVote === index}
-              />
-            </ChoiceText>
+            <MarkdownChoiceText
+              text={choice}
+              size={isMobile ? "2" : "3"}
+              userVote={userVote}
+              index={index}
+            />
           )}
           <Spacer />
           {(editable ? percentageVotes.length > index : showVotes) &&
