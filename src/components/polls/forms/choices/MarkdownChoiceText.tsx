@@ -20,7 +20,7 @@ export function MarkdownChoiceText({
   const radixSize = typeof size === "number" ? String(size) : size;
   return (
     <Flex align="center" gap="1">
-      <MarkdownText text={text} size={radixSize as any} editable={false} />
+  <MarkdownText text={text} size={radixSize as unknown as undefined | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"} editable={false} />
       {userVote !== undefined && userVote === index && (
         <ChoiceCheck size="20" $isChecked />
       )}

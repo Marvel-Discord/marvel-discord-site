@@ -55,11 +55,7 @@ export interface MarkdownTextProps {
 
 export function MarkdownText(props: MarkdownTextProps) {
   const { text, editable = false, size, align, className, style } = props;
-  let getChannelName: ((id: string) => string | undefined) | undefined;
-  try {
-    // This will throw if not in provider, so we fallback gracefully
-    getChannelName = useChannels().getChannelName;
-  } catch {}
+  const getChannelName = useChannels().getChannelName;
   const lines = text.split("\n");
   const urlRegex = /(https?:\/\/[^\s]+)/g;
 

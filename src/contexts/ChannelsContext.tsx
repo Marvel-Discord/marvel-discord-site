@@ -11,7 +11,7 @@ interface ChannelsContextValue {
   channels: Channel[];
   getChannelName: (id: string) => string | undefined;
   loading: boolean;
-  error: any;
+  error: unknown;
 }
 
 const ChannelsContext = createContext<ChannelsContextValue | undefined>(
@@ -27,7 +27,7 @@ export function ChannelsProvider({
 }) {
   const [channels, setChannels] = useState<Channel[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<any>(null);
+  const [error, setError] = useState<unknown>(null);
 
   useEffect(() => {
     setLoading(true);
