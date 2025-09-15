@@ -1,16 +1,16 @@
 import { Button, Card, Flex, Text } from "@radix-ui/themes";
 import { PencilIcon, Tag, TriangleAlert, Edit } from "lucide-react";
+import { TagDialog } from "../forms/tagDialog";
+import { useEditContext } from "@/contexts/EditContext";
+import { useIsMobile } from "@/utils/isMobile";
+import { useState } from "react";
+import { useTagContext } from "@/contexts/TagContext";
 import styled from "styled-components";
 import type { Poll } from "@jocasta-polls-api";
-import { useTagContext } from "@/contexts/TagContext";
-import { useEditContext } from "@/contexts/EditContext";
-import { useState } from "react";
-import { TagDialog } from "../forms/tagDialog";
 import type { Tag as TagType } from "@jocasta-polls-api";
 
 const CardStyle = styled(Card)`
   width: fit-content;
-  z-index: 1000;
 
   --card-background-color: var(--gray-4);
 `;
@@ -41,6 +41,44 @@ const StyledText = styled(Text)`
   font-size: var(--font-size-1);
 `;
 
+function SaveDiscardButtons({
+  hasChanges,
+  canSave,
+  isSaving,
+  handleDiscardChanges,
+  handleSaveChanges,
+}: {
+  hasChanges: boolean;
+  canSave: boolean;
+  isSaving: boolean;
+  handleDiscardChanges: () => void;
+  handleSaveChanges: () => void;
+}) {
+  return (
+    <>
+      <ButtonStyle
+        variant="surface"
+        size="2"
+        aria-label="Discard"
+        onClick={handleDiscardChanges}
+        disabled={isSaving}
+      >
+        Discard
+      </ButtonStyle>
+      <ButtonStyle
+        variant={hasChanges && canSave ? "solid" : "surface"}
+        color="green"
+        size="2"
+        aria-label="Save"
+        disabled={!hasChanges || !canSave || isSaving}
+        onClick={handleSaveChanges}
+      >
+        {isSaving ? "Saving..." : "Save"}
+      </ButtonStyle>
+    </>
+  );
+}
+
 interface EditButtonProps {
   editModeEnabled: boolean;
   setEditModeEnabled: (enabled: boolean) => void;
@@ -58,6 +96,7 @@ export default function EditButton({
   canSave = true,
   validationErrors = new Map(),
 }: EditButtonProps) {
+  const isMobile = useIsMobile();
   const {
     pendingTags: newTags,
     updatePendingTag,
@@ -104,7 +143,7 @@ export default function EditButton({
   }
 
   return (
-    <Flex align={"end"} gap="2" direction="column">
+    <Flex align={"end"} gap="1" direction="column">
       {newTags.length > 0 && (
         <CardStyle>
           <Flex direction="column" gap="1">
@@ -158,40 +197,61 @@ export default function EditButton({
           </Flex>
         </CardStyle>
       )}
-      <CardStyle>
-        <Flex gap="2" align="center">
-          {text && <Text>{text}</Text>}
-          <ButtonStyle
-            variant="surface"
-            size="2"
-            aria-label="Discard changes"
-            onClick={handleDiscardChanges}
-            disabled={isSaving}
-          >
-            Discard changes
-          </ButtonStyle>
-          <ButtonStyle
-            variant={hasChanges && canSave ? "solid" : "surface"}
-            color="green"
-            size="2"
-            aria-label="Save changes"
-            disabled={!hasChanges || !canSave || isSaving}
-            onClick={handleSaveChanges}
-          >
-            {isSaving ? "Saving..." : "Save changes"}
-          </ButtonStyle>
-        </Flex>
-        {saveMessage && (
-          <Flex mt="2">
-            <Text
-              size="1"
-              color={saveMessage.includes("success") ? "green" : "red"}
-            >
-              {saveMessage}
-            </Text>
+      {isMobile ? (
+        <>
+          {text && (
+            <CardStyle style={{ marginBottom: 8 }}>
+              <Flex direction="column" align="center" gap="2">
+                <Text size="1">{text}</Text>
+              </Flex>
+            </CardStyle>
+          )}
+          <CardStyle>
+            <Flex direction="row" align="center" gap="2">
+              <SaveDiscardButtons
+                hasChanges={hasChanges}
+                canSave={canSave}
+                isSaving={isSaving}
+                handleDiscardChanges={handleDiscardChanges}
+                handleSaveChanges={handleSaveChanges}
+              />
+            </Flex>
+            {saveMessage && (
+              <Flex mt="2">
+                <Text
+                  size="1"
+                  color={saveMessage.includes("success") ? "green" : "red"}
+                >
+                  {saveMessage}
+                </Text>
+              </Flex>
+            )}
+          </CardStyle>
+        </>
+      ) : (
+        <CardStyle>
+          <Flex gap="2" align="center">
+            {text && <Text>{text}</Text>}
+            <SaveDiscardButtons
+              hasChanges={hasChanges}
+              canSave={canSave}
+              isSaving={isSaving}
+              handleDiscardChanges={handleDiscardChanges}
+              handleSaveChanges={handleSaveChanges}
+            />
           </Flex>
-        )}
-      </CardStyle>
+          {saveMessage && (
+            <Flex mt="2">
+              <Text
+                size="1"
+                color={saveMessage.includes("success") ? "green" : "red"}
+              >
+                {saveMessage}
+              </Text>
+            </Flex>
+          )}
+        </CardStyle>
+      )}
       <TagDialog
         open={tagDialogOpen}
         onOpenChange={setTagDialogOpen}

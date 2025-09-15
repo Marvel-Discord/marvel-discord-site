@@ -647,7 +647,7 @@ function InfoTagDialog({
               </Flex>
             );
 
-            if (tag.editable) {
+            if (editable && tag.editable) {
               if (tag.type === InfoTagType.ARTIST) {
                 content = (
                   <Flex gap="1" align="start" direction="column">

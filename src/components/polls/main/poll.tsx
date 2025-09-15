@@ -3,8 +3,6 @@ import {
   Container,
   Flex,
   Heading,
-  Text,
-  Link,
   Skeleton,
   TextField,
   Button,
@@ -12,15 +10,12 @@ import {
 import styled from "styled-components";
 import { Choices, ChoicesSkeleton } from "../forms/choices";
 import { PollControls } from "../forms/choices/PollControls";
+import { useMemo, useRef, useState, useCallback, useEffect } from "react";
 import {
-  useMemo,
-  useRef,
-  useState,
-  useCallback,
-  useEffect,
-  type ComponentProps,
-} from "react";
-import { PollCardHeader, PollCardHeaderSkeleton } from "../ui/cardHeader";
+  PollCardHeader,
+  PollCardHeaderSkeleton,
+  MarkdownDescription,
+} from "../ui";
 import { useAuthContext } from "@/contexts/AuthProvider";
 import { useIsMobile } from "@/utils/isMobile";
 import {
@@ -146,15 +141,6 @@ const QuestionEditable = styled(AutoGrowingTextAreaStyled)<{
       `}
 `;
 
-const DescriptionContainer = styled(Flex)`
-  width: 100%;
-`;
-
-const DescriptionStyled = styled(Text)`
-  color: var(--gray-a12);
-  letter-spacing: 0.02rem;
-`;
-
 const DescriptionEditable = styled(AutoGrowingTextAreaStyled)`
   min-height: var(--line-height-2);
 
@@ -167,48 +153,6 @@ const ImageUrlInput = styled(TextField.Root)`
   min-width: 50%;
   background-color: var(--gray-a2);
 `;
-
-function Description({
-  text,
-  ...props
-}: {
-  text: string;
-} & ComponentProps<typeof Text>) {
-  const lines = text.split("\n");
-
-  // Simple URL regex
-  const urlRegex = /(https?:\/\/[^\s]+)/g;
-
-  return (
-    <DescriptionContainer direction="column" gap="1">
-      {lines.map((line, index) => {
-        const parts = line.split(urlRegex);
-
-        return (
-          // biome-ignore lint/suspicious/noArrayIndexKey: Just text
-          <DescriptionStyled key={index} {...props}>
-            {parts.map((part) => {
-              if (urlRegex.test(part)) {
-                return (
-                  <Link
-                    href={part}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    underline="hover"
-                    key={part}
-                  >
-                    {part}
-                  </Link>
-                );
-              }
-              return part;
-            })}
-          </DescriptionStyled>
-        );
-      })}
-    </DescriptionContainer>
-  );
-}
 
 export function PollCard({
   poll,
@@ -509,7 +453,12 @@ export function PollCard({
           <>
             <Question $isMobile={isMobile}>{poll.question}</Question>
             {filteredDescription && (
-              <Description text={filteredDescription} size="2" align="left" />
+              <MarkdownDescription
+                text={filteredDescription}
+                size="2"
+                align="left"
+                editable={editable}
+              />
             )}
           </>
         )}
@@ -584,7 +533,7 @@ export function PollCardSkeleton() {
           </Skeleton>
         </Question>
         <Skeleton>
-          <Description text="Loading..." size="2" align="left" />
+          <MarkdownDescription text="Loading..." size="2" align="left" />
         </Skeleton>
       </CardTitleBlock>
 

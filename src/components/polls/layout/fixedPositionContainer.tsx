@@ -10,4 +10,5 @@ export const FixedPositionContainer = styled.div`
   padding: 2rem;
   position: fixed;
   right: 0;
+  z-index: 1000;
 `;

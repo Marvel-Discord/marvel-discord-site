@@ -59,10 +59,14 @@ export function TagSelect({
     textColor: selectedTagTextColor,
   } = getTagColors(selectedTag ? tags[selectedTag] : undefined);
 
+  // Determine the value for the select
+  const selectValue =
+    selectedTag && tags && tags[selectedTag] ? selectedTag.toString() : "all";
+
   return (
     <TagSelectContainer>
       <TagSelectRoot
-        defaultValue="all"
+        value={selectValue}
         onValueChange={handleTagSelect}
         disabled={disabled}
       >
@@ -73,7 +77,7 @@ export function TagSelect({
         >
           {isMobile ? (
             <LucideTag size="20" />
-          ) : selectedTag ? (
+          ) : selectedTag && tags && tags[selectedTag] ? (
             tags[selectedTag].name
           ) : (
             "All tags"
@@ -82,19 +86,23 @@ export function TagSelect({
         <Select.Content>
           <Select.Item value="all">All tags</Select.Item>
           <Select.Separator />
-          {tagsOrder.map((tag) => {
-            const { backgroundColor, textColor } = getTagColors(tags[tag]);
-            return (
-              <TagSelectItem
-                key={tag}
-                value={tag.toString()}
-                $backgroundColor={backgroundColor}
-                $textColor={textColor}
-              >
-                {tags[Number(tag)].name}
-              </TagSelectItem>
-            );
-          })}
+          {tagsOrder && tags
+            ? tagsOrder.map((tag) => {
+                const tagObj = tags[tag];
+                if (!tagObj) return null;
+                const { backgroundColor, textColor } = getTagColors(tagObj);
+                return (
+                  <TagSelectItem
+                    key={tag}
+                    value={tag.toString()}
+                    $backgroundColor={backgroundColor}
+                    $textColor={textColor}
+                  >
+                    {tagObj.name}
+                  </TagSelectItem>
+                );
+              })
+            : null}
         </Select.Content>
       </TagSelectRoot>
     </TagSelectContainer>

@@ -7,3 +7,4 @@ export {
   PollCardHeader,
   PollCardHeaderSkeleton,
 } from "./cardHeader";
+export { MarkdownDescription } from "./MarkdownDescription";
