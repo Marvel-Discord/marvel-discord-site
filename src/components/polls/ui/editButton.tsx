@@ -9,6 +9,38 @@ import styled from "styled-components";
 import type { Poll } from "@jocasta-polls-api";
 import type { Tag as TagType } from "@jocasta-polls-api";
 
+const CardStyle = styled(Card)`
+  width: fit-content;
+
+  --card-background-color: var(--gray-4);
+`;
+
+const ButtonStyle = styled(Button)`
+  transition: background-color 0.2s ease-in-out;
+  transition: color 0.2s ease-in-out;
+`;
+
+const StyledHeader = styled.h1`
+  align-items: center;
+  display: flex;
+  gap: 0.3rem;
+  font-size: var(--font-size-4);
+`;
+
+const TagHeader = styled(StyledHeader)``;
+
+const ErrorHeader = styled(StyledHeader)`
+  color: var(--red-11);
+`;
+
+const ErrorPollHeader = styled.h1`
+  font-size: var(--font-size-2);
+`;
+
+const StyledText = styled(Text)`
+  font-size: var(--font-size-1);
+`;
+
 function SaveDiscardButtons({
   hasChanges,
   canSave,
@@ -46,38 +78,6 @@ function SaveDiscardButtons({
     </>
   );
 }
-
-const CardStyle = styled(Card)`
-  width: fit-content;
-
-  --card-background-color: var(--gray-4);
-`;
-
-const ButtonStyle = styled(Button)`
-  transition: background-color 0.2s ease-in-out;
-  transition: color 0.2s ease-in-out;
-`;
-
-const StyledHeader = styled.h1`
-  align-items: center;
-  display: flex;
-  gap: 0.3rem;
-  font-size: var(--font-size-4);
-`;
-
-const TagHeader = styled(StyledHeader)``;
-
-const ErrorHeader = styled(StyledHeader)`
-  color: var(--red-11);
-`;
-
-const ErrorPollHeader = styled.h1`
-  font-size: var(--font-size-2);
-`;
-
-const StyledText = styled(Text)`
-  font-size: var(--font-size-1);
-`;
 
 interface EditButtonProps {
   editModeEnabled: boolean;

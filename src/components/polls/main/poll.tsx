@@ -3,8 +3,6 @@ import {
   Container,
   Flex,
   Heading,
-  Text,
-  Link,
   Skeleton,
   TextField,
   Button,
@@ -12,14 +10,7 @@ import {
 import styled from "styled-components";
 import { Choices, ChoicesSkeleton } from "../forms/choices";
 import { PollControls } from "../forms/choices/PollControls";
-import {
-  useMemo,
-  useRef,
-  useState,
-  useCallback,
-  useEffect,
-  type ComponentProps,
-} from "react";
+import { useMemo, useRef, useState, useCallback, useEffect } from "react";
 import {
   PollCardHeader,
   PollCardHeaderSkeleton,
