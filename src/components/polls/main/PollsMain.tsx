@@ -95,11 +95,12 @@ export function PollsMain({ skeletons, polls, setPolls }: PollsMainProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Reset page when search parameters change
+  // Reset page and show skeletons when search parameters change
   useEffect(() => {
     setPage(1);
     setPolls([]);
-  }, [debouncedSearchValue, selectedTag, filterState, setPage, setPolls]);
+    setLoading(true); // Show skeletons immediately on new search
+  }, [debouncedSearchValue, selectedTag, filterState, setPage, setPolls, setLoading]);
 
   // Fetch polls when search parameters change
   useEffect(() => {
