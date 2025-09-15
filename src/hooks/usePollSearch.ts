@@ -53,9 +53,10 @@ export function usePollSearch() {
           : value
       ).trim();
 
+      const typeToSet = newSearchType || searchType;
       updateUrlParameters(router, searchParams, {
         search: fullValue !== "" ? fullValue : null,
-        type: newSearchType || searchType,
+        type: typeToSet === PollSearchType.SEARCH ? null : typeToSet,
       });
     },
     [router, searchParams, searchType]
