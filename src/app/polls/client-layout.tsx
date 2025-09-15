@@ -9,10 +9,11 @@ import { AuthProvider } from "@/contexts/AuthProvider";
 import ProfileContainer from "@/components/polls/ui/profileButton";
 import { TagProvider } from "@/contexts/TagContext";
 import { PollsSearchProvider } from "@/contexts/SearchContext";
+import config from "../config/config";
 
 import "@radix-ui/themes/styles.css";
 import "./polls-globals.css";
-
+import { ChannelsProvider } from "@/contexts/ChannelsContext";
 const BaseContainer = styled(Container)`
   margin-inline: 1rem;
 `;
@@ -26,17 +27,19 @@ export default function PollsClientLayout({
     <AuthProvider>
       <TagProvider>
         <PollsSearchProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange={false}
-          >
-            <Theme accentColor="red" radius="large" scaling="110%">
-              <Navbar rightComponent={<ProfileContainer />} />
-              <BaseContainer size="4">{children}</BaseContainer>
-            </Theme>
-          </ThemeProvider>
+          <ChannelsProvider guildId={config.guildId}>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange={false}
+            >
+              <Theme accentColor="red" radius="large" scaling="110%">
+                <Navbar rightComponent={<ProfileContainer />} />
+                <BaseContainer size="4">{children}</BaseContainer>
+              </Theme>
+            </ThemeProvider>
+          </ChannelsProvider>
         </PollsSearchProvider>
       </TagProvider>
     </AuthProvider>

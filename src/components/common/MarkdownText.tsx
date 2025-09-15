@@ -1,6 +1,7 @@
 import { Text, Link } from "@radix-ui/themes";
 import styled from "styled-components";
 import { type ComponentProps, type ReactElement } from "react";
+import { useChannels } from "@/contexts/ChannelsContext";
 
 const MarkdownBold = styled.strong`
   font-weight: bold;
@@ -52,14 +53,13 @@ export interface MarkdownTextProps {
   style?: React.CSSProperties;
 }
 
-export function MarkdownText({
-  text,
-  editable = false,
-  size,
-  align,
-  className,
-  style,
-}: MarkdownTextProps) {
+export function MarkdownText(props: MarkdownTextProps) {
+  const { text, editable = false, size, align, className, style } = props;
+  let getChannelName: ((id: string) => string | undefined) | undefined;
+  try {
+    // This will throw if not in provider, so we fallback gracefully
+    getChannelName = useChannels().getChannelName;
+  } catch {}
   const lines = text.split("\n");
   const urlRegex = /(https?:\/\/[^\s]+)/g;
 
@@ -111,13 +111,15 @@ export function MarkdownText({
       },
       {
         regex: /<#(\d+)>/g,
-        replacer: (match: string, channelId: string, index: string) => (
-          <MarkdownChannel key={`channel-${index}`}>
-            #{channelId}
-          </MarkdownChannel>
-        ),
+        replacer: (match: string, channelId: string, index: string) => {
+          const name = getChannelName?.(channelId);
+          return (
+            <MarkdownChannel key={`channel-${index}`}>
+              #{name || channelId}
+            </MarkdownChannel>
+          );
+        },
       },
-      { regex: /\\(.)/g, replacer: (match: string, char: string) => char },
     ];
     processors.forEach((processor, processorIndex) => {
       result = result.flatMap((item, itemIndex) => {
