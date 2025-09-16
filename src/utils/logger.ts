@@ -12,36 +12,38 @@ export interface LoggerConfig {
   timestamp?: boolean;
 }
 
+import config from "@/app/config/config";
+
 export class Logger {
   private config: LoggerConfig;
 
-  constructor(config: Partial<LoggerConfig> = {}) {
-    const envLogLevel = this.parseLogLevel(process.env.LOG_LEVEL || process.env.NEXT_PUBLIC_LOG_LEVEL);
-    
+  constructor(loggerConfig: Partial<LoggerConfig> = {}) {
+    const envLogLevel = this.parseLogLevel(config.logLevel);
+
     this.config = {
       level: envLogLevel ?? LogLevel.INFO,
-      prefix: config.prefix || '',
-      timestamp: config.timestamp ?? true,
-      ...config,
+      prefix: loggerConfig.prefix || "",
+      timestamp: loggerConfig.timestamp ?? true,
+      ...loggerConfig,
     };
   }
 
   private parseLogLevel(level: string | undefined): LogLevel | null {
     if (!level) return null;
-    
+
     const normalizedLevel = level.toUpperCase();
     switch (normalizedLevel) {
-      case 'DEBUG':
+      case "DEBUG":
         return LogLevel.DEBUG;
-      case 'INFO':
+      case "INFO":
         return LogLevel.INFO;
-      case 'WARN':
-      case 'WARNING':
+      case "WARN":
+      case "WARNING":
         return LogLevel.WARN;
-      case 'ERROR':
+      case "ERROR":
         return LogLevel.ERROR;
-      case 'NONE':
-      case 'SILENT':
+      case "NONE":
+      case "SILENT":
         return LogLevel.NONE;
       default:
         return null;
@@ -54,31 +56,31 @@ export class Logger {
 
   private formatMessage(level: string, message: string): string {
     const parts = [];
-    
+
     if (this.config.timestamp) {
       parts.push(`[${new Date().toISOString()}]`);
     }
-    
+
     parts.push(`[${level}]`);
-    
+
     if (this.config.prefix) {
       parts.push(`[${this.config.prefix}]`);
     }
-    
+
     parts.push(message);
-    
-    return parts.join(' ');
+
+    return parts.join(" ");
   }
 
   debug(message: string, ...args: unknown[]): void {
     if (this.shouldLog(LogLevel.DEBUG)) {
-      console.debug(this.formatMessage('DEBUG', message), ...args);
+      console.debug(this.formatMessage("DEBUG", message), ...args);
     }
   }
 
   info(message: string, ...args: unknown[]): void {
     if (this.shouldLog(LogLevel.INFO)) {
-      console.info(this.formatMessage('INFO', message), ...args);
+      console.info(this.formatMessage("INFO", message), ...args);
     }
   }
 
@@ -88,22 +90,22 @@ export class Logger {
 
   warn(message: string, ...args: unknown[]): void {
     if (this.shouldLog(LogLevel.WARN)) {
-      console.warn(this.formatMessage('WARN', message), ...args);
+      console.warn(this.formatMessage("WARN", message), ...args);
     }
   }
 
   error(message: string, ...args: unknown[]): void {
     if (this.shouldLog(LogLevel.ERROR)) {
-      console.error(this.formatMessage('ERROR', message), ...args);
+      console.error(this.formatMessage("ERROR", message), ...args);
     }
   }
 
   // Create a child logger with additional prefix
   child(prefix: string): Logger {
-    const childPrefix = this.config.prefix 
+    const childPrefix = this.config.prefix
       ? `${this.config.prefix}:${prefix}`
       : prefix;
-    
+
     return new Logger({
       ...this.config,
       prefix: childPrefix,
