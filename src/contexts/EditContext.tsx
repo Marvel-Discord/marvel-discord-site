@@ -13,6 +13,9 @@ import { EditState } from "@/types/states";
 import { emptyPoll, validatePolls, type ValidationResult } from "@/utils/polls";
 import { createPolls, updatePolls, deletePolls } from "@/api/polls/polls";
 import { useTagContext } from "@/contexts/TagContext";
+import { createLogger } from "@/utils/logger";
+
+const logger = createLogger("EditContext");
 import { usePollRefetch } from "@/contexts/PollRefetchContext";
 import type { Poll } from "@jocasta-polls-api";
 import config from "@/app/config/config";
@@ -300,7 +303,7 @@ export function EditProvider({ children, polls }: EditProviderProps) {
             : "Changes saved successfully!",
       };
     } catch (error) {
-      console.error("Failed to save changes:", error);
+      logger.error("Failed to save changes:", error);
       return {
         success: false,
         message:

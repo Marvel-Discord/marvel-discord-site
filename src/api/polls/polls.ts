@@ -3,6 +3,9 @@ import { axiosPollsInstance } from "../axios";
 import type { AxiosResponse } from "axios";
 import config from "@/app/config/config";
 import { serializePollsForAPI } from "@/utils";
+import { createLogger } from "@/utils/logger";
+
+const logger = createLogger("api/polls");
 
 interface GetPollsParams {
   guildId?: string | bigint;
@@ -49,7 +52,7 @@ export const getPolls = async ({
 
     return { polls: response.data.data, meta: response.data.meta };
   } catch (error) {
-    console.error("Error fetching polls:", error);
+    logger.error("Error fetching polls:", error);
     throw error;
   }
 };
@@ -61,7 +64,7 @@ export const getPollById = async (pollId: string): Promise<Poll> => {
     );
     return response.data;
   } catch (error) {
-    console.error("Error fetching poll:", error);
+    logger.error("Error fetching poll:", error);
     throw error;
   }
 };
@@ -79,7 +82,7 @@ export const createPolls = async (
       await axiosPollsInstance.post("/polls/create", serializedPolls);
     return response.data.data;
   } catch (error) {
-    console.error("Error creating polls:", error);
+    logger.error("Error creating polls:", error);
     throw error;
   }
 };
@@ -95,7 +98,7 @@ export const updatePolls = async (polls: Poll[]): Promise<Poll[]> => {
       await axiosPollsInstance.post("/polls/update", serializedPolls);
     return response.data.data;
   } catch (error) {
-    console.error("Error updating polls:", error);
+    logger.error("Error updating polls:", error);
     throw error;
   }
 };
@@ -107,7 +110,7 @@ export const deletePolls = async (pollIds: string[]): Promise<void> => {
   try {
     await axiosPollsInstance.post("/polls/delete", { pollIds });
   } catch (error) {
-    console.error("Error deleting polls:", error);
+    logger.error("Error deleting polls:", error);
     throw error;
   }
 };

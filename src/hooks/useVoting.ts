@@ -2,6 +2,9 @@ import { useRef, useEffect } from "react";
 import type { Poll } from "@jocasta-polls-api";
 import { postVote } from "@/api/polls/votes";
 import { DEBOUNCE_DELAY } from "@/components/polls/forms/choices/constants";
+import { createLogger } from "@/utils/logger";
+
+const logger = createLogger("useVoting");
 
 export function useVoting({
   poll,
@@ -61,7 +64,7 @@ export function useVoting({
 
     voteTimeout.current = setTimeout(() => {
       postVote(poll.id, user.id, choice).catch((err) => {
-        console.error("Failed to post vote:", err);
+        logger.error("Failed to post vote:", err);
       });
     }, DEBOUNCE_DELAY);
   }

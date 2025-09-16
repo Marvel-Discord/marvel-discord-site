@@ -4,6 +4,9 @@ import { createPolls, updatePolls, deletePolls } from "@/api/polls/polls";
 import { useAuthContext } from "@/contexts/AuthProvider";
 import { useUserVotes } from "@/hooks/useUserVotes";
 import type { PollInfo, Poll } from "@jocasta-polls-api";
+import { createLogger } from "@/utils/logger";
+
+const logger = createLogger("PollDataProvider");
 
 interface PollDataContextValue {
   guilds: Record<string, PollInfo>;
@@ -48,7 +51,7 @@ export function PollDataProvider({ children }: { children: React.ReactNode }) {
         );
         setGuilds(guildsMap);
       } catch (err) {
-        console.error(err);
+        logger.error("Failed to fetch guilds:", err);
       }
     };
 
@@ -67,7 +70,7 @@ export function PollDataProvider({ children }: { children: React.ReactNode }) {
         message: "Polls created successfully!",
       };
     } catch (error) {
-      console.error("Failed to create polls:", error);
+      logger.error("Failed to create polls:", error);
       return {
         success: false,
         message:
@@ -83,7 +86,7 @@ export function PollDataProvider({ children }: { children: React.ReactNode }) {
       await updatePolls(updatedPolls);
       return { success: true, message: "Polls updated successfully!" };
     } catch (error) {
-      console.error("Failed to update polls:", error);
+      logger.error("Failed to update polls:", error);
       return {
         success: false,
         message:
@@ -99,7 +102,7 @@ export function PollDataProvider({ children }: { children: React.ReactNode }) {
       await deletePolls(pollIds);
       return { success: true, message: "Polls deleted successfully!" };
     } catch (error) {
-      console.error("Failed to delete polls:", error);
+      logger.error("Failed to delete polls:", error);
       return {
         success: false,
         message:

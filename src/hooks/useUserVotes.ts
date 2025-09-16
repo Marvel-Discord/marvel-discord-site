@@ -1,5 +1,8 @@
 import { useState, useCallback, useEffect } from "react";
 import { getUserVotes } from "@/api/polls/votes";
+import { createLogger } from "@/utils/logger";
+
+const logger = createLogger("useUserVotes");
 
 export function useUserVotes(user: { id: string } | null) {
   const [userVotes, setUserVotes] = useState<Record<number, number>>({});
@@ -17,7 +20,7 @@ export function useUserVotes(user: { id: string } | null) {
         );
         setUserVotes(votes);
       } catch (err) {
-        console.error(err);
+        logger.error("Failed to fetch user votes:", err);
       }
     };
 

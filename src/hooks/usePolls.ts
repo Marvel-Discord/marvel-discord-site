@@ -4,6 +4,9 @@ import { PollSearchType } from "@/utils";
 import { FilterState } from "@/types/states";
 import type { Poll, Meta } from "@jocasta-polls-api";
 import axios from "axios";
+import { createLogger } from "@/utils/logger";
+
+const logger = createLogger("usePolls");
 
 export interface UsePollsParams {
   search?: string;
@@ -99,9 +102,9 @@ export function usePolls() {
         setLoading(false);
       } catch (err) {
         if (axios.isCancel(err)) {
-          console.error("Request canceled:", err.message);
+          logger.error("Request canceled:", err.message);
         } else {
-          console.error(err);
+          logger.error("Request failed:", err);
         }
       }
 
