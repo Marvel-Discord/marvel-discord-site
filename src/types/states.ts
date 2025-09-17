@@ -12,3 +12,11 @@ export enum EditState {
   CREATE = "CREATE",
   NONE = "NONE",
 }
+
+export enum SortOrder {
+  NEWEST = "newest",
+  OLDEST = "oldest",
+  MOST_VOTES = "most_votes",
+  LEAST_VOTES = "least_votes",
+  SHUFFLE = "shuffle",
+}

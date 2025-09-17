@@ -14,6 +14,11 @@ interface GetPollsParams {
   user?: PollFilterUser;
   search?: string;
 
+  // Ordering parameters
+  order?: string;
+  orderDir?: "asc" | "desc";
+  seed?: number;
+
   page?: number;
   limit?: number;
 
@@ -31,6 +36,9 @@ export const getPolls = async ({
   tag,
   user,
   search,
+  order,
+  orderDir,
+  seed,
   page = 1,
   limit = 10,
   signal,
@@ -43,6 +51,9 @@ export const getPolls = async ({
       userId: user ? user.userId.toString() : undefined,
       notVoted: user ? user?.notVoted : undefined,
       search: search,
+      order: order,
+      orderDir: orderDir,
+      seed: seed,
       page: page,
       limit: limit,
     };

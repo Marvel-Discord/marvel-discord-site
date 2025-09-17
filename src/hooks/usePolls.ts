@@ -1,7 +1,8 @@
 import { useState, useCallback } from "react";
 import { getPolls, getPollById } from "@/api/polls/polls";
 import { PollSearchType } from "@/utils";
-import { FilterState } from "@/types/states";
+import { FilterState, SortOrder } from "@/types/states";
+import { mapSortOrderToApiParams } from "@/utils/polls";
 import type { Poll, Meta } from "@jocasta-polls-api";
 import axios from "axios";
 import { createLogger } from "@/utils/logger";
@@ -35,6 +36,8 @@ export function usePolls() {
   const [meta, setMeta] = useState<Meta | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
+  const [randomSeed, setRandomSeed] = useState<number | null>(null);
+  const [reshuffleCounter, setReshuffleCounter] = useState<number>(0);
 
   const fetchPolls = useCallback(
     async (params: {
@@ -42,6 +45,7 @@ export function usePolls() {
       searchType: PollSearchType;
       selectedTag: number | null;
       filterState: FilterState;
+      sortOrder: SortOrder;
       user: { id: string } | null;
       controller: AbortController;
       resetPage?: boolean;
@@ -51,6 +55,7 @@ export function usePolls() {
         searchType,
         selectedTag,
         filterState,
+        sortOrder,
         user,
         controller,
         resetPage = false,
@@ -61,6 +66,15 @@ export function usePolls() {
       try {
         if (searchType === PollSearchType.SEARCH) {
           const currentPage = resetPage ? 1 : page;
+          const sortParams = mapSortOrderToApiParams(sortOrder);
+
+          // For random ordering: use existing seed for pagination, clear for new queries
+          const seedToUse = resetPage
+            ? null
+            : sortParams.order === "random"
+            ? randomSeed
+            : null;
+
           const { polls: newPolls, meta: newMeta } = await getPolls({
             search: searchValue,
             page: currentPage,
@@ -74,9 +88,20 @@ export function usePolls() {
                   }
                 : undefined,
             published: filterState !== FilterState.UNPUBLISHED,
+            order: sortParams.order,
+            orderDir: sortParams.orderDir,
+            seed: seedToUse ?? undefined,
           });
 
           if (!cancelled) {
+            // Store the random seed from the response for future pagination
+            if (
+              newMeta.randomSeed !== undefined &&
+              newMeta.randomSeed !== randomSeed
+            ) {
+              setRandomSeed(newMeta.randomSeed);
+            }
+
             if (resetPage) {
               setPolls(newPolls);
               setPage(1);
@@ -118,6 +143,7 @@ export function usePolls() {
   const resetPolls = useCallback(() => {
     setPolls([]);
     setPage(1);
+    setRandomSeed(null); // Clear random seed when resetting
   }, []);
 
   const loadMore = useCallback(() => {
@@ -125,6 +151,13 @@ export function usePolls() {
       setPage(meta.nextPage);
     }
   }, [meta]);
+
+  const reshuffle = useCallback(() => {
+    setRandomSeed(null); // Clear seed to get a new random order
+    setPolls([]);
+    setPage(1);
+    setReshuffleCounter(prev => prev + 1); // Trigger re-fetch
+  }, []);
 
   return {
     polls,
@@ -137,5 +170,8 @@ export function usePolls() {
     fetchPolls,
     resetPolls,
     loadMore,
+    reshuffle,
+    randomSeed,
+    reshuffleCounter,
   };
 }

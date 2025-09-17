@@ -9,12 +9,25 @@ import {
   Hash,
   CircleDashed,
   CircleEllipsis,
+  ArrowUpDown,
+  Archive,
+  Dices,
+  Sparkles,
+  TrendingDown,
+  TrendingUp,
 } from "lucide-react";
 import styled from "styled-components";
 import { TagSelect } from "./tagSelect";
 import { useIsMobile } from "@/utils/isMobile";
 import { PollSearchType } from "@/utils";
-import { FilterState } from "@/types/states";
+import { FilterState, SortOrder } from "@/types/states";
+import { ReactNode } from "react";
+
+const SearchWrapper = styled(Flex)`
+  align-items: end;
+  flex-direction: column;
+  width: 100%;
+`;
 
 const SearchContainer = styled(Flex)`
   align-items: center;
@@ -71,6 +84,16 @@ const SelectTrigger = styled(Select.Trigger)`
   }
 `;
 
+const SortDropdownWrapper = styled(Flex)`
+  align-items: center;
+  justify-content: flex-end;
+`;
+
+const OrderSelectTrigger = styled(Select.Trigger)`
+  color: var(--gray-a11);
+  margin-inline: 0rem;
+`;
+
 const SearchIconButton = styled(Button)`
   @media (hover: hover) {
     background-color: transparent;
@@ -78,7 +101,7 @@ const SearchIconButton = styled(Button)`
 `;
 
 interface HasVotedInfoType {
-  icon: React.ReactNode;
+  icon: ReactNode;
   tooltip: string;
 }
 
@@ -102,6 +125,46 @@ const HasVotedInfo: Record<FilterState, HasVotedInfoType> = {
   [FilterState.PUBLISHED]: {
     icon: <CircleEllipsis />,
     tooltip: "Published polls",
+  },
+};
+
+interface SortInfoType {
+  icon: ReactNode;
+  iconSmall: ReactNode;
+  label: string;
+  tooltip: string;
+}
+
+const SortInfo: Record<SortOrder, SortInfoType> = {
+  [SortOrder.NEWEST]: {
+    icon: <Sparkles size={20} />,
+    iconSmall: <Sparkles size={16} />,
+    label: "Newest",
+    tooltip: "Order by newest first",
+  },
+  [SortOrder.OLDEST]: {
+    icon: <Archive size={20} />,
+    iconSmall: <Archive size={16} />,
+    label: "Oldest",
+    tooltip: "Order by oldest first",
+  },
+  [SortOrder.MOST_VOTES]: {
+    icon: <TrendingUp size={20} />,
+    iconSmall: <TrendingUp size={16} />,
+    label: "Most votes",
+    tooltip: "Order by most votes first",
+  },
+  [SortOrder.LEAST_VOTES]: {
+    icon: <TrendingDown size={20} />,
+    iconSmall: <TrendingDown size={16} />,
+    label: "Least votes",
+    tooltip: "Order by least votes first",
+  },
+  [SortOrder.SHUFFLE]: {
+    icon: <Dices size={20} />,
+    iconSmall: <Dices size={16} />,
+    label: "Shuffle",
+    tooltip: "Shuffle order",
   },
 };
 
@@ -172,6 +235,54 @@ function FilterToggle({
   );
 }
 
+function SortDropdown({
+  sortOrder = SortOrder.NEWEST,
+  setSortOrder,
+  onReshuffle,
+}: {
+  sortOrder?: SortOrder;
+  setSortOrder?: (order: SortOrder) => void;
+  onReshuffle?: () => void;
+}) {
+  if (!setSortOrder) {
+    return null;
+  }
+
+  const { label, tooltip } = SortInfo[sortOrder];
+
+  return (
+    <SortDropdownWrapper>
+      {sortOrder === SortOrder.SHUFFLE && (
+        <Tooltip content="Reshuffle polls">
+          <Button variant="ghost" onClick={onReshuffle}>
+            {SortInfo[SortOrder.SHUFFLE].iconSmall}
+          </Button>
+        </Tooltip>
+      )}
+      <Select.Root value={sortOrder} onValueChange={setSortOrder} size="1">
+        <Tooltip content={tooltip}>
+          <OrderSelectTrigger variant="ghost" color="gray">
+            <Flex align="center" gap="1" direction={"row"}>
+              {label}
+              <ArrowUpDown size={16} />
+            </Flex>
+          </OrderSelectTrigger>
+        </Tooltip>
+        <Select.Content position="popper">
+          {Object.entries(SortInfo).map(([value, info]) => (
+            <Select.Item key={value} value={value}>
+              <Flex align="center" gap="2">
+                {info.icon}
+                {info.label}
+              </Flex>
+            </Select.Item>
+          ))}
+        </Select.Content>
+      </Select.Root>
+    </SortDropdownWrapper>
+  );
+}
+
 export function PollsSearch({
   handleSearch,
   handleTagSelect,
@@ -183,6 +294,9 @@ export function PollsSearch({
   setFilterState,
   searchType = PollSearchType.SEARCH,
   user = undefined,
+  sortOrder = SortOrder.NEWEST,
+  setSortOrder,
+  onReshuffle,
 }: {
   handleSearch: (value: string, searchType?: PollSearchType) => void;
   handleTagSelect: (tag: string) => void;
@@ -194,6 +308,9 @@ export function PollsSearch({
   setFilterState?: (state: FilterState) => void;
   searchType?: PollSearchType;
   user?: DiscordUserProfile | null;
+  sortOrder?: SortOrder;
+  setSortOrder?: (order: SortOrder) => void;
+  onReshuffle?: () => void;
 }) {
   const isMobile = useIsMobile();
 
@@ -208,57 +325,60 @@ export function PollsSearch({
   };
 
   return (
-    <SearchContainer gap="2" align="center">
-      <SearchBar
-        type={isIdSearch ? "number" : "text"}
-        placeholder={!isIdSearch ? "Search polls" : "Search by ID"}
-        size="3"
-        value={searchValue}
-        onChange={(e) => handleSearch(e.target.value)}
-        disabled={disabled}
-      >
-        <TextField.Slot>
-          <SearchIconButton
-            variant="ghost"
-            color="gray"
-            onClick={handleSearchTypeCycle}
-          >
-            {!isIdSearch ? <Search size={20} /> : <Hash size={20} />}
-          </SearchIconButton>
-        </TextField.Slot>
-        {(searchValue || isIdSearch) && !disabled && (
+    <SearchWrapper gap="1">
+      <SearchContainer gap="2" align="center">
+        <SearchBar
+          type={isIdSearch ? "number" : "text"}
+          placeholder={!isIdSearch ? "Search polls" : "Search by ID"}
+          size="3"
+          value={searchValue}
+          onChange={(e) => handleSearch(e.target.value)}
+          disabled={disabled}
+        >
           <TextField.Slot>
-            <ClearButton
-              type="button"
-              onClick={() => {
-                handleSearch("", PollSearchType.SEARCH);
-              }}
+            <SearchIconButton
+              variant="ghost"
+              color="gray"
+              onClick={handleSearchTypeCycle}
             >
-              <X size={20} />
-            </ClearButton>
+              {!isIdSearch ? <Search size={20} /> : <Hash size={20} />}
+            </SearchIconButton>
           </TextField.Slot>
-        )}
-        {meta && (
-          <TextField.Slot>
-            {meta.total}
-            {isMobile ? "" : " results"}
-          </TextField.Slot>
-        )}
-      </SearchBar>
+          {(searchValue || isIdSearch) && !disabled && (
+            <TextField.Slot>
+              <ClearButton
+                type="button"
+                onClick={() => {
+                  handleSearch("", PollSearchType.SEARCH);
+                }}
+              >
+                <X size={20} />
+              </ClearButton>
+            </TextField.Slot>
+          )}
+          {meta && (
+            <TextField.Slot>
+              {meta.total}
+              {isMobile ? "" : " results"}
+            </TextField.Slot>
+          )}
+        </SearchBar>
 
-      {user && (
-        <FilterToggle
-          filterState={filterState}
-          setFilterState={setFilterState}
-          isManager={user.isManager}
+        {user && (
+          <FilterToggle
+            filterState={filterState}
+            setFilterState={setFilterState}
+            isManager={user.isManager}
+          />
+        )}
+
+        <TagSelect
+          selectedTag={selectedTag}
+          handleTagSelect={handleTagSelect}
+          disabled={disabled}
         />
-      )}
-
-      <TagSelect
-        selectedTag={selectedTag}
-        handleTagSelect={handleTagSelect}
-        disabled={disabled}
-      />
-    </SearchContainer>
+      </SearchContainer>
+      <SortDropdown sortOrder={sortOrder} setSortOrder={setSortOrder} onReshuffle={onReshuffle} />
+    </SearchWrapper>
   );
 }

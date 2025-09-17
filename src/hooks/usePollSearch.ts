@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FilterState } from "@/types/states";
+import { FilterState, SortOrder } from "@/types/states";
 import { PollSearchType, updateUrlParameters } from "@/utils";
 import { usePollsSearchContext } from "@/contexts/SearchContext";
 
@@ -30,6 +30,13 @@ export function usePollSearch() {
       ? FilterState.NOT_VOTED
       : FilterState.ALL
   );
+
+  const [sortOrder, setSortOrder] = useState<SortOrder>(() => {
+    const sortParam = searchParams.get("order");
+    return Object.values(SortOrder).includes(sortParam as SortOrder)
+      ? (sortParam as SortOrder)
+      : SortOrder.NEWEST;
+  });
 
   const handleSearch = useCallback(
     (value: string, newSearchType?: PollSearchType) => {
@@ -90,6 +97,16 @@ export function usePollSearch() {
     [router, searchParams]
   );
 
+  const updateSortOrder = useCallback(
+    (newSortOrder: SortOrder) => {
+      setSortOrder(newSortOrder);
+      updateUrlParameters(router, searchParams, {
+        order: newSortOrder === SortOrder.NEWEST ? null : newSortOrder,
+      });
+    },
+    [router, searchParams]
+  );
+
   // Programmatic search function that sets search value and triggers search
   const setSearchToUser = useCallback(
     (username: string) => {
@@ -125,6 +142,8 @@ export function usePollSearch() {
     setSelectedTag,
     filterState,
     setFilterState: updateFilterState,
+    sortOrder,
+    setSortOrder: updateSortOrder,
     handleSearch,
     handleTagSelect,
     setSearchToUser, // New programmatic method
