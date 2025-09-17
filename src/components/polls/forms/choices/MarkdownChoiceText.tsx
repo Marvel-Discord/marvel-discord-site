@@ -1,5 +1,5 @@
 import { MarkdownText } from "@/components/common/MarkdownText";
-import { ChoiceCheck } from "./styles";
+import { ChoiceCheck, ChoiceText } from "./styles";
 import { Flex } from "@radix-ui/themes";
 import React from "react";
 
@@ -20,7 +20,25 @@ export function MarkdownChoiceText({
   const radixSize = typeof size === "number" ? String(size) : size;
   return (
     <Flex align="center" gap="1">
-  <MarkdownText text={text} size={radixSize as unknown as undefined | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"} editable={false} />
+      <ChoiceText>
+        <MarkdownText
+          text={text}
+          size={
+            radixSize as unknown as
+              | undefined
+              | "1"
+              | "2"
+              | "3"
+              | "4"
+              | "5"
+              | "6"
+              | "7"
+              | "8"
+              | "9"
+          }
+          editable={false}
+        />
+      </ChoiceText>
       {userVote !== undefined && userVote === index && (
         <ChoiceCheck size="20" $isChecked />
       )}
