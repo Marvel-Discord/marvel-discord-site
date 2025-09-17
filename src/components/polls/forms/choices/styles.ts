@@ -110,6 +110,7 @@ export const ChoiceTextEditable = styled(AutoGrowingTextAreaStyled)<{
   $size: string;
 }>`
   min-height: var(--line-height-${({ $size }) => $size});
+  text-align: left;
 
   > textarea {
     font-size: var(--font-size-${({ $size }) => $size});
