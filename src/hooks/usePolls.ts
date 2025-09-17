@@ -156,7 +156,7 @@ export function usePolls() {
     setRandomSeed(null); // Clear seed to get a new random order
     setPolls([]);
     setPage(1);
-    setReshuffleCounter(prev => prev + 1); // Trigger re-fetch
+    setReshuffleCounter((prev) => prev + 1); // Trigger re-fetch
   }, []);
 
   return {

@@ -378,7 +378,11 @@ export function PollsSearch({
           disabled={disabled}
         />
       </SearchContainer>
-      <SortDropdown sortOrder={sortOrder} setSortOrder={setSortOrder} onReshuffle={onReshuffle} />
+      <SortDropdown
+        sortOrder={sortOrder}
+        setSortOrder={setSortOrder}
+        onReshuffle={onReshuffle}
+      />
     </SearchWrapper>
   );
 }
