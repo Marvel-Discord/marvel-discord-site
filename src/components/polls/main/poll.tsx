@@ -486,14 +486,20 @@ export function PollCard({
         }
       />
 
-      {imageUrl && !imageError && (
+      {imageUrl && (
         <ImageContainer>
-          <PollImage
-            src={imageUrl}
-            alt={poll.question}
-            onError={editable ? () => setImageError(true) : undefined}
-            onLoad={editable ? () => setImageError(false) : undefined}
-          />
+          {!imageError ? (
+            <PollImage
+              src={imageUrl}
+              alt={poll.question}
+              onError={() => setImageError(true)}
+              onLoad={() => setImageError(false)}
+            />
+          ) : !editable ? (
+            <Flex align="center" justify="center" style={{ padding: "1rem" }}>
+              <ImageOff size={48} color="var(--gray-10)" />
+            </Flex>
+          ) : null}
         </ImageContainer>
       )}
 
