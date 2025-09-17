@@ -9,6 +9,9 @@ import {
   SelectedRolesBadges,
 } from "./roleSelect/";
 import config from "@/app/config/config";
+import { createLogger } from "@/utils/logger";
+
+const logger = createLogger("RoleSelect");
 
 interface RoleSelectProps {
   value: string[];
@@ -49,7 +52,7 @@ export function RoleSelect({
 
         setRawRoles(filteredData);
       } catch (err) {
-        console.error("Error fetching roles:", err);
+        logger.error("Error fetching roles:", err);
         setError(err instanceof Error ? err.message : "Failed to load roles");
       } finally {
         setLoading(false);

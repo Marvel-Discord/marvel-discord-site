@@ -3,6 +3,7 @@ import type { Tag } from "@jocasta-polls-api";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 export { isLightColor } from "./colorUtils";
+export { logger, createLogger, Logger, LogLevel } from "./logger";
 
 /**
  * Converts BigInt values in an object to strings for JSON serialization

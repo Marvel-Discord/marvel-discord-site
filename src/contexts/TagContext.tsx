@@ -1,6 +1,9 @@
 import { getTags, createTag } from "@/api/polls/tags";
 import type { Tag } from "@jocasta-polls-api";
 import { createContext, useContext, useEffect, useState } from "react";
+import { createLogger } from "@/utils/logger";
+
+const logger = createLogger("TagContext");
 
 interface TagContextType {
   tags: Record<number, Tag>;
@@ -71,7 +74,7 @@ export const TagProvider = ({ children }: TagProviderProps) => {
         message: "Tag created successfully!",
       };
     } catch (error) {
-      console.error("Failed to create tag:", error);
+      logger.error("Failed to create tag:", error);
       return {
         success: false,
         message:
@@ -92,7 +95,7 @@ export const TagProvider = ({ children }: TagProviderProps) => {
       setTags(tags);
       setTagsOrder(tagsOrder);
     } catch (err) {
-      console.error(err);
+      logger.error("Failed to fetch tags:", err);
     }
   };
 

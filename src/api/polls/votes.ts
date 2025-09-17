@@ -1,6 +1,9 @@
 import type { Vote } from "@jocasta-polls-api";
 import type { AxiosResponse } from "axios";
 import { axiosPollsInstance } from "../axios";
+import { createLogger } from "@/utils/logger";
+
+const logger = createLogger("api/votes");
 
 export const getUserVotes = async (userId: string): Promise<Vote[]> => {
   try {
@@ -9,7 +12,7 @@ export const getUserVotes = async (userId: string): Promise<Vote[]> => {
     );
     return response.data;
   } catch (error) {
-    console.error("Error fetching user votes:", error);
+    logger.error("Error fetching user votes:", error);
     throw error;
   }
 };
@@ -26,7 +29,7 @@ export const postVote = async (
     );
     return response.data;
   } catch (error) {
-    console.error("Error submitting vote:", error);
+    logger.error("Error submitting vote:", error);
     throw error;
   }
 };

@@ -7,6 +7,9 @@ import {
   ChannelItem,
 } from "./channelSelect/";
 import config from "@/app/config/config";
+import { createLogger } from "@/utils/logger";
+
+const logger = createLogger("ChannelSelect");
 
 interface ChannelSelectProps {
   value: string;
@@ -40,7 +43,7 @@ export function ChannelSelect({
 
         setRawChannels(data);
       } catch (err) {
-        console.error("Error fetching channels:", err);
+        logger.error("Error fetching channels:", err);
         setError(
           err instanceof Error ? err.message : "Failed to load channels"
         );

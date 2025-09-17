@@ -1,5 +1,8 @@
 import type { AxiosResponse } from "axios";
 import { axiosPollsInstance } from "../axios";
+import { createLogger } from "@/utils/logger";
+
+const logger = createLogger("api/discord/channels");
 
 export interface Channel {
   id: string;
@@ -23,7 +26,7 @@ export const getGuildChannels = async (guildId: string): Promise<Channel[]> => {
     );
     return response.data;
   } catch (error) {
-    console.error("Error fetching guild channels:", error);
+    logger.error("Error fetching guild channels:", error);
     throw error;
   }
 };
@@ -35,7 +38,7 @@ export const getGuildRoles = async (guildId: string): Promise<Role[]> => {
     );
     return response.data;
   } catch (error) {
-    console.error("Error fetching guild roles:", error);
+    logger.error("Error fetching guild roles:", error);
     throw error;
   }
 };

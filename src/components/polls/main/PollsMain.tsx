@@ -13,7 +13,7 @@ import type { Poll } from "@jocasta-polls-api";
 
 const BodyContainer = styled(Flex).attrs({
   direction: "column",
-  gap: "4",
+  gap: "1",
   align: "center",
   justify: "center",
 })`
@@ -37,6 +37,8 @@ export function PollsMain({ skeletons, polls, setPolls }: PollsMainProps) {
     page,
     setPage,
     fetchPolls,
+    reshuffle,
+    reshuffleCounter,
   } = usePolls();
 
   const {
@@ -45,6 +47,8 @@ export function PollsMain({ skeletons, polls, setPolls }: PollsMainProps) {
     selectedTag,
     filterState,
     setFilterState,
+    sortOrder,
+    setSortOrder,
     handleSearch,
     handleTagSelect,
   } = usePollSearch();
@@ -64,6 +68,7 @@ export function PollsMain({ skeletons, polls, setPolls }: PollsMainProps) {
       searchType,
       selectedTag,
       filterState,
+      sortOrder,
       user,
       controller,
       resetPage: true,
@@ -73,6 +78,7 @@ export function PollsMain({ skeletons, polls, setPolls }: PollsMainProps) {
     searchType,
     selectedTag,
     filterState,
+    sortOrder,
     user,
     fetchPolls,
     setPolls,
@@ -100,7 +106,16 @@ export function PollsMain({ skeletons, polls, setPolls }: PollsMainProps) {
     setPage(1);
     setPolls([]);
     setLoading(true); // Show skeletons immediately on new search
-  }, [debouncedSearchValue, selectedTag, filterState, setPage, setPolls, setLoading]);
+  }, [
+    debouncedSearchValue,
+    selectedTag,
+    filterState,
+    sortOrder,
+    reshuffleCounter,
+    setPage,
+    setPolls,
+    setLoading,
+  ]);
 
   // Fetch polls when search parameters change
   useEffect(() => {
@@ -116,6 +131,7 @@ export function PollsMain({ skeletons, polls, setPolls }: PollsMainProps) {
         searchType,
         selectedTag,
         filterState,
+        sortOrder,
         user,
         controller,
         resetPage: page === 1,
@@ -134,6 +150,8 @@ export function PollsMain({ skeletons, polls, setPolls }: PollsMainProps) {
     debouncedSearchValue,
     selectedTag,
     filterState,
+    sortOrder,
+    reshuffleCounter,
     user,
     searchType,
     fetchPolls,
@@ -161,6 +179,9 @@ export function PollsMain({ skeletons, polls, setPolls }: PollsMainProps) {
           setFilterState={setFilterState}
           searchType={searchType}
           user={user}
+          sortOrder={sortOrder}
+          setSortOrder={setSortOrder}
+          onReshuffle={reshuffle}
         />
 
         <PollList

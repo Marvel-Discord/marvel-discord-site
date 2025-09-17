@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FilterState } from "@/types/states";
+import { FilterState, SortOrder } from "@/types/states";
 import { PollSearchType, updateUrlParameters } from "@/utils";
 import { usePollsSearchContext } from "@/contexts/SearchContext";
 
@@ -31,6 +31,13 @@ export function usePollSearch() {
       : FilterState.ALL
   );
 
+  const [sortOrder, setSortOrder] = useState<SortOrder>(() => {
+    const sortParam = searchParams.get("order");
+    return Object.values(SortOrder).includes(sortParam as SortOrder)
+      ? (sortParam as SortOrder)
+      : SortOrder.NEWEST;
+  });
+
   const handleSearch = useCallback(
     (value: string, newSearchType?: PollSearchType) => {
       if (newSearchType !== undefined) {
@@ -53,9 +60,10 @@ export function usePollSearch() {
           : value
       ).trim();
 
+      const typeToSet = newSearchType || searchType;
       updateUrlParameters(router, searchParams, {
         search: fullValue !== "" ? fullValue : null,
-        type: newSearchType || searchType,
+        type: typeToSet === PollSearchType.SEARCH ? null : typeToSet,
       });
     },
     [router, searchParams, searchType]
@@ -84,6 +92,16 @@ export function usePollSearch() {
 
       updateUrlParameters(router, searchParams, {
         hasVoted: hasVoted !== undefined ? hasVoted : null,
+      });
+    },
+    [router, searchParams]
+  );
+
+  const updateSortOrder = useCallback(
+    (newSortOrder: SortOrder) => {
+      setSortOrder(newSortOrder);
+      updateUrlParameters(router, searchParams, {
+        order: newSortOrder === SortOrder.NEWEST ? null : newSortOrder,
       });
     },
     [router, searchParams]
@@ -124,6 +142,8 @@ export function usePollSearch() {
     setSelectedTag,
     filterState,
     setFilterState: updateFilterState,
+    sortOrder,
+    setSortOrder: updateSortOrder,
     handleSearch,
     handleTagSelect,
     setSearchToUser, // New programmatic method
