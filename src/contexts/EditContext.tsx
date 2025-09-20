@@ -35,7 +35,7 @@ interface EditContextType {
   // Actions
   setEditModeEnabled: (enabled: boolean) => void;
   handleEditChange: (poll: Poll, state: EditState) => void;
-  addNewPoll: () => void;
+  addNewPoll: () => Poll;
   validatePolls: () => void;
   saveEditedPolls: () => Promise<{ success: boolean; message?: string }>;
 
@@ -140,6 +140,7 @@ export function EditProvider({ children, polls }: EditProviderProps) {
     (poll: Poll, state: EditState) => {
       setEditedPolls((prev) => {
         const alreadyEdited = prev.find((p) => p.poll.id === poll.id);
+        console.log(alreadyEdited, state, poll);
         if (state === EditState.NONE) {
           return alreadyEdited
             ? prev.filter((p) => p.poll.id !== poll.id)
@@ -172,6 +173,7 @@ export function EditProvider({ children, polls }: EditProviderProps) {
       { poll: newPoll, state: EditState.CREATE },
       ...prev,
     ]);
+    return newPoll;
   }, []);
 
   const isPollEditable = useCallback(

@@ -6,7 +6,9 @@ import {
   Skeleton,
   TextField,
   Button,
+  Tooltip,
 } from "@radix-ui/themes";
+import ImportFromClipboardButton from "./ImportFromClipboardButton";
 import styled from "styled-components";
 import { Choices, ChoicesSkeleton } from "../forms/choices";
 import { PollControls } from "../forms/choices/PollControls";
@@ -78,9 +80,18 @@ const NewPollButtonContainer = styled(Button)`
   cursor: pointer;
   height: 100%;
   justify-content: center;
-  padding-inline: 1.5rem;
   padding-block: 1rem;
+  padding-inline: 1rem;
   transition: box-shadow 0.2s ease-in-out;
+`;
+
+const NewPollButtonManual = styled(NewPollButtonContainer)`
+  flex: 1;
+`;
+
+// NewPollButtonImport removed — Import button replaced by ImportFromClipboardButton component
+
+const NewPollButtonWrapper = styled(Flex)`
   width: 100%;
 `;
 
@@ -219,10 +230,10 @@ export function PollCard({
   const state = useMemo(() => {
     return willDelete
       ? EditState.DELETE
+      : poll.id < 0
+      ? EditState.CREATE
       : isEdited
-      ? poll.id < 0
-        ? EditState.CREATE
-        : EditState.UPDATE
+      ? EditState.UPDATE
       : EditState.NONE;
   }, [willDelete, isEdited, poll.id]);
 
@@ -286,12 +297,13 @@ export function PollCard({
     setIsEdited(isEditedNow);
     const currentState = willDeleteRef.current
       ? EditState.DELETE
+      : poll.id < 0
+      ? EditState.CREATE
       : isEditedNow
-      ? poll.id < 0
-        ? EditState.CREATE
-        : EditState.UPDATE
+      ? EditState.UPDATE
       : EditState.NONE;
 
+    console.log("Poll updated:", updatedPoll, currentState);
     updatePoll?.(updatedPoll, currentState);
   }, [poll, updatePoll]);
 
@@ -552,11 +564,28 @@ export function PollCardSkeleton() {
   );
 }
 
-export function NewPollButton({ onClick }: { onClick?: () => void }) {
+export function NewPollButton({
+  onClick,
+  onImport,
+}: {
+  onClick?: () => void;
+  onImport?: (polls: Array<Partial<Poll>>) => void;
+}) {
   return (
-    <NewPollButtonContainer variant="surface" size="3" onClick={onClick}>
-      <MessageSquarePlus />
-      Create a new poll
-    </NewPollButtonContainer>
+    <NewPollButtonWrapper
+      direction="row"
+      gap="2"
+      align="center"
+      justify="center"
+    >
+      <NewPollButtonManual variant="surface" size="3" onClick={onClick}>
+        <MessageSquarePlus />
+        Create a new poll
+      </NewPollButtonManual>
+
+      <Tooltip content="Import from clipboard">
+        <ImportFromClipboardButton onParsed={(p) => onImport?.(p)} />
+      </Tooltip>
+    </NewPollButtonWrapper>
   );
 }

@@ -4,6 +4,8 @@ import { PollSearchType } from "@/utils";
 import { useTagContext } from "@/contexts/TagContext";
 import { usePollDataContext } from "@/contexts/PollDataProvider";
 import { useEditContext } from "@/contexts/EditContext";
+import { emptyPoll } from "@/utils/polls/emptyPoll";
+import { EditState } from "@/types/states";
 import { NewPollButton, PollCard } from "./poll";
 import InfiniteScroll from "react-infinite-scroll-component";
 import styled from "styled-components";
@@ -84,7 +86,37 @@ export function PollList({
               <p>No search results found</p>
             ) : (
               <>
-                {editModeEnabled && <NewPollButton onClick={addNewPoll} />}
+                {editModeEnabled && (
+                  <NewPollButton
+                    onClick={addNewPoll}
+                    onImport={(parsed) => {
+                      // For each parsed Partial<Poll>, create a new editable poll by
+                      // using addNewPoll() so the EditContext records the original
+                      // empty baseline, then apply imported values as edits.
+                      parsed.forEach((p) => {
+                        const created = addNewPoll();
+
+                        // Apply provided fields where available to the created poll
+                        if (p.question) created.question = p.question;
+                        if (p.description !== undefined)
+                          created.description = p.description ?? "";
+                        if (p.image !== undefined)
+                          created.image = p.image ?? "";
+                        if (p.choices) created.choices = p.choices;
+                        if (p.time !== undefined) created.time = p.time ?? null;
+                        if (p.tag !== undefined) created.tag = p.tag as number;
+                        if (p.thread_question !== undefined)
+                          created.thread_question = p.thread_question ?? "";
+                        if (p.guild_id !== undefined)
+                          created.guild_id = p.guild_id as unknown as bigint;
+
+                        // Mark the created poll as edited so the system sees the
+                        // delta between the empty baseline and the populated values.
+                        handleEditChange(created, EditState.CREATE);
+                      });
+                    }}
+                  />
+                )}
                 {displayedPolls.map((poll) => (
                   <PollCard
                     key={poll.id}
