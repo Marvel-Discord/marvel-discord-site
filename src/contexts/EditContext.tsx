@@ -357,14 +357,23 @@ export function EditProvider({ children, polls }: EditProviderProps) {
       (editedPoll) => editedPoll.state === EditState.DELETE
     );
 
-    const formatCount = (count: number, label: string) =>
-      count > 0 ? `${count} ${label}${count === 1 ? "" : "s"}` : null;
+    // Helper that accepts singular and plural labels to avoid naive 's' suffixing
+    const formatCount = (
+      count: number,
+      singularLabel: string,
+      pluralLabel?: string
+    ) => {
+      if (count <= 0) return null;
+      const label =
+        count === 1 ? singularLabel : pluralLabel ?? `${singularLabel}s`;
+      return `${count} ${label}`;
+    };
 
     const changes = [
-      formatCount(tallyPollsCreated.length, "poll created"),
-      formatCount(tallyPollsUpdated.length, "poll updated"),
-      formatCount(tallyPollsDeleted.length, "poll deleted"),
-      formatCount(pendingTags.length, "tag created"),
+      formatCount(tallyPollsCreated.length, "poll created", "polls created"),
+      formatCount(tallyPollsUpdated.length, "poll updated", "polls updated"),
+      formatCount(tallyPollsDeleted.length, "poll deleted", "polls deleted"),
+      formatCount(pendingTags.length, "tag created", "tags created"),
     ].filter(Boolean);
 
     return changes.join(", ");
