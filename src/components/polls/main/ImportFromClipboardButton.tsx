@@ -3,6 +3,7 @@ import { Dialog, Button, Text, Flex } from "@radix-ui/themes";
 import styled from "styled-components";
 import { Import } from "lucide-react";
 import type { Poll } from "@jocasta-polls-api";
+import { useTagContext } from "@/contexts/TagContext";
 import { toast } from "sonner";
 
 const DialogContent = styled(Dialog.Content)`
@@ -30,6 +31,7 @@ export default function ImportFromClipboardButton({
   onImported?: (data: string) => void;
   onParsed?: (polls: Array<Partial<Poll>>) => void;
 }) {
+  const { tags } = useTagContext();
   const [open, setOpen] = useState(false);
   const [clipboardData, setClipboardData] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -43,7 +45,7 @@ export default function ImportFromClipboardButton({
       setClipboardData(text);
       onImported?.(text);
       try {
-        const { polls, errors } = parsePollsFromClipboard(text);
+        const { polls, errors } = parsePollsFromClipboard(text, tags);
         setParsed(polls.length ? polls : []);
         setParseErrors(errors.length ? errors : []);
         if (errors.length) {
@@ -160,7 +162,10 @@ export default function ImportFromClipboardButton({
 }
 
 // Parser for clipboard poll data. Returns parsed polls and an array of error messages.
-export function parsePollsFromClipboard(input: string): {
+export function parsePollsFromClipboard(
+  input: string,
+  knownTags?: Record<number, unknown>
+): {
   polls: Array<Partial<Poll>>;
   errors: string[];
 } {
@@ -201,48 +206,52 @@ export function parsePollsFromClipboard(input: string): {
     }
     const obj = c as Record<string, unknown>;
 
-    // question (required string)
+    // question (optional string)
     const question =
-      typeof obj.question === "string"
+      obj.question == null
+        ? undefined
+        : typeof obj.question === "string"
         ? obj.question
-        : String(obj.question ?? "");
-    if (!question) errors.push(`item ${idx + 1}: missing question`);
+        : String(obj.question);
 
-    // guild_id (required bigint or number/string)
-    let guild_id: bigint | null = null;
-    if (typeof obj.guild_id === "bigint") guild_id = obj.guild_id as bigint;
-    else if (typeof obj.guild_id === "number")
-      guild_id = BigInt(obj.guild_id as number);
-    else if (typeof obj.guild_id === "string" && obj.guild_id.trim() !== "") {
-      try {
-        guild_id = BigInt(obj.guild_id as string);
-      } catch {
+    // guild_id (optional bigint or number/string)
+    let guild_id: bigint | undefined = undefined;
+    if (obj.guild_id != null) {
+      if (typeof obj.guild_id === "bigint") guild_id = obj.guild_id as bigint;
+      else if (typeof obj.guild_id === "number")
+        guild_id = BigInt(obj.guild_id as number);
+      else if (typeof obj.guild_id === "string") {
+        const s = (obj.guild_id as string).trim();
+        if (s !== "") {
+          try {
+            guild_id = BigInt(s);
+          } catch {
+            errors.push(`item ${idx + 1}: guild_id invalid`);
+          }
+        }
+      } else {
         errors.push(`item ${idx + 1}: guild_id invalid`);
       }
-    } else {
-      errors.push(`item ${idx + 1}: missing guild_id`);
     }
 
-    // choices (required string[])
-    let choices: string[] = [];
+    // choices (optional string[])
+    let choices: string[] | undefined = undefined;
     if (Array.isArray(obj.choices)) {
-      choices = (obj.choices as unknown[])
+      const c = (obj.choices as unknown[])
         .map((v) => String(v ?? ""))
         .filter(Boolean);
-      if (choices.length === 0) errors.push(`item ${idx + 1}: choices empty`);
+      if (c.length > 0) choices = c;
     } else if (typeof obj.choices === "string") {
       // perhaps a comma-separated list
-      choices = (obj.choices as string)
+      const c = (obj.choices as string)
         .split(",")
         .map((s) => s.trim())
         .filter(Boolean);
-      if (choices.length === 0) errors.push(`item ${idx + 1}: choices empty`);
-    } else {
-      errors.push(`item ${idx + 1}: missing choices`);
+      if (c.length > 0) choices = c;
     }
 
     // time (optional ISO string or Date)
-    let time: Date | null = null;
+    let time: Date | undefined = undefined;
     if (obj.time != null) {
       if (typeof obj.time === "string") {
         const d = new Date(obj.time);
@@ -260,33 +269,39 @@ export function parsePollsFromClipboard(input: string): {
     }
 
     // tag (optional number)
-    let tag: number | null = null;
+    let tag: number | undefined = undefined;
     if (obj.tag != null) {
       const n = Number(obj.tag as unknown);
-      if (!Number.isNaN(n)) tag = n;
-      else errors.push(`item ${idx + 1}: invalid tag`);
+      if (!Number.isNaN(n)) {
+        // validate against known tags if provided
+        if (!knownTags || Object.prototype.hasOwnProperty.call(knownTags, n)) {
+          tag = n;
+        } else {
+          // tag id doesn't match known tags -> null it (leave undefined)
+          tag = undefined;
+        }
+      } else errors.push(`item ${idx + 1}: invalid tag`);
     }
 
     // image, description, thread_question (optional strings)
-    const image = obj.image != null ? String(obj.image) : null;
+    const image = obj.image != null ? String(obj.image) : undefined;
     const description =
-      obj.description != null ? String(obj.description) : null;
+      obj.description != null ? String(obj.description) : undefined;
     const thread_question =
-      obj.thread_question != null ? String(obj.thread_question) : null;
+      obj.thread_question != null ? String(obj.thread_question) : undefined;
 
-    if (guild_id !== null && question) {
-      const item: Partial<Poll> = {
-        question,
-        guild_id: guild_id as unknown as Poll["guild_id"],
-        choices,
-        time: time ?? null,
-        tag: tag ?? undefined,
-        image: image ?? null,
-        description: description ?? null,
-        thread_question: thread_question ?? null,
-      };
-      polls.push(item);
-    }
+    // accept item even if some fields are missing; only skip if it's not an object
+    const item: Partial<Poll> = {
+      question,
+      guild_id: guild_id as unknown as Poll["guild_id"],
+      choices: choices as unknown as Poll["choices"],
+      time: time,
+      tag: tag as unknown as Poll["tag"],
+      image: image as unknown as Poll["image"],
+      description: description as unknown as Poll["description"],
+      thread_question: thread_question as unknown as Poll["thread_question"],
+    };
+    polls.push(item);
   });
 
   return { polls, errors };

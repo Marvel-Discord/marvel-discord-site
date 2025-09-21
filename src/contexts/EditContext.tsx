@@ -77,7 +77,9 @@ export function EditProvider({ children, polls }: EditProviderProps) {
   const { pendingTags, createNewTag, clearPendingTags } = useTagContext();
   const { triggerRefetch } = usePollRefetch();
 
-  const validationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const validationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
 
   // Compute editable polls based on current state instead of storing as state
   const editablePolls = useMemo(() => {
@@ -140,7 +142,6 @@ export function EditProvider({ children, polls }: EditProviderProps) {
     (poll: Poll, state: EditState) => {
       setEditedPolls((prev) => {
         const alreadyEdited = prev.find((p) => p.poll.id === poll.id);
-        console.log(alreadyEdited, state, poll);
         if (state === EditState.NONE) {
           return alreadyEdited
             ? prev.filter((p) => p.poll.id !== poll.id)
@@ -160,9 +161,6 @@ export function EditProvider({ children, polls }: EditProviderProps) {
         // Update the existing entry
         return prev.map((p) => (p.poll.id === poll.id ? { poll, state } : p));
       });
-
-      // Trigger debounced validation after changes
-      debouncedValidation();
     },
     [debouncedValidation]
   );
@@ -173,8 +171,17 @@ export function EditProvider({ children, polls }: EditProviderProps) {
       { poll: newPoll, state: EditState.CREATE },
       ...prev,
     ]);
+    // Validation will run via the editedPolls effect
     return newPoll;
   }, []);
+
+  // Run debounced validation whenever the edited polls list changes while in edit mode.
+  // This ensures validation runs after state updates (avoids using stale editedPolls inside the validator).
+  useEffect(() => {
+    if (!editModeEnabled) return;
+    debouncedValidation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editedPolls, editModeEnabled]);
 
   const isPollEditable = useCallback(
     (poll: Poll) => {
