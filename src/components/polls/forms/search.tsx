@@ -237,17 +237,13 @@ function FilterToggle({
 
 function SortDropdown({
   sortOrder = SortOrder.NEWEST,
-  setSortOrder,
+  setSortOrder = () => {},
   onReshuffle,
 }: {
   sortOrder?: SortOrder;
   setSortOrder?: (order: SortOrder) => void;
   onReshuffle?: () => void;
 }) {
-  if (!setSortOrder) {
-    return null;
-  }
-
   const { label, tooltip } = SortInfo[sortOrder];
 
   return (

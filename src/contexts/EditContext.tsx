@@ -35,7 +35,7 @@ interface EditContextType {
   // Actions
   setEditModeEnabled: (enabled: boolean) => void;
   handleEditChange: (poll: Poll, state: EditState) => void;
-  addNewPoll: () => void;
+  addNewPoll: () => Poll;
   validatePolls: () => void;
   saveEditedPolls: () => Promise<{ success: boolean; message?: string }>;
 
@@ -77,7 +77,9 @@ export function EditProvider({ children, polls }: EditProviderProps) {
   const { pendingTags, createNewTag, clearPendingTags } = useTagContext();
   const { triggerRefetch } = usePollRefetch();
 
-  const validationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const validationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
 
   // Compute editable polls based on current state instead of storing as state
   const editablePolls = useMemo(() => {
@@ -159,9 +161,6 @@ export function EditProvider({ children, polls }: EditProviderProps) {
         // Update the existing entry
         return prev.map((p) => (p.poll.id === poll.id ? { poll, state } : p));
       });
-
-      // Trigger debounced validation after changes
-      debouncedValidation();
     },
     [debouncedValidation]
   );
@@ -172,7 +171,17 @@ export function EditProvider({ children, polls }: EditProviderProps) {
       { poll: newPoll, state: EditState.CREATE },
       ...prev,
     ]);
+    // Validation will run via the editedPolls effect
+    return newPoll;
   }, []);
+
+  // Run debounced validation whenever the edited polls list changes while in edit mode.
+  // This ensures validation runs after state updates (avoids using stale editedPolls inside the validator).
+  useEffect(() => {
+    if (!editModeEnabled) return;
+    debouncedValidation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editedPolls, editModeEnabled]);
 
   const isPollEditable = useCallback(
     (poll: Poll) => {
@@ -355,14 +364,23 @@ export function EditProvider({ children, polls }: EditProviderProps) {
       (editedPoll) => editedPoll.state === EditState.DELETE
     );
 
-    const formatCount = (count: number, label: string) =>
-      count > 0 ? `${count} ${label}${count === 1 ? "" : "s"}` : null;
+    // Helper that accepts singular and plural labels to avoid naive 's' suffixing
+    const formatCount = (
+      count: number,
+      singularLabel: string,
+      pluralLabel?: string
+    ) => {
+      if (count <= 0) return null;
+      const label =
+        count === 1 ? singularLabel : pluralLabel ?? `${singularLabel}s`;
+      return `${count} ${label}`;
+    };
 
     const changes = [
-      formatCount(tallyPollsCreated.length, "poll created"),
-      formatCount(tallyPollsUpdated.length, "poll updated"),
-      formatCount(tallyPollsDeleted.length, "poll deleted"),
-      formatCount(pendingTags.length, "tag created"),
+      formatCount(tallyPollsCreated.length, "poll created", "polls created"),
+      formatCount(tallyPollsUpdated.length, "poll updated", "polls updated"),
+      formatCount(tallyPollsDeleted.length, "poll deleted", "polls deleted"),
+      formatCount(pendingTags.length, "tag created", "tags created"),
     ].filter(Boolean);
 
     return changes.join(", ");
