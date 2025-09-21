@@ -104,58 +104,6 @@ export default function ImportFromClipboardButton({
             Cancel
           </Button>
         </Flex>
-
-        {clipboardData !== null && (
-          <div style={{ marginTop: "1rem" }}>
-            <Text as="div" size="2">
-              Stored clipboard contents (preview):
-            </Text>
-            <pre
-              style={{
-                whiteSpace: "pre-wrap",
-                maxHeight: 200,
-                overflow: "auto",
-              }}
-            >
-              {clipboardData}
-            </pre>
-          </div>
-        )}
-
-        {parsed !== null && (
-          <div style={{ marginTop: "1rem" }}>
-            <Text as="div" size="2">
-              Parsed polls:
-            </Text>
-            <pre
-              style={{
-                whiteSpace: "pre-wrap",
-                maxHeight: 200,
-                overflow: "auto",
-              }}
-            >
-              {JSON.stringify(
-                parsed,
-                (_key, value) =>
-                  typeof value === "bigint" ? value.toString() : value,
-                2
-              )}
-            </pre>
-          </div>
-        )}
-
-        {parseErrors !== null && parseErrors.length > 0 && (
-          <div style={{ marginTop: "1rem" }}>
-            <Text as="div" size="2">
-              Parse errors:
-            </Text>
-            <ul>
-              {parseErrors.map((e, i) => (
-                <li key={i}>{e}</li>
-              ))}
-            </ul>
-          </div>
-        )}
       </DialogContent>
     </Dialog.Root>
   );
@@ -172,10 +120,24 @@ export function parsePollsFromClipboard(
   const errors: string[] = [];
   if (!input || !input.trim()) return { polls: [], errors };
 
+  // helper: normalize strings coming from Google Sheets copy/paste
+  // - strip surrounding double-quotes if present
+  // - replace repeated double-quotes "" with a single double-quote
+  function normalizeString(s: string): string {
+    // strip surrounding quotes (only if both ends are ")
+    if (s.length >= 2 && s.startsWith('"') && s.endsWith('"')) {
+      s = s.slice(1, -1);
+    }
+    // replace double double-quotes with single quote
+    // e.g. She said ""Hello"" -> She said "Hello"
+    s = s.replace(/""/g, '"');
+    return s;
+  }
+
   // Try to parse as JSON array or single object
   let raw: unknown;
   try {
-    raw = JSON.parse(input);
+    raw = JSON.parse(normalizeString(input));
   } catch {
     // Try to parse as newline-delimited JSON objects
     const lines = input
@@ -194,6 +156,8 @@ export function parsePollsFromClipboard(
     }
     raw = parsedLines;
   }
+
+  console.debug("Parsed raw clipboard data:", raw);
 
   const candidates: unknown[] = Array.isArray(raw) ? raw : [raw];
 
@@ -308,9 +272,9 @@ export function parsePollsFromClipboard(
 }
 
 // [{
-//   "question": string,
-//   "guild_id": bigint,
-//   "choices": string[],
+//   "question": string?,
+//   "guild_id": bigint?,
+//   "choices": string[]?,
 //   "time": Date?, // like "2025-09-20T12:00:00Z"
 //   "tag": number,
 //   "image": string?,
