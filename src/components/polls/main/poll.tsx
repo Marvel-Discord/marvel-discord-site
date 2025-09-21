@@ -22,6 +22,7 @@ import { useAuthContext } from "@/contexts/AuthProvider";
 import { useIsMobile } from "@/utils/isMobile";
 import {
   cleanUrlSafeString,
+  createLogger,
   extractDescriptionWithRegex,
   filterDescriptionWithRegex,
   trimRunningStringMultiLine,
@@ -30,6 +31,8 @@ import {
 import { AutoGrowingTextAreaStyled } from "../forms/autoGrowingRadixTextArea";
 import { Image, ImageOff, MessageSquarePlus, Trash2, Undo } from "lucide-react";
 import { EditState } from "@/types/states";
+
+const logger = createLogger("src/components/polls/main/poll");
 
 const CardBox = styled(Flex)<{ $color?: string; $state?: EditState }>`
   background-color: var(--gray-a3);
@@ -303,7 +306,7 @@ export function PollCard({
       ? EditState.UPDATE
       : EditState.NONE;
 
-    console.log("Poll updated:", updatedPoll, currentState);
+    logger.log("Poll updated:", updatedPoll, currentState);
     updatePoll?.(updatedPoll, currentState);
   }, [poll, updatePoll]);
 

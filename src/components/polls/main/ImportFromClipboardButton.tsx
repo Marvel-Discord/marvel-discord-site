@@ -5,6 +5,9 @@ import { Import } from "lucide-react";
 import type { Poll } from "@jocasta-polls-api";
 import { useTagContext } from "@/contexts/TagContext";
 import { toast } from "sonner";
+import { createLogger } from "@/utils";
+
+const logger = createLogger("ImportFromClipboardButton");
 
 const DialogContent = styled(Dialog.Content)`
   max-width: 600px;
@@ -157,7 +160,7 @@ export function parsePollsFromClipboard(
     raw = parsedLines;
   }
 
-  console.debug("Parsed raw clipboard data:", raw);
+  logger.debug("Parsed raw clipboard data:", raw);
 
   const candidates: unknown[] = Array.isArray(raw) ? raw : [raw];
 
