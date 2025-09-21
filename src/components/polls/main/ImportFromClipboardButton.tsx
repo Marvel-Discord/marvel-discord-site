@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dialog, Button, Text, Flex } from "@radix-ui/themes";
+import { Dialog, Button, Flex } from "@radix-ui/themes";
 import styled from "styled-components";
 import { Import } from "lucide-react";
 import type { Poll } from "@jocasta-polls-api";
@@ -36,21 +36,15 @@ export default function ImportFromClipboardButton({
 }) {
   const { tags } = useTagContext();
   const [open, setOpen] = useState(false);
-  const [clipboardData, setClipboardData] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [parsed, setParsed] = useState<Array<Partial<Poll>> | null>(null);
-  const [parseErrors, setParseErrors] = useState<string[] | null>(null);
 
   const handleImport = async () => {
     setLoading(true);
     try {
       const text = await navigator.clipboard.readText();
-      setClipboardData(text);
       onImported?.(text);
       try {
         const { polls, errors } = parsePollsFromClipboard(text, tags);
-        setParsed(polls.length ? polls : []);
-        setParseErrors(errors.length ? errors : []);
         if (errors.length) {
           toast.error(`Parse errors: ${errors.join("; ")}`);
         } else {
@@ -60,17 +54,12 @@ export default function ImportFromClipboardButton({
         }
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
-        setParsed([]);
-        setParseErrors([msg]);
         toast.error(msg);
       }
     } catch {
       // Clipboard API may be unavailable or denied; store empty string
-      setClipboardData("");
       onImported?.("");
-      setParsed([]);
       const msg = "Clipboard read failed";
-      setParseErrors([msg]);
       toast.error(msg);
     } finally {
       setLoading(false);

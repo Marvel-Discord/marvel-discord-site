@@ -4,7 +4,6 @@ import { PollSearchType } from "@/utils";
 import { useTagContext } from "@/contexts/TagContext";
 import { usePollDataContext } from "@/contexts/PollDataProvider";
 import { useEditContext } from "@/contexts/EditContext";
-import { emptyPoll } from "@/utils/polls/emptyPoll";
 import { EditState } from "@/types/states";
 import { NewPollButton, PollCard } from "./poll";
 import InfiniteScroll from "react-infinite-scroll-component";
