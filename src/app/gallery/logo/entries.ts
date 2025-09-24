@@ -564,4 +564,11 @@ export const galleryEntries: GalleryEntry[] = [
     date: new Date("2025-07-25"),
     creator: "Rocked03",
   },
+  {
+    title: "Marvel Zombies",
+    description: "Logo for the Marvel Zombies series.",
+    imageUrls: ["/img/gallery/logo/Marvel Zombies.png"],
+    date: new Date("2025-09-24"),
+    creator: "Rocked03",
+  },
 ];
