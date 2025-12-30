@@ -24,6 +24,7 @@ interface ChoicesProps {
   votes?: Poll["votes"];
   handleChoicesChange?: (choices: string[]) => void;
   showVotes?: boolean;
+  setTotalVotes?: (total: number) => void;
 }
 
 export function Choices({
@@ -36,6 +37,7 @@ export function Choices({
   votes = [],
   handleChoicesChange = () => {},
   showVotes,
+  setTotalVotes,
 }: ChoicesProps) {
   const { user } = useAuthContext();
   const router = useRouter();
@@ -48,6 +50,7 @@ export function Choices({
     votes,
     setVotes,
     editable,
+    setTotalVotes,
   });
 
   const { choices, handleChoiceTextChange, handleChoiceDelete } =

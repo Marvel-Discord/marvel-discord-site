@@ -33,13 +33,21 @@ export function ShowVotesButton({
         </>
       ) : (
         <>
-          Show Votes
           {editing ? (
-            <LockOpen size="0.8rem" />
+            <>
+              Show Votes
+              <LockOpen size="0.8rem" />
+            </>
           ) : !showVoting ? (
-            <Lock size="0.8rem" />
+            <>
+              Votes are hidden
+              <Lock size="0.8rem" />
+            </>
           ) : (
-            <EyeClosed size="0.8rem" />
+            <>
+              Show Votes
+              <EyeClosed size="0.8rem" />
+            </>
           )}
         </>
       )}

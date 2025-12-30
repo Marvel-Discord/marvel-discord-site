@@ -14,6 +14,7 @@ export function useVoting({
   votes,
   setVotes,
   editable,
+  setTotalVotes,
 }: {
   poll: Poll;
   user: { id: string } | null;
@@ -22,6 +23,7 @@ export function useVoting({
   votes?: Poll["votes"];
   setVotes: (votes: Poll["votes"]) => void;
   editable: boolean;
+  setTotalVotes?: (total: number) => void;
 }) {
   const voteTimeout = useRef<NodeJS.Timeout | null>(null);
 
@@ -54,6 +56,12 @@ export function useVoting({
       }
 
       setVotes(updatedVotes);
+
+      // Update total votes count
+      if (setTotalVotes) {
+        const newTotal = updatedVotes.reduce((acc, vote) => acc + vote, 0);
+        setTotalVotes(newTotal);
+      }
     }
 
     setUserVote(choice);

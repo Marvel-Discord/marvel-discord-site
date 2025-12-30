@@ -869,7 +869,7 @@ export function PollCardHeader({
   handleDescriptionChange?: (description: string) => void;
 }) {
   const isMobile = useIsMobile();
-  const totalVotes = votes?.reduce((acc, vote) => acc + vote, 0);
+  const totalVotes = poll.total_votes;
   const [dateTime, setDateTime] = useState<Date | null>(
     poll.time ? new Date(poll.time) : null
   );

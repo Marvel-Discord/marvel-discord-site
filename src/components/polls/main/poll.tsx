@@ -188,11 +188,13 @@ export function PollCard({
   const { user } = useAuthContext();
   const isMobile = useIsMobile();
   const [votes, setVotes] = useState(poll.votes || []);
+  const [totalVotes, setTotalVotes] = useState(poll.total_votes);
 
   // Keep votes state in sync with poll changes
   useEffect(() => {
     setVotes(poll.votes || []);
-  }, [poll.votes]);
+    setTotalVotes(poll.total_votes);
+  }, [poll.votes, poll.total_votes]);
 
   // Update showVotes when userVote changes
   useEffect(() => {
@@ -418,7 +420,7 @@ export function PollCard({
       $state={state}
     >
       <PollCardHeader
-        poll={poll}
+        poll={{ ...poll, total_votes: totalVotes }}
         tag={editable ? currentTag : tag}
         setTag={editable ? handleTagChange : undefined}
         guild={guild}
@@ -489,6 +491,7 @@ export function PollCard({
         editable={editable}
         handleChoicesChange={editable ? handleChoicesChange : undefined}
         showVotes={showVotes}
+        setTotalVotes={setTotalVotes}
       />
 
       <PollControls
