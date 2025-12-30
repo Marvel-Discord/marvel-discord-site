@@ -11,6 +11,7 @@ export function emptyPoll(): Poll {
     description: "",
     image: "",
     votes: [],
+    total_votes: 0,
     tag: 0,
     guild_id: BigInt(config.guildId),
     published: false,
