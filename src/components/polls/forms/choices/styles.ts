@@ -53,7 +53,9 @@ export const BarLine = styled.div<{
   border-radius: 100rem;
   height: 100%;
   opacity: ${({ $isChecked }) => ($isChecked ? 0.95 : 0.75)};
-  transition: opacity 0.1s ease-in-out, width 0.3s ease-in-out;
+  transition:
+    opacity 0.1s ease-in-out,
+    width 0.3s ease-in-out;
   width: ${({ $percentage }) => `${$percentage}%`};
 
   ${ChoiceContainerButton}:hover & {
@@ -78,13 +80,21 @@ export const ChoiceLabelDiv = styled.div<{ $isDisabled: boolean }>`
     $isDisabled ? "pointer-events: none;" : "cursor: pointer;"}
 `;
 
-export const ChoiceLabel = styled(Heading)<{ $canHover?: boolean }>`
-  opacity: 0.4;
-  transition: opacity 0.1s ease-in-out;
-  width: 1rem;
-  text-align: center;
-  display: flex;
+export const ChoiceLabel = styled(Heading)<{
+  $canHover?: boolean;
+  $color?: string;
+  $isChecked?: boolean;
+}>`
   align-items: center;
+  ${({ $color, $isChecked }) =>
+    $color && $isChecked ? `color: ${$color};` : ""}
+  display: flex;
+  opacity: ${({ $isChecked }) => ($isChecked ? 1 : 0.4)};
+  text-align: center;
+  transition:
+    color 0.1s ease-in-out,
+    opacity 0.1s ease-in-out;
+  width: 1rem;
 
   ${ChoiceContainerButton}:hover & {
     ${({ $canHover = true }) => ($canHover ? "opacity: 1;" : "")}

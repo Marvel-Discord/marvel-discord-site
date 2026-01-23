@@ -70,7 +70,12 @@ export function ChoiceContainer({
           $isDisabled={!canDelete || enticer}
           onClick={editable ? onDelete : undefined}
         >
-          <ChoiceLabel size="4" $canHover={canDelete && !enticer}>
+          <ChoiceLabel
+            size="4"
+            $canHover={canDelete && !enticer}
+            $color={tagColor}
+            $isChecked={!editable && userVote === index}
+          >
             {!editable ? (
               ChoiceLabelMap[index + 1]
             ) : !canDelete ? (
@@ -84,7 +89,11 @@ export function ChoiceContainer({
         </ChoiceLabelButton>
       ) : (
         <ChoiceLabelDiv $isDisabled={!canDelete || enticer}>
-          <ChoiceLabel size="4" $canHover={canDelete && !enticer}>
+          <ChoiceLabel
+            size="4"
+            $canHover={canDelete && !enticer}
+            $isChecked={false}
+          >
             {ChoiceLabelMap[index + 1]}
           </ChoiceLabel>
         </ChoiceLabelDiv>
