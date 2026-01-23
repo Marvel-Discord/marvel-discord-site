@@ -86,8 +86,8 @@ export const ChoiceLabel = styled(Heading)<{
   $isChecked?: boolean;
 }>`
   align-items: center;
-  ${({ $color, $isChecked }) =>
-    $color && $isChecked ? `color: ${$color};` : ""}
+  color: ${({ $color, $isChecked }) =>
+    $color && $isChecked ? $color : "inherit"};
   display: flex;
   opacity: ${({ $isChecked }) => ($isChecked ? 1 : 0.4)};
   text-align: center;
