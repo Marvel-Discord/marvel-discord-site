@@ -74,7 +74,7 @@ export function ChoiceContainer({
             size="4"
             $canHover={canDelete && !enticer}
             $color={tagColor}
-            $isChecked={!editable && userVote === index}
+            $isChecked={false}
           >
             {!editable ? (
               ChoiceLabelMap[index + 1]
@@ -92,7 +92,8 @@ export function ChoiceContainer({
           <ChoiceLabel
             size="4"
             $canHover={canDelete && !enticer}
-            $isChecked={false}
+            $color={tagColor}
+            $isChecked={userVote === index}
           >
             {ChoiceLabelMap[index + 1]}
           </ChoiceLabel>
