@@ -39,7 +39,7 @@ const TextContent = styled.div`
   }
 `;
 
-const LinkStyled = styled(Link)`
+const LinkStyled = styled.a`
   color: var(--highlight);
 
   &:hover {
