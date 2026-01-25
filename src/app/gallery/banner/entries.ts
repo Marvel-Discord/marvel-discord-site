@@ -219,4 +219,14 @@ export const galleryEntries: GalleryEntry[] = [
     date: new Date("2025-07-25"),
     creator: "Rocked03",
   },
+  {
+    title: "Wonder Man",
+    description: "Banner and logo for the Wonder Man miniseries.",
+    imageUrls: [
+      "/img/gallery/banner/Wonder Man.png",
+      "/img/gallery/logo/Wonder Man.png",
+    ],
+    date: new Date("2026-01-27"),
+    creator: "Rocked03",
+  },
 ];
