@@ -229,4 +229,15 @@ export const galleryEntries: GalleryEntry[] = [
     date: new Date("2026-01-27"),
     creator: "Rocked03",
   },
+  {
+    title: "Daredevil: Born Again S2",
+    description:
+      "Banner and logo for season 2 of the Daredevil: Born Again series.",
+    imageUrls: [
+      "/img/gallery/banner/Daredevil Born Again S2.png",
+      "/img/gallery/logo/Daredevil Born Again S2.png",
+    ],
+    date: new Date("2026-03-25"),
+    creator: "Rocked03",
+  },
 ];
