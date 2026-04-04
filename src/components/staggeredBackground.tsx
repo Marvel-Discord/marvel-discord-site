@@ -14,9 +14,9 @@ type Props = {
   withinParent?: boolean;
 };
 
-const Wrapper = styled.div<{ withinParent: boolean }>`
-  ${({ withinParent }) =>
-    withinParent
+const Wrapper = styled.div<{ $withinParent: boolean }>`
+  ${({ $withinParent }) =>
+    $withinParent
       ? css`
           position: absolute;
           top: 0;
@@ -36,38 +36,38 @@ const Wrapper = styled.div<{ withinParent: boolean }>`
 `;
 
 const TileContainer = styled.div<{
-  width: number;
-  height: number;
-  offsetX: number;
-  offsetY: number;
-  maxX: number;
-  maxY: number;
+  $width: number;
+  $height: number;
+  $offsetX: number;
+  $offsetY: number;
+  $maxX: number;
+  $maxY: number;
 }>`
   position: absolute;
-  width: ${({ width }) => width}px;
-  height: ${({ height }) => height}px;
+  width: ${({ $width }) => $width}px;
+  height: ${({ $height }) => $height}px;
   will-change: transform;
   transform: translate(
-    ${({ offsetX, maxX }) => `-${offsetX % maxX}px`},
-    ${({ offsetY, maxY }) => `-${offsetY % maxY}px`}
+    ${({ $offsetX, $maxX }) => `-${$offsetX % $maxX}px`},
+    ${({ $offsetY, $maxY }) => `-${$offsetY % $maxY}px`}
   );
 `;
 
 const Tile = styled.div<{
-  top: number;
-  left: number;
-  size: number;
-  backgroundImage: string;
-  opacity: number;
+  $top: number;
+  $left: number;
+  $size: number;
+  $backgroundImage: string;
+  $opacity: number;
 }>`
   position: absolute;
-  top: ${({ top }) => top}px;
-  left: ${({ left }) => left}px;
-  width: ${({ size }) => size}px;
-  height: ${({ size }) => size}px;
-  background-image: url(${({ backgroundImage }) => backgroundImage});
+  top: ${({ $top }) => $top}px;
+  left: ${({ $left }) => $left}px;
+  width: ${({ $size }) => $size}px;
+  height: ${({ $size }) => $size}px;
+  background-image: url(${({ $backgroundImage }) => $backgroundImage});
   background-size: cover;
-  opacity: ${({ opacity }) => opacity};
+  opacity: ${({ $opacity }) => $opacity};
 `;
 export default function StaggeredBackground({
   imagePath,
@@ -79,9 +79,14 @@ export default function StaggeredBackground({
   originalTileSize = 4000,
   withinParent = false,
 }: Props) {
+  const [mounted, setMounted] = useState(false);
   const [tileSize, setTileSize] = useState(1000);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const expansionCount = 10;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -115,7 +120,7 @@ export default function StaggeredBackground({
     return () => cancelAnimationFrame(animationFrameId);
   }, [tileSize, scrollSpeedX, scrollSpeedY, pixelOffsetX, tileScale]);
 
-  if (typeof window === "undefined") return null;
+  if (!mounted) return null;
 
   const scaleRatio = tileSize / originalTileSize;
   const scaledOffset = pixelOffsetX * scaleRatio;
@@ -133,25 +138,25 @@ export default function StaggeredBackground({
       tiles.push(
         <Tile
           key={`${x}-${y}`}
-          top={y * tileSize + x * scaledOffset}
-          left={x * tileSize}
-          size={tileSize}
-          backgroundImage={imagePath}
-          opacity={opacity}
-        />
+          $top={y * tileSize + x * scaledOffset}
+          $left={x * tileSize}
+          $size={tileSize}
+          $backgroundImage={imagePath}
+          $opacity={opacity}
+        />,
       );
     }
   }
 
   return (
-    <Wrapper withinParent={withinParent}>
+    <Wrapper $withinParent={withinParent}>
       <TileContainer
-        width={tileSize * numCols}
-        height={tileSize * numRows + scaledOffset * numCols}
-        offsetX={offset.x}
-        offsetY={offset.y}
-        maxX={tileSize * expansionCount}
-        maxY={(tileSize + scaledOffset) * expansionCount}
+        $width={tileSize * numCols}
+        $height={tileSize * numRows + scaledOffset * numCols}
+        $offsetX={offset.x}
+        $offsetY={offset.y}
+        $maxX={tileSize * expansionCount}
+        $maxY={(tileSize + scaledOffset) * expansionCount}
       >
         {tiles}
       </TileContainer>

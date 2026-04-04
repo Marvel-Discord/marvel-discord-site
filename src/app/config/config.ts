@@ -1,7 +1,3 @@
-import dotenv from "dotenv";
-
-dotenv.config();
-
 const config = {
   publicBaseUrl: process.env.NEXT_PUBLIC_BASE_URL,
   publicPollsBaseUrl: process.env.NEXT_PUBLIC_POLLS_BASE_URL,
