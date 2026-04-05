@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@radix-ui/react-select": "^2.2.2",
-    "@radix-ui/themes": "^3.2.1",
+    "@radix-ui/themes": "^3.3.0",
     "axios": "^1.14.0",
     "embla-carousel-auto-height": "^8.5.2",
     "embla-carousel-class-names": "^8.5.2",
