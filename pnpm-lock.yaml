@@ -54,8 +54,8 @@ importers:
         specifier: ^19.2.4
         version: 19.2.4(react@19.2.5)
       react-infinite-scroll-component:
-        specifier: ^6.1.0
-        version: 6.1.1(react@19.2.5)
+        specifier: ^7.1.0
+        version: 7.1.0(react-dom@19.2.4(react@19.2.5))(react@19.2.5)
       sonner:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.2.4(react@19.2.5))(react@19.2.5)
@@ -3714,10 +3714,12 @@ packages:
     peerDependencies:
       react: ^19.2.4
 
-  react-infinite-scroll-component@6.1.1:
-    resolution: {integrity: sha512-R8YoOyiNDynSWmfVme5LHslsKrP+/xcRUWR2ies8UgUab9dtyw5ECnMCVPPmnmjjF4MWQmfVdRwRWcWaDgeyMA==}
+  react-infinite-scroll-component@7.1.0:
+    resolution: {integrity: sha512-EPUMyOnpmJDqI1aoUi9uR/TSUfJCUN77ZkpzYSshGwrC2NTaH6p+rxaP/2DZJWygOZmZcAieZk4VciF8q9H/tw==}
+    engines: {node: '>=20.0.0'}
     peerDependencies:
-      react: '>=16.0.0'
+      react: '>=17.0.0'
+      react-dom: '>=17.0.0'
 
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
@@ -4040,10 +4042,6 @@ packages:
 
   tabbable@6.4.0:
     resolution: {integrity: sha512-05PUHKSNE8ou2dwIxTngl4EzcnsCDZGJ/iCLtDflR/SHB/ny14rXc+qU5P4mG9JkusiV7EivzY9Mhm55AzAvCg==}
-
-  throttle-debounce@2.3.0:
-    resolution: {integrity: sha512-H7oLPV0P7+jgvrk+6mwwwBDmxTaxnu9HMXmloNLXwnNO0ZxZ31Orah2n8lU1eMPvsaowP2CX+USCgyovXfdOFQ==}
-    engines: {node: '>=8'}
 
   tinyexec@1.0.2:
     resolution: {integrity: sha512-W/KYk+NFhkmsYpuHq5JykngiOCnxeVL8v8dFnqxSD8qEEdRfXk1SDM6JzNqcERbcGYj9tMrDQBYV9cjgnunFIg==}
@@ -8394,10 +8392,10 @@ snapshots:
       react: 19.2.5
       scheduler: 0.27.0
 
-  react-infinite-scroll-component@6.1.1(react@19.2.5):
+  react-infinite-scroll-component@7.1.0(react-dom@19.2.4(react@19.2.5))(react@19.2.5):
     dependencies:
       react: 19.2.5
-      throttle-debounce: 2.3.0
+      react-dom: 19.2.4(react@19.2.5)
 
   react-is@16.13.1: {}
 
@@ -8803,8 +8801,6 @@ snapshots:
       sax: 1.6.0
 
   tabbable@6.4.0: {}
-
-  throttle-debounce@2.3.0: {}
 
   tinyexec@1.0.2: {}
 
