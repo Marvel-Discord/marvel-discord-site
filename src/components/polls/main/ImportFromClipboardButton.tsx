@@ -104,12 +104,13 @@ export default function ImportFromClipboardButton({
 // Parser for clipboard poll data. Returns parsed polls and an array of error messages.
 export function parsePollsFromClipboard(
   input: string,
-  knownTags?: Record<number, unknown>
+  knownTags?: Record<number, unknown>,
 ): {
   polls: Array<Partial<Poll>>;
   errors: string[];
 } {
   const errors: string[] = [];
+
   if (!input || !input.trim()) return { polls: [], errors };
 
   // helper: normalize strings coming from Google Sheets copy/paste
@@ -128,30 +129,49 @@ export function parsePollsFromClipboard(
 
   // Try to parse as JSON array or single object
   let raw: unknown;
+  let initialParseError: unknown;
   try {
-    raw = JSON.parse(normalizeString(input));
-  } catch {
-    // Try to parse as newline-delimited JSON objects
-    const lines = input
-      .split(/\r?\n/)
-      .map((l) => l.trim())
-      .filter(Boolean);
-    if (lines.length === 0) return { polls: [], errors };
+    // Prefer parsing the raw input first to avoid over-normalizing valid JSON.
+    raw = JSON.parse(input);
+  } catch (err) {
+    initialParseError = err;
+    try {
+      raw = JSON.parse(normalizeString(input));
+    } catch {
+      // Try to parse as newline-delimited JSON objects.
+      // If a line parses to an array, spread it so we do not produce nested arrays.
+      const lines = input
+        .split(/\r?\n/)
+        .map((l) => l.trim())
+        .filter(Boolean);
+      if (lines.length === 0) return { polls: [], errors };
 
-    const parsedLines: unknown[] = [];
-    for (const line of lines) {
-      try {
-        parsedLines.push(JSON.parse(line));
-      } catch {
-        throw new Error(`invalid JSON`);
+      const parsedLines: unknown[] = [];
+      for (const line of lines) {
+        try {
+          const parsed = JSON.parse(line);
+          if (Array.isArray(parsed)) {
+            parsedLines.push(...parsed);
+          } else {
+            parsedLines.push(parsed);
+          }
+        } catch {
+          const message =
+            initialParseError instanceof Error
+              ? initialParseError.message
+              : "invalid JSON";
+          throw new Error(`invalid JSON: ${message}`);
+        }
       }
+      raw = parsedLines;
     }
-    raw = parsedLines;
   }
 
   logger.debug("Parsed raw clipboard data:", raw);
 
-  const candidates: unknown[] = Array.isArray(raw) ? raw : [raw];
+  const candidates: unknown[] = (Array.isArray(raw) ? raw : [raw]).flatMap(
+    (item) => (Array.isArray(item) ? item : [item]),
+  );
 
   const polls: Array<Partial<Poll>> = [];
 
@@ -167,8 +187,8 @@ export function parsePollsFromClipboard(
       obj.question == null
         ? undefined
         : typeof obj.question === "string"
-        ? obj.question
-        : String(obj.question);
+          ? obj.question
+          : String(obj.question);
 
     // guild_id (optional bigint or number/string)
     let guild_id: bigint | undefined = undefined;
