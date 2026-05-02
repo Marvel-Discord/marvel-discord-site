@@ -67,8 +67,8 @@ importers:
         specifier: ^3
         version: 3.3.5
       '@netlify/plugin-nextjs':
-        specifier: ^5.15.9
-        version: 5.15.9
+        specifier: ^5.15.10
+        version: 5.15.10
       '@svgr/webpack':
         specifier: ^8.1.0
         version: 8.1.0(typescript@6.0.3)
@@ -970,8 +970,8 @@ packages:
   '@napi-rs/wasm-runtime@0.2.12':
     resolution: {integrity: sha512-ZVWUcfwY4E/yPitQJl481FjFo3K22D6qF0DuFH6Y/nbnE11GY5uguDxZMGXPQ8WQ0128MXQD7TnfHyK4oWoIJQ==}
 
-  '@netlify/plugin-nextjs@5.15.9':
-    resolution: {integrity: sha512-4kJvV+wrt4/ncehfaOXfhv1FYKCv9EFjq6/tgXXYSlqPDcbsuTXR0DTz9IvyZ/CpPRadRD/zzIqD9wXgCmA2lg==}
+  '@netlify/plugin-nextjs@5.15.10':
+    resolution: {integrity: sha512-Mf64nZvoDRwRCMdCjNpxCptWzpF0Vb5pcgZEoZhofI1Yi1UhnXSnxqpMHsKovl9LfCm375AjUbEgH3R3gGEBUw==}
     engines: {node: '>=18.0.0'}
 
   '@next/env@16.2.4':
@@ -5307,7 +5307,7 @@ snapshots:
       '@tybys/wasm-util': 0.10.1
     optional: true
 
-  '@netlify/plugin-nextjs@5.15.9': {}
+  '@netlify/plugin-nextjs@5.15.10': {}
 
   '@next/env@16.2.4': {}
 
