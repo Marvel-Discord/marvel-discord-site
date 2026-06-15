@@ -592,4 +592,14 @@ export const galleryEntries: GalleryEntry[] = [
     date: new Date("2026-03-25"),
     creator: "Rocked03",
   },
+  {
+    title: "Pride Month 2026",
+    description: "Logo and banner for Pride Month 2026.",
+    imageUrls: [
+      "/img/gallery/logo/Pride 2026.png",
+      "/img/gallery/banner/Pride 2026.png",
+    ],
+    date: new Date("2026-06-15"),
+    creator: "Rocked03",
+  },
 ];
