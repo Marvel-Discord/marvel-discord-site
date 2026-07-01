@@ -602,4 +602,14 @@ export const galleryEntries: GalleryEntry[] = [
     date: new Date("2026-06-15"),
     creator: "Rocked03",
   },
+  {
+    title: "X-Men '97 S2",
+    description: "Logo and banner for season 2 of the X-Men '97 series.",
+    imageUrls: [
+      "/img/gallery/logo/X-Men '97 S2.png",
+      "/img/gallery/banner/X-Men '97.png",
+    ],
+    date: new Date("2026-07-01"),
+    creator: "Rocked03",
+  },
 ];
