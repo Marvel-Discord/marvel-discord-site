@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@radix-ui/react-select": "^2.2.2",
@@ -32,11 +34,17 @@
     "@eslint/eslintrc": "^3",
     "@netlify/plugin-nextjs": "^5.15.11",
     "@svgr/webpack": "^8.1.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^25",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^6.0.3",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
-    "typescript": "^6"
+    "jsdom": "^29.1.1",
+    "typescript": "^6",
+    "vitest": "^4.1.10"
   }
 }
