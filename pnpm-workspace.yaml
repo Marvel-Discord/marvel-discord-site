@@ -1,0 +1,6 @@
+allowBuilds:
+  '@prisma/engines': true
+  jocasta-polls-api: true
+  prisma: true
+  sharp: true
+  unrs-resolver: true
