@@ -12,7 +12,7 @@ import ImportFromClipboardButton from "./ImportFromClipboardButton";
 import styled from "styled-components";
 import { Choices, ChoicesSkeleton } from "../forms/choices";
 import { PollControls } from "../forms/choices/PollControls";
-import { useMemo, useRef, useState, useCallback, useEffect } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import {
   PollCardHeader,
   PollCardHeaderSkeleton,
@@ -22,7 +22,6 @@ import { useAuthContext } from "@/contexts/AuthProvider";
 import { useIsMobile } from "@/utils/isMobile";
 import {
   cleanUrlSafeString,
-  createLogger,
   extractDescriptionWithRegex,
   filterDescriptionWithRegex,
   trimRunningStringMultiLine,
@@ -31,8 +30,8 @@ import {
 import { AutoGrowingTextAreaStyled } from "../forms/autoGrowingRadixTextArea";
 import { Image, ImageOff, MessageSquarePlus, Trash2, Undo } from "lucide-react";
 import { EditState } from "@/types/states";
-
-const logger = createLogger("src/components/polls/main/poll");
+import { useDraft } from "@/hooks/useDraft";
+import { pollFieldsEqual } from "@/utils/polls";
 
 const CardBox = styled(Flex)<{ $color?: string; $state?: EditState }>`
   background-color: var(--gray-a3);
@@ -203,10 +202,8 @@ export function PollCard({
     }
   }, [userVote, user, poll.show_voting, editable]);
 
-  const originalPoll = useRef(poll);
-  const originalTag = useRef(tag);
-  const [isEdited, setIsEdited] = useState(false);
-  // TODO: doesn't disappear and reload when search query changes
+  const { draft, setField, dirty } = useDraft(poll, pollFieldsEqual);
+  const [willDelete, setWillDelete] = useState(false);
 
   const [questionText, setQuestionText] = useState(poll.question);
   const [descriptionText, setDescriptionText] = useState(
@@ -218,9 +215,6 @@ export function PollCard({
   const [imageUrl, setImageUrl] = useState(poll.image || "");
   const [imageError, setImageError] = useState(false);
   const [currentTag, setCurrentTag] = useState(tag);
-  const [choices, setChoices] = useState(poll.choices);
-  const [dateTime, setDateTime] = useState(poll.time);
-  const [willDelete, setWillDelete] = useState(false);
   const [threadQuestion, setThreadQuestion] = useState(
     poll.thread_question || ""
   );
@@ -236,166 +230,102 @@ export function PollCard({
     return willDelete
       ? EditState.DELETE
       : poll.id < 0
-      ? EditState.CREATE
-      : isEdited
-      ? EditState.UPDATE
-      : EditState.NONE;
-  }, [willDelete, isEdited, poll.id]);
+        ? EditState.CREATE
+        : dirty
+          ? EditState.UPDATE
+          : EditState.NONE;
+  }, [willDelete, dirty, poll.id]);
 
-  const questionRef = useRef(questionText);
-  const descriptionRef = useRef(descriptionText);
-  const descriptionAdditionalRef = useRef(descriptionAdditionalText);
-  const imageUrlRef = useRef(imageUrl);
-  const tagRef = useRef(currentTag);
-  const choicesRef = useRef(choices);
-  const dateTimeRef = useRef(dateTime);
-  const threadQuestionRef = useRef(threadQuestion);
-  const willDeleteRef = useRef(willDelete);
-
-  const notifyUpdate = useCallback(() => {
-    const concatenatedDescription =
-      `${descriptionRef.current}\n${descriptionAdditionalRef.current}`.trim();
-
-    const updatedPoll: Poll = {
-      ...poll,
-      question: questionRef.current.trim(),
-      description: concatenatedDescription || null,
-      image: imageUrlRef.current.trim() || null,
-      tag: tagRef.current?.tag ?? 0,
-      choices: choicesRef.current,
-      time: dateTimeRef.current,
-      thread_question: threadQuestionRef.current || null,
-    };
-
-    const questionChanged =
-      questionRef.current.trim() !== originalPoll.current.question;
-    const descriptionChanged =
-      descriptionRef.current.trim() !==
-      (filterDescriptionWithRegex(originalPoll.current.description) || "");
-    const descriptionAdditionalChanged =
-      descriptionAdditionalRef.current.trim() !==
-      (extractDescriptionWithRegex(originalPoll.current.description) || "");
-    const imageChanged =
-      imageUrlRef.current.trim() !== (originalPoll.current.image || "");
-    const tagChanged = tagRef.current?.tag !== originalTag.current?.tag;
-    const choicesChanged =
-      choicesRef.current.length !== originalPoll.current.choices.length ||
-      choicesRef.current.some(
-        (choice, index) => choice !== originalPoll.current.choices[index]
-      );
-    const dateTimeChanged = dateTimeRef.current !== originalPoll.current.time;
-    const threadQuestionChanged =
-      threadQuestionRef.current !==
-      (originalPoll.current.thread_question || "");
-
-    const isEditedNow =
-      willDeleteRef.current ||
-      questionChanged ||
-      descriptionChanged ||
-      descriptionAdditionalChanged ||
-      imageChanged ||
-      tagChanged ||
-      choicesChanged ||
-      dateTimeChanged ||
-      threadQuestionChanged;
-
-    setIsEdited(isEditedNow);
-    const currentState = willDeleteRef.current
+  useEffect(() => {
+    if (!editable) return;
+    const currentState = willDelete
       ? EditState.DELETE
       : poll.id < 0
-      ? EditState.CREATE
-      : isEditedNow
-      ? EditState.UPDATE
-      : EditState.NONE;
-
-    logger.log("Poll updated:", updatedPoll, currentState);
-    updatePoll?.(updatedPoll, currentState);
-  }, [poll, updatePoll]);
+        ? EditState.CREATE
+        : dirty
+          ? EditState.UPDATE
+          : EditState.NONE;
+    updatePoll?.(draft, currentState);
+  }, [draft, dirty, willDelete, editable, poll.id, updatePoll]);
 
   const handleQuestionChange = useCallback(
     (question: string) => {
       const trimmed = trimRunningStringSingleLine(question);
       setQuestionText(trimmed);
-      questionRef.current = trimmed;
-      notifyUpdate();
+      setField("question", trimmed);
     },
-    [notifyUpdate]
+    [setField]
   );
 
   const handleDescriptionChange = useCallback(
     (description: string) => {
       const trimmed = trimRunningStringMultiLine(description);
       setDescriptionText(trimmed);
-      descriptionRef.current = trimmed;
-      notifyUpdate();
+      setField(
+        "description",
+        `${trimmed}\n${descriptionAdditionalText}`.trim() || null
+      );
     },
-    [notifyUpdate]
+    [setField, descriptionAdditionalText]
   );
 
   const handleDescriptionAdditionalChange = useCallback(
     (descriptionAdditional: string) => {
       const trimmed = trimRunningStringMultiLine(descriptionAdditional);
       setDescriptionAdditionalText(trimmed);
-      descriptionAdditionalRef.current = trimmed;
-      notifyUpdate();
+      setField(
+        "description",
+        `${descriptionText}\n${trimmed}`.trim() || null
+      );
     },
-    [notifyUpdate]
+    [setField, descriptionText]
   );
 
   const handleImageUrlChange = useCallback(
     (url: string) => {
       const cleaned = cleanUrlSafeString(url);
       setImageUrl(cleaned);
-      imageUrlRef.current = cleaned;
       setImageError(false);
-      notifyUpdate();
+      setField("image", cleaned || null);
     },
-    [notifyUpdate]
+    [setField]
   );
 
   const handleTagChange = useCallback(
-    (tag: Tag | undefined) => {
-      setCurrentTag(tag);
-      tagRef.current = tag;
-      notifyUpdate();
+    (newTag: Tag | undefined) => {
+      setCurrentTag(newTag);
+      setField("tag", newTag?.tag ?? 0);
     },
-    [notifyUpdate]
+    [setField]
   );
 
   const handleChoicesChange = useCallback(
     (newChoices: Poll["choices"]) => {
-      setChoices(newChoices);
-      choicesRef.current = newChoices;
-      notifyUpdate();
+      setField("choices", newChoices);
     },
-    [notifyUpdate]
+    [setField]
   );
 
   const handleTimeChange = useCallback(
     (newDateTime: Poll["time"]) => {
-      setDateTime(newDateTime);
-      dateTimeRef.current = newDateTime;
-      notifyUpdate();
+      setField("time", newDateTime);
     },
-    [notifyUpdate]
+    [setField]
   );
 
   const handleThreadQuestionChange = useCallback(
     (newThreadQuestion: string) => {
       setThreadQuestion(newThreadQuestion);
-      threadQuestionRef.current = newThreadQuestion;
-      notifyUpdate();
+      setField("thread_question", newThreadQuestion || null);
     },
-    [notifyUpdate]
+    [setField]
   );
 
   const handleWillDeleteChange = useCallback(
     (newWillDelete: boolean) => {
       setWillDelete(newWillDelete);
-      willDeleteRef.current = newWillDelete;
-      notifyUpdate();
     },
-    [notifyUpdate]
+    []
   );
 
   const handleVotesChange = useCallback((newVotes: number[] | null) => {
@@ -420,7 +350,7 @@ export function PollCard({
       $state={state}
     >
       <PollCardHeader
-        poll={{ ...poll, total_votes: totalVotes }}
+        poll={{ ...poll, total_votes: totalVotes, time: draft.time }}
         tag={editable ? currentTag : tag}
         setTag={editable ? handleTagChange : undefined}
         guild={guild}
