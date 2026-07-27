@@ -612,4 +612,11 @@ export const galleryEntries: GalleryEntry[] = [
     date: new Date("2026-07-01"),
     creator: "Rocked03",
   },
+  {
+    title: "Spider-Man: Brand New Day",
+    description: "Logo for the Spider-Man: Brand New Day film.",
+    imageUrls: ["/img/gallery/logo/Spider-Man Brand New Day.png"],
+    date: new Date("2026-07-31"),
+    creator: "Rocked03",
+  },
 ];
