@@ -5,7 +5,7 @@ import {
   pollDescriptionArtRegex,
   pollDescriptionAuthorshipRegex,
 } from "@/utils";
-import type { Poll, PollInfo, Tag } from "@jocasta-polls-api";
+import type { Poll, PollInfo, Tag } from "@/types/jocasta";
 
 // Extended interface for form data (includes pending tag fields)
 type TagFormData = Partial<Tag>;

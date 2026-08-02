@@ -1,4 +1,4 @@
-import type { Meta, Poll } from "@jocasta-polls-api";
+import type { Meta, Poll } from "@/types/jocasta";
 import { axiosPollsInstance } from "../axios";
 import type { AxiosResponse } from "axios";
 import config from "@/app/config/config";

@@ -17,7 +17,7 @@ import { createLogger } from "@/utils/logger";
 
 const logger = createLogger("EditContext");
 import { usePollRefetch } from "@/contexts/PollRefetchContext";
-import type { Poll } from "@jocasta-polls-api";
+import type { Poll } from "@/types/jocasta";
 import config from "@/app/config/config";
 
 interface EditedPoll {

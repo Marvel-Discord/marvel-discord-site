@@ -1,7 +1,7 @@
 import React from "react";
 import { Button, Link } from "@radix-ui/themes";
 import { useRouter } from "next/navigation";
-import type { Poll, Tag } from "@jocasta-polls-api";
+import type { Poll, Tag } from "@/types/jocasta";
 import { useAuthContext } from "@/contexts/AuthProvider";
 import config from "@/app/config/config";
 import { useVoting, useChoicesManager } from "@/hooks";

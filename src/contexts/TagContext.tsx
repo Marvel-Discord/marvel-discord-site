@@ -1,5 +1,5 @@
 import { getTags, createTag } from "@/api/polls/tags";
-import type { Tag } from "@jocasta-polls-api";
+import type { Tag } from "@/types/jocasta";
 import { createContext, useContext, useEffect, useState } from "react";
 import { createLogger } from "@/utils/logger";
 

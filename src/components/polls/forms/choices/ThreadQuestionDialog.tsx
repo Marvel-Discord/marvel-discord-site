@@ -8,7 +8,7 @@ import {
   Checkbox,
 } from "@radix-ui/themes";
 import styled from "styled-components";
-import type { Poll } from "@jocasta-polls-api";
+import type { Poll } from "@/types/jocasta";
 
 // Styled components
 const StyledDialogContent = styled(Dialog.Content)`

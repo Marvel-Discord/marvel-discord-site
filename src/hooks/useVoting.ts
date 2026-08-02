@@ -1,5 +1,5 @@
 import { useRef, useEffect } from "react";
-import type { Poll } from "@jocasta-polls-api";
+import type { Poll } from "@/types/jocasta";
 import { postVote } from "@/api/polls/votes";
 import { DEBOUNCE_DELAY } from "@/components/polls/forms/choices/constants";
 import { createLogger } from "@/utils/logger";

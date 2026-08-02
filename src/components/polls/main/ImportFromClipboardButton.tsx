@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Dialog, Button, Flex } from "@radix-ui/themes";
 import styled from "styled-components";
 import { Import } from "lucide-react";
-import type { Poll } from "@jocasta-polls-api";
+import type { Poll } from "@/types/jocasta";
 import { useTagContext } from "@/contexts/TagContext";
 import { toast } from "sonner";
 import { createLogger } from "@/utils";

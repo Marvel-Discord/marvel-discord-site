@@ -1,5 +1,5 @@
 import { signOut as apiSignOut, getUser } from "@/api/polls/auth";
-import type { DiscordUserProfile } from "@jocasta-polls-api";
+import type { DiscordUserProfile } from "@/types/jocasta";
 import {
   createContext,
   useCallback,

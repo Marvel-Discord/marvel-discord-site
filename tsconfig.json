@@ -25,9 +25,6 @@
     "paths": {
       "@/*": [
         "./src/*"
-      ],
-      "@jocasta-polls-api": [
-        "./node_modules/jocasta-polls-api/src/types/index"
       ]
     }
   },

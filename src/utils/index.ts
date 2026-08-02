@@ -1,5 +1,5 @@
 import config from "@/app/config/config";
-import type { Tag } from "@jocasta-polls-api";
+import type { Tag } from "@/types/jocasta";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 export { isLightColor } from "./colorUtils";

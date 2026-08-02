@@ -1,4 +1,4 @@
-import type { DiscordUserProfile, Meta } from "@jocasta-polls-api";
+import type { DiscordUserProfile, Meta } from "@/types/jocasta";
 import { Button, Flex, TextField, Tooltip, Select } from "@radix-ui/themes";
 import {
   CircleDot,

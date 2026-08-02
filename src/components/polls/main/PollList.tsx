@@ -8,7 +8,7 @@ import { EditState } from "@/types/states";
 import { NewPollButton, PollCard } from "./poll";
 import InfiniteScroll from "react-infinite-scroll-component";
 import styled from "styled-components";
-import type { Poll, Meta } from "@jocasta-polls-api";
+import type { Poll, Meta } from "@/types/jocasta";
 
 const FullWidthScroll = styled.div`
   width: 100%;

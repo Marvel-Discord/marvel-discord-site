@@ -1,4 +1,4 @@
-import type { Poll } from "@jocasta-polls-api";
+import type { Poll } from "@/types/jocasta";
 
 function arraysEqual(a: string[], b: string[]): boolean {
   if (a.length !== b.length) return false;

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { Poll } from "@jocasta-polls-api";
+import type { Poll } from "@/types/jocasta";
 import { pollFieldsEqual } from "@/utils/polls/equals";
 
 function basePoll(overrides: Partial<Poll> = {}): Poll {

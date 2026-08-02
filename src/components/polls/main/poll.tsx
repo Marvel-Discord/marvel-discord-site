@@ -1,4 +1,4 @@
-import type { Poll, PollInfo, Tag } from "@jocasta-polls-api";
+import type { Poll, PollInfo, Tag } from "@/types/jocasta";
 import {
   Container,
   Flex,
@@ -368,7 +368,7 @@ export function PollCard({
     []
   );
 
-  const handleVotesChange = useCallback((newVotes: number[] | null) => {
+  const handleVotesChange = useCallback((newVotes: number[] | null | undefined) => {
     setVotes(newVotes || []);
   }, []);
 
