@@ -202,7 +202,7 @@ export function PollCard({
     }
   }, [userVote, user, poll.show_voting, editable]);
 
-  const { draft, setField, dirty } = useDraft(poll, pollFieldsEqual);
+  const { draft, setField, dirty, reset } = useDraft(poll, pollFieldsEqual);
   const [willDelete, setWillDelete] = useState(false);
 
   // updatePoll (EditContext.handleEditChange) is reference-unstable: it changes
@@ -213,6 +213,14 @@ export function PollCard({
   // Hold it in a ref so the effect only fires on actual draft/state changes.
   const updatePollRef = useRef(updatePoll);
   updatePollRef.current = updatePoll;
+
+  // Reset all local state when (re-)entering edit mode. Without this, discard
+  // (or save+refetch) leaves the previous session's edits in local state, so
+  // re-entering edit mode shows stale dirty state and re-pushes the entry.
+  // skipNotifyRef prevents the notifying effect from pushing the stale draft
+  // before the reset applies on that first render.
+  const prevEditableRef = useRef(editable);
+  const skipNotifyRef = useRef(false);
 
   const [questionText, setQuestionText] = useState(poll.question);
   const [descriptionText, setDescriptionText] = useState(
@@ -236,6 +244,7 @@ export function PollCard({
   const filteredDescription = filterDescriptionWithRegex(poll.description);
 
   const state = useMemo(() => {
+    if (!editable) return EditState.NONE;
     return willDelete
       ? EditState.DELETE
       : poll.id < 0
@@ -243,10 +252,32 @@ export function PollCard({
         : dirty
           ? EditState.UPDATE
           : EditState.NONE;
-  }, [willDelete, dirty, poll.id]);
+  }, [editable, willDelete, dirty, poll.id]);
+
+  useEffect(() => {
+    if (editable && !prevEditableRef.current) {
+      // Entering edit mode: reset every local state cell to current poll/tag.
+      skipNotifyRef.current = true;
+      reset(poll);
+      setQuestionText(poll.question);
+      setDescriptionText(filterDescriptionWithRegex(poll.description) || "");
+      setDescriptionAdditionalText(
+        extractDescriptionWithRegex(poll.description) || ""
+      );
+      setImageUrl(poll.image || "");
+      setCurrentTag(tag);
+      setThreadQuestion(poll.thread_question || "");
+      setWillDelete(false);
+    }
+    prevEditableRef.current = editable;
+  }, [editable, poll, tag, reset]);
 
   useEffect(() => {
     if (!editable) return;
+    if (skipNotifyRef.current) {
+      skipNotifyRef.current = false;
+      return;
+    }
     const currentState = willDelete
       ? EditState.DELETE
       : poll.id < 0
