@@ -52,7 +52,6 @@ import { TitleText } from "@/components/titleText";
 import { useIsMobile } from "@/utils/isMobile";
 import { useTagContext } from "@/contexts/TagContext";
 import DatePickerComponent from "../forms/datePicker";
-import { useFirstRenderResetOnCondition } from "@/utils/useFirstRender";
 import { TagDialog } from "../forms/tagDialog";
 
 const Header = styled(Flex)`
@@ -872,9 +871,7 @@ export function PollCardHeader({
 }) {
   const isMobile = useIsMobile();
   const totalVotes = poll.total_votes;
-  const [dateTime, setDateTime] = useState<Date | null>(
-    poll.time ? new Date(poll.time) : null
-  );
+  const dateTime = poll.time;
   const [createTagDialogOpen, setCreateTagDialogOpen] = useState(false);
   const isNew = dateTime
     ? dateTime.getTime() > Date.now() - 1000 * 60 * 60 * 24 * 2
@@ -887,18 +884,6 @@ export function PollCardHeader({
       : "";
 
   const { tags, tagsOrder, pendingTags, addPendingTag } = useTagContext();
-
-  const isFirstRender = useFirstRenderResetOnCondition(editable);
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  useEffect(() => {
-    if (editable) {
-      if (isFirstRender.current) {
-        isFirstRender.current = false;
-        return;
-      }
-      handleTimeChange(dateTime);
-    }
-  }, [dateTime]);
 
   const handleTagCreated = (newTag: TagFormData) => {
     // Add to global pending tags via context
@@ -989,7 +974,7 @@ export function PollCardHeader({
           setDescription={editable ? handleDescriptionChange : undefined}
           editable={editable}
           dateTime={dateTime}
-          setDateTime={setDateTime}
+          setDateTime={handleTimeChange}
         />
 
         {poll.published && (
