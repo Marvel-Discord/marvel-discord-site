@@ -871,7 +871,7 @@ export function PollCardHeader({
 }) {
   const isMobile = useIsMobile();
   const totalVotes = poll.total_votes;
-  const dateTime = poll.time;
+  const dateTime = poll.time ? new Date(poll.time) : null;
   const [createTagDialogOpen, setCreateTagDialogOpen] = useState(false);
   const isNew = dateTime
     ? dateTime.getTime() > Date.now() - 1000 * 60 * 60 * 24 * 2
