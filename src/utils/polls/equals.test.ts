@@ -140,4 +140,18 @@ describe("pollFieldsEqual", () => {
     const b = basePoll({ time: new Date("2026-08-02T12:00:00Z") });
     expect(pollFieldsEqual(a, b)).toBe(false);
   });
+
+  it("treats descriptions as equal despite trailing-period asymmetry from the art-tag round-trip", () => {
+    // e.g. original poll has "Art by Foo" (no period) but the dialog
+    // reconstruction always appends one -> "Art by Foo."
+    const a = basePoll({ description: "Best hero?\nArt by Foo" });
+    const b = basePoll({ description: "Best hero?\nArt by Foo." });
+    expect(pollFieldsEqual(a, b)).toBe(true);
+  });
+
+  it("still detects genuine description content differences after normalization", () => {
+    const a = basePoll({ description: "Best hero?\nArt by Foo." });
+    const b = basePoll({ description: "Best hero?\nArt by Bar." });
+    expect(pollFieldsEqual(a, b)).toBe(false);
+  });
 });

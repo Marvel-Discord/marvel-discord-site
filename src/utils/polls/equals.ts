@@ -20,10 +20,18 @@ function datesEqual(a: Date | null, b: Date | null): boolean {
   return toMs(a as Date | string) === toMs(b as Date | string);
 }
 
+function descriptionsEqual(a: string | null, b: string | null): boolean {
+  // The art-tag regex has an optional trailing period (`\.?`), but the dialog
+  // reconstruction always appends one. Strip trailing whitespace + periods so
+  // a revert round-trip doesn't stay dirty forever.
+  const normalize = (s: string | null) => (s ?? "").trim().replace(/\.+$/, "");
+  return normalize(a) === normalize(b);
+}
+
 export function pollFieldsEqual(a: Poll, b: Poll): boolean {
   return (
     a.question.trim() === b.question.trim() &&
-    (a.description ?? "") === (b.description ?? "") &&
+    descriptionsEqual(a.description, b.description) &&
     (a.image?.trim() ?? "") === (b.image?.trim() ?? "") &&
     a.tag === b.tag &&
     arraysEqual(a.choices, b.choices) &&
