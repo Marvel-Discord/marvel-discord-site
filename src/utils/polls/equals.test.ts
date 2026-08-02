@@ -121,4 +121,23 @@ describe("pollFieldsEqual", () => {
     const b = basePoll({ thread_question: "" });
     expect(pollFieldsEqual(a, b)).toBe(true);
   });
+
+  it("compares ISO string dates (API reality) to Date objects of the same instant", () => {
+    const iso = "2026-08-01T12:00:00Z";
+    const a = basePoll({ time: iso as unknown as Date });
+    const b = basePoll({ time: new Date(iso) });
+    expect(pollFieldsEqual(a, b)).toBe(true);
+  });
+
+  it("compares two ISO string dates of the same instant as equal", () => {
+    const a = basePoll({ time: "2026-08-01T12:00:00Z" as unknown as Date });
+    const b = basePoll({ time: "2026-08-01T12:00:00.000Z" as unknown as Date });
+    expect(pollFieldsEqual(a, b)).toBe(true);
+  });
+
+  it("returns false when one date is an ISO string and the other is a different instant", () => {
+    const a = basePoll({ time: "2026-08-01T12:00:00Z" as unknown as Date });
+    const b = basePoll({ time: new Date("2026-08-02T12:00:00Z") });
+    expect(pollFieldsEqual(a, b)).toBe(false);
+  });
 });

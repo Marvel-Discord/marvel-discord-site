@@ -8,10 +8,16 @@ function arraysEqual(a: string[], b: string[]): boolean {
   return true;
 }
 
+function toMs(value: Date | string): number {
+  return typeof value === "string" ? Date.parse(value) : value.getTime();
+}
+
 function datesEqual(a: Date | null, b: Date | null): boolean {
   if (a == null && b == null) return true;
   if (a == null || b == null) return false;
-  return a.getTime() === b.getTime();
+  // The Poll type claims `time: Date | null`, but JSON deserialization yields
+  // ISO strings at runtime. Accept both so the comparison doesn't crash.
+  return toMs(a as Date | string) === toMs(b as Date | string);
 }
 
 export function pollFieldsEqual(a: Poll, b: Poll): boolean {
