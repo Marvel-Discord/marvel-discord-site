@@ -322,7 +322,8 @@ function renderEditableTag(
   tag: InfoTag,
   editableTags: InfoTag[],
   setEditableTags: Dispatch<React.SetStateAction<InfoTag[]>>,
-  isMobile: boolean
+  isMobile: boolean,
+  onDialogOpenChange?: (open: boolean) => void
 ) {
   const content = renderTagContent(tag, isMobile);
 
@@ -333,6 +334,7 @@ function renderEditableTag(
       setTags={setEditableTags}
       mobile={isMobile}
       editable={true}
+      onDialogOpenChange={onDialogOpenChange}
       trigger={
         <InfoTagEditDialogTrigger>
           <Button variant="ghost" color="gray">
@@ -507,7 +509,7 @@ function InfoTags({
   return (
     <Flex gap="3" align="center" justify="between" overflow="visible">
       {editableTags.map((tag) =>
-        renderEditableTag(tag, editableTags, setEditableTags, isMobile)
+        renderEditableTag(tag, editableTags, setEditableTags, isMobile, onDialogOpenChange)
       )}
       <InfoTagDialog
         tags={editableTags}
