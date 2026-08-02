@@ -1,7 +1,7 @@
 import React, { type Dispatch, type SetStateAction, useState } from "react";
 import { Button } from "@radix-ui/themes";
 import styled from "styled-components";
-import type { Poll } from "@jocasta-polls-api";
+import type { Poll } from "@/types/jocasta";
 import { ShowVotesButton } from "./ShowVotesButton";
 import { ThreadQuestionDialog } from "./ThreadQuestionDialog";
 import { MessageCircleQuestion } from "lucide-react";

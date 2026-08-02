@@ -1,4 +1,4 @@
-import type { Tag } from "@jocasta-polls-api";
+import type { Tag } from "@/types/jocasta";
 
 // Extended type for form data (includes pending tag fields)
 export type TagFormData = Partial<Tag>;

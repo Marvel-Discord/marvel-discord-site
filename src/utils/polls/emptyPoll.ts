@@ -1,4 +1,4 @@
-import type { Poll } from "@jocasta-polls-api";
+import type { Poll } from "@/types/jocasta";
 import config from "@/app/config/config";
 
 let currentPollId = 0;

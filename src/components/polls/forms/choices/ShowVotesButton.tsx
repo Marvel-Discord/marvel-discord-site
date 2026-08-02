@@ -1,7 +1,7 @@
 import React, { type Dispatch, type SetStateAction } from "react";
 import { Text, Skeleton } from "@radix-ui/themes";
 import { Eye, EyeClosed, Lock, LockOpen } from "lucide-react";
-import type { Poll } from "@jocasta-polls-api";
+import type { Poll } from "@/types/jocasta";
 import { ShowVotesButtonStyle } from "./styles";
 
 interface ShowVotesButtonProps {

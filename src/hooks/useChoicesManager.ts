@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import type { Poll } from "@jocasta-polls-api";
+import type { Poll } from "@/types/jocasta";
 import { useFirstRenderResetOnCondition } from "@/utils/useFirstRender";
 import { MAX_CHOICES } from "@/components/polls/forms/choices/constants";
 

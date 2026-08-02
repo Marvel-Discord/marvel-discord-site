@@ -1,4 +1,4 @@
-import type { Poll } from "@jocasta-polls-api";
+import type { Poll } from "@/types/jocasta";
 
 export interface ValidationResult {
   isValid: boolean;

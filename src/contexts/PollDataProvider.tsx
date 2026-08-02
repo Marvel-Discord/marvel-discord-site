@@ -3,7 +3,7 @@ import { getGuilds } from "@/api/polls/guilds";
 import { createPolls, updatePolls, deletePolls } from "@/api/polls/polls";
 import { useAuthContext } from "@/contexts/AuthProvider";
 import { useUserVotes } from "@/hooks/useUserVotes";
-import type { PollInfo, Poll } from "@jocasta-polls-api";
+import type { PollInfo, Poll } from "@/types/jocasta";
 import { createLogger } from "@/utils/logger";
 
 const logger = createLogger("PollDataProvider");

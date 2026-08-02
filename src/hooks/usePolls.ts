@@ -3,7 +3,7 @@ import { getPolls, getPollById } from "@/api/polls/polls";
 import { PollSearchType } from "@/utils";
 import { FilterState, SortOrder } from "@/types/states";
 import { mapSortOrderToApiParams } from "@/utils/polls";
-import type { Poll, Meta } from "@jocasta-polls-api";
+import type { Poll, Meta } from "@/types/jocasta";
 import axios from "axios";
 import { createLogger } from "@/utils/logger";
 

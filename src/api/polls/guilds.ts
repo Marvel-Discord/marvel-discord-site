@@ -1,4 +1,4 @@
-import type { PollInfo } from "@jocasta-polls-api";
+import type { PollInfo } from "@/types/jocasta";
 import type { AxiosResponse } from "axios";
 import { axiosPollsInstance } from "../axios";
 import { createLogger } from "@/utils/logger";

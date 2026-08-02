@@ -6,8 +6,8 @@ import { useIsMobile } from "@/utils/isMobile";
 import { useState } from "react";
 import { useTagContext } from "@/contexts/TagContext";
 import styled from "styled-components";
-import type { Poll } from "@jocasta-polls-api";
-import type { Tag as TagType } from "@jocasta-polls-api";
+import type { Poll } from "@/types/jocasta";
+import type { Tag as TagType } from "@/types/jocasta";
 
 const CardStyle = styled(Card)`
   width: fit-content;

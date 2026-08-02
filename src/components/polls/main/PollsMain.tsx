@@ -9,7 +9,7 @@ import { PollsHeader } from "../layout/PollsHeader";
 import { PollList } from "./PollList";
 import { PollsSearch } from "../forms/search";
 import styled from "styled-components";
-import type { Poll } from "@jocasta-polls-api";
+import type { Poll } from "@/types/jocasta";
 
 const BodyContainer = styled(Flex).attrs({
   direction: "column",

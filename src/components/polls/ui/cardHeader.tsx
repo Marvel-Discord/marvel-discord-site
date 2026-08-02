@@ -5,7 +5,7 @@ import {
   pollDescriptionArtRegex,
   pollDescriptionAuthorshipRegex,
 } from "@/utils";
-import type { Poll, PollInfo, Tag } from "@jocasta-polls-api";
+import type { Poll, PollInfo, Tag } from "@/types/jocasta";
 
 // Extended interface for form data (includes pending tag fields)
 type TagFormData = Partial<Tag>;
@@ -52,7 +52,6 @@ import { TitleText } from "@/components/titleText";
 import { useIsMobile } from "@/utils/isMobile";
 import { useTagContext } from "@/contexts/TagContext";
 import DatePickerComponent from "../forms/datePicker";
-import { useFirstRenderResetOnCondition } from "@/utils/useFirstRender";
 import { TagDialog } from "../forms/tagDialog";
 
 const Header = styled(Flex)`
@@ -322,7 +321,8 @@ function renderEditableTag(
   tag: InfoTag,
   editableTags: InfoTag[],
   setEditableTags: Dispatch<React.SetStateAction<InfoTag[]>>,
-  isMobile: boolean
+  isMobile: boolean,
+  onDialogOpenChange?: (open: boolean) => void
 ) {
   const content = renderTagContent(tag, isMobile);
 
@@ -333,6 +333,7 @@ function renderEditableTag(
       setTags={setEditableTags}
       mobile={isMobile}
       editable={true}
+      onDialogOpenChange={onDialogOpenChange}
       trigger={
         <InfoTagEditDialogTrigger>
           <Button variant="ghost" color="gray">
@@ -507,7 +508,7 @@ function InfoTags({
   return (
     <Flex gap="3" align="center" justify="between" overflow="visible">
       {editableTags.map((tag) =>
-        renderEditableTag(tag, editableTags, setEditableTags, isMobile)
+        renderEditableTag(tag, editableTags, setEditableTags, isMobile, onDialogOpenChange)
       )}
       <InfoTagDialog
         tags={editableTags}
@@ -870,9 +871,7 @@ export function PollCardHeader({
 }) {
   const isMobile = useIsMobile();
   const totalVotes = poll.total_votes;
-  const [dateTime, setDateTime] = useState<Date | null>(
-    poll.time ? new Date(poll.time) : null
-  );
+  const dateTime = poll.time;
   const [createTagDialogOpen, setCreateTagDialogOpen] = useState(false);
   const isNew = dateTime
     ? dateTime.getTime() > Date.now() - 1000 * 60 * 60 * 24 * 2
@@ -885,18 +884,6 @@ export function PollCardHeader({
       : "";
 
   const { tags, tagsOrder, pendingTags, addPendingTag } = useTagContext();
-
-  const isFirstRender = useFirstRenderResetOnCondition(editable);
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-  useEffect(() => {
-    if (editable) {
-      if (isFirstRender.current) {
-        isFirstRender.current = false;
-        return;
-      }
-      handleTimeChange(dateTime);
-    }
-  }, [dateTime]);
 
   const handleTagCreated = (newTag: TagFormData) => {
     // Add to global pending tags via context
@@ -987,7 +974,7 @@ export function PollCardHeader({
           setDescription={editable ? handleDescriptionChange : undefined}
           editable={editable}
           dateTime={dateTime}
-          setDateTime={setDateTime}
+          setDateTime={handleTimeChange}
         />
 
         {poll.published && (

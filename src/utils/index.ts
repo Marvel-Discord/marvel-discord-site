@@ -1,5 +1,5 @@
 import config from "@/app/config/config";
-import type { Tag } from "@jocasta-polls-api";
+import type { Tag } from "@/types/jocasta";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 export { isLightColor } from "./colorUtils";
@@ -146,10 +146,10 @@ export function createCustomAvatarUrl(
 }
 
 export const pollDescriptionAuthorshipRegex =
-  /\n?\s*(\w+)\s+by\s+@?(\w+)\s+\(<@(\d+)>\)/;
+  /\n?\s*(\w+)\s+by\s+@?(\w+)\s+\(<@(\d+)>\)\.?/;
 
 export const pollDescriptionAnonymousAuthorshipRegex =
-  /\n?\s*(\w+)\s+by Anonymous/;
+  /\n?\s*(\w+)\s+by Anonymous\.?/;
 
 export const pollDescriptionArtRegex =
   /((?:[\w]+ )*?[Aa]rt) by (((\w\.?\w*)[ &-]*)+)\.?/g;

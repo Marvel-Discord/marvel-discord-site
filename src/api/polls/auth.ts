@@ -1,4 +1,4 @@
-import type { DiscordUserProfile } from "@jocasta-polls-api";
+import type { DiscordUserProfile } from "@/types/jocasta";
 import type { AxiosResponse } from "axios";
 import { axiosPollsInstance } from "../axios";
 import axios from "axios";

@@ -7,7 +7,7 @@ import { EditProvider } from "@/contexts/EditContext";
 import { PollRefetchProvider } from "@/contexts/PollRefetchContext";
 import { useAuthContext } from "@/contexts/AuthProvider";
 import { Suspense, useMemo, useState } from "react";
-import type { Poll } from "@jocasta-polls-api";
+import type { Poll } from "@/types/jocasta";
 
 export default function PollsHome() {
   const skeletons = useMemo(

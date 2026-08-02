@@ -1,7 +1,7 @@
 import React from "react";
 import { Flex, Tooltip } from "@radix-ui/themes";
 import { Plus, X } from "lucide-react";
-import type { Poll, Tag } from "@jocasta-polls-api";
+import type { Poll, Tag } from "@/types/jocasta";
 import { intToColorHex, trimRunningStringSingleLine } from "@/utils";
 import { Spacer } from "@/utils/styled";
 import { useIsMobile } from "@/utils/isMobile";
@@ -123,7 +123,8 @@ export function ChoiceContainer({
             />
           )}
           <Spacer />
-          {(editable ? percentageVotes.length > index : showVotes) &&
+          {percentageVotes.length > index &&
+            (editable || showVotes) &&
             poll.votes && (
               <Tooltip
                 content={`${poll.votes[index]} Vote${

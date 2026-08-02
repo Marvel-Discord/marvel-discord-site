@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import type { Tag } from "@jocasta-polls-api";
+import type { Tag } from "@/types/jocasta";
 import { useTagContext } from "@/contexts/TagContext";
 import { intToColorHex } from "@/utils";
 import config from "@/app/config/config";

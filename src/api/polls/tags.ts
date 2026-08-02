@@ -1,4 +1,4 @@
-import type { Tag } from "@jocasta-polls-api";
+import type { Tag } from "@/types/jocasta";
 import type { AxiosResponse } from "axios";
 import { axiosPollsInstance } from "../axios";
 import { serializeBigIntFields } from "@/utils";
