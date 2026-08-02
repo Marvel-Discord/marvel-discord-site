@@ -12,7 +12,7 @@ import ImportFromClipboardButton from "./ImportFromClipboardButton";
 import styled from "styled-components";
 import { Choices, ChoicesSkeleton } from "../forms/choices";
 import { PollControls } from "../forms/choices/PollControls";
-import { useMemo, useState, useCallback, useEffect } from "react";
+import { useMemo, useRef, useState, useCallback, useEffect } from "react";
 import {
   PollCardHeader,
   PollCardHeaderSkeleton,
@@ -205,6 +205,15 @@ export function PollCard({
   const { draft, setField, dirty } = useDraft(poll, pollFieldsEqual);
   const [willDelete, setWillDelete] = useState(false);
 
+  // updatePoll (EditContext.handleEditChange) is reference-unstable: it changes
+  // whenever editedPolls changes, because its useCallback deps chain through
+  // debouncedValidation -> validateCurrentPolls -> [editedPolls, ...]. Putting
+  // it in the notifying effect's deps would loop: effect fires -> updatePoll
+  // writes to editedPolls -> updatePoll ref changes -> effect fires again.
+  // Hold it in a ref so the effect only fires on actual draft/state changes.
+  const updatePollRef = useRef(updatePoll);
+  updatePollRef.current = updatePoll;
+
   const [questionText, setQuestionText] = useState(poll.question);
   const [descriptionText, setDescriptionText] = useState(
     filterDescriptionWithRegex(poll.description) || ""
@@ -245,8 +254,8 @@ export function PollCard({
         : dirty
           ? EditState.UPDATE
           : EditState.NONE;
-    updatePoll?.(draft, currentState);
-  }, [draft, dirty, willDelete, editable, poll.id, updatePoll]);
+    updatePollRef.current?.(draft, currentState);
+  }, [draft, dirty, willDelete, editable, poll.id]);
 
   const handleQuestionChange = useCallback(
     (question: string) => {
