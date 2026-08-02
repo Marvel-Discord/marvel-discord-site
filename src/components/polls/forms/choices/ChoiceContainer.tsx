@@ -123,7 +123,8 @@ export function ChoiceContainer({
             />
           )}
           <Spacer />
-          {(editable ? percentageVotes.length > index : showVotes) &&
+          {percentageVotes.length > index &&
+            (editable || showVotes) &&
             poll.votes && (
               <Tooltip
                 content={`${poll.votes[index]} Vote${
