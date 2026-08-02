@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  jocasta-polls-api@1.0.0: 7bb651beba09b57252741cf8c0cf2a60464763b9df5a1c8e986826f8aa41a608
+
 importers:
 
   .:
@@ -28,7 +31,7 @@ importers:
         version: 8.6.0(react@19.2.5)
       jocasta-polls-api:
         specifier: git+https://github.com/Marvel-Discord/jocasta-polls-api.git#v1.0.1
-        version: https://codeload.github.com/Marvel-Discord/jocasta-polls-api/tar.gz/ef1c5aea254d45731cf873d3cc162aaac9ffd9ab(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@6.0.3)
+        version: https://codeload.github.com/Marvel-Discord/jocasta-polls-api/tar.gz/ef1c5aea254d45731cf873d3cc162aaac9ffd9ab(patch_hash=7bb651beba09b57252741cf8c0cf2a60464763b9df5a1c8e986826f8aa41a608)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@6.0.3)
       lucide-react:
         specifier: ^1.14.0
         version: 1.14.0(react@19.2.5)
@@ -8716,7 +8719,7 @@ snapshots:
 
   jiti@2.6.1: {}
 
-  jocasta-polls-api@https://codeload.github.com/Marvel-Discord/jocasta-polls-api/tar.gz/ef1c5aea254d45731cf873d3cc162aaac9ffd9ab(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@6.0.3):
+  jocasta-polls-api@https://codeload.github.com/Marvel-Discord/jocasta-polls-api/tar.gz/ef1c5aea254d45731cf873d3cc162aaac9ffd9ab(patch_hash=7bb651beba09b57252741cf8c0cf2a60464763b9df5a1c8e986826f8aa41a608)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@6.0.3):
     dependencies:
       '@prisma/adapter-pg': 7.6.0
       '@prisma/client': 7.6.0(prisma@7.6.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@6.0.3))(typescript@6.0.3)
