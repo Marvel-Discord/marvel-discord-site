@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore, useState } from "react";
 import styled, { css } from "styled-components";
 
 type Props = {
@@ -69,6 +69,8 @@ const Tile = styled.div<{
   background-size: cover;
   opacity: ${({ $opacity }) => $opacity};
 `;
+const emptySubscribe = () => () => {};
+
 export default function StaggeredBackground({
   imagePath,
   pixelOffsetX,
@@ -79,14 +81,11 @@ export default function StaggeredBackground({
   originalTileSize = 4000,
   withinParent = false,
 }: Props) {
-  const [mounted, setMounted] = useState(false);
   const [tileSize, setTileSize] = useState(1000);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const expansionCount = 10;
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;

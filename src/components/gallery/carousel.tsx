@@ -197,6 +197,7 @@ export default function Carousel({ galleryEntries }: CarouselProps) {
       }
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- pre-existing: isLoaded gates the URL-sync effect below; setting it outside this effect requires restructuring the initial slide-sync behavior
     setIsLoaded(true);
   }, [galleryEntries, thumbEmblaApi, isLoaded]);
 
