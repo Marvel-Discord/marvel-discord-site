@@ -157,8 +157,8 @@ export default function Home() {
               <Button href="/appeal">Make a ban appeal</Button>
               <Button href="/gallery">View the gallery</Button>
               <Button
-                href={config.publicPollsBaseUrl || "/polls"}
-                newTag={config.publicPollsBaseUrl !== undefined}
+                href={config.publicPollsBaseUrl || "https://polls.marvelcord.com"}
+                newTag
               >
                 Vote on polls
               </Button>
