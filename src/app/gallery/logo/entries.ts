@@ -619,4 +619,11 @@ export const galleryEntries: GalleryEntry[] = [
     date: new Date("2026-07-31"),
     creator: "Rocked03",
   },
+  {
+    title: "VisionQuest",
+    description: "Logo for the VisionQuest series.",
+    imageUrls: ["/img/gallery/logo/VisionQuest.png"],
+    date: new Date("2026-10-14"),
+    creator: "Rocked03",
+  },
 ];
