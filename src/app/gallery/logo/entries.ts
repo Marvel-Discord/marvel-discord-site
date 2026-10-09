@@ -621,8 +621,11 @@ export const galleryEntries: GalleryEntry[] = [
   },
   {
     title: "VisionQuest",
-    description: "Logo for the VisionQuest series.",
-    imageUrls: ["/img/gallery/logo/VisionQuest.png"],
+    description: "Logo and banner for the VisionQuest series.",
+    imageUrls: [
+      "/img/gallery/logo/VisionQuest.png",
+      "/img/gallery/banner/VisionQuest.png",
+    ],
     date: new Date("2026-10-14"),
     creator: "Rocked03",
   },
