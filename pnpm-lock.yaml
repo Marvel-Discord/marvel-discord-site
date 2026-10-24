@@ -37,8 +37,8 @@ importers:
         specifier: ^3
         version: 3.3.5
       '@netlify/plugin-nextjs':
-        specifier: ^5.15.11
-        version: 5.15.11
+        specifier: ^5.16.4
+        version: 5.16.4
       '@svgr/webpack':
         specifier: ^8.1.0
         version: 8.1.0(typescript@6.0.3)
@@ -936,8 +936,8 @@ packages:
       '@emnapi/core': ^1.7.1 || ^2.0.0-alpha.3
       '@emnapi/runtime': ^1.7.1 || ^2.0.0-alpha.3
 
-  '@netlify/plugin-nextjs@5.15.11':
-    resolution: {integrity: sha512-cx7yoJFYDBFRecGqJaEUuvnHvU+vs9ISn7DUXyijPheaqtbyRy4+z7Mjre9swEJ19ItVeFhuGuXUkl6X5nfJeA==}
+  '@netlify/plugin-nextjs@5.16.4':
+    resolution: {integrity: sha512-yvFqkPxCeDrdC9y51Fxt5rK0lNWPo+esoc5uYbHBkM6kgop7s7jL2NtFFjN8g5SitbCnXoVm+dOlrgKEYfdx2g==}
     engines: {node: '>=18.0.0'}
 
   '@next/env@16.3.8':
@@ -1762,6 +1762,7 @@ packages:
   eslint@9.39.2:
     resolution: {integrity: sha512-LEyamqS7W5HB3ujJyvi0HQK/dtVINZvd5mAAp9eT5S/ujByGjiZLCzPcHVzuXbpJDJF/cxwHlfceVUDZ2lnSTw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
     peerDependencies:
       jiti: '*'
@@ -3707,7 +3708,7 @@ snapshots:
       '@tybys/wasm-util': 0.10.3
     optional: true
 
-  '@netlify/plugin-nextjs@5.15.11': {}
+  '@netlify/plugin-nextjs@5.16.4': {}
 
   '@next/env@16.3.8': {}
 
@@ -4514,7 +4515,7 @@ snapshots:
       eslint: 9.39.2
       eslint-import-resolver-node: 0.3.10
       eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.65.0(eslint@9.39.2)(typescript@6.0.3))(eslint@9.39.2))(eslint@9.39.2)
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.65.0(eslint@9.39.2)(typescript@6.0.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.65.0(eslint@9.39.2)(typescript@6.0.3))(eslint@9.39.2))(eslint@9.39.2))(eslint@9.39.2)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.65.0(eslint@9.39.2)(typescript@6.0.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.2)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@9.39.2)
       eslint-plugin-react: 7.37.5(eslint@9.39.2)
       eslint-plugin-react-hooks: 7.1.1(eslint@9.39.2)
@@ -4547,7 +4548,7 @@ snapshots:
       tinyglobby: 0.2.17
       unrs-resolver: 1.12.2
     optionalDependencies:
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.65.0(eslint@9.39.2)(typescript@6.0.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.65.0(eslint@9.39.2)(typescript@6.0.3))(eslint@9.39.2))(eslint@9.39.2))(eslint@9.39.2)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.65.0(eslint@9.39.2)(typescript@6.0.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -4562,7 +4563,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.65.0(eslint@9.39.2)(typescript@6.0.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.65.0(eslint@9.39.2)(typescript@6.0.3))(eslint@9.39.2))(eslint@9.39.2))(eslint@9.39.2):
+  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.65.0(eslint@9.39.2)(typescript@6.0.3))(eslint-import-resolver-typescript@3.10.1)(eslint@9.39.2):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.9
